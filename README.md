@@ -124,14 +124,12 @@ make docker-down
 
 ## Documentation
 
-- [Product & Development Plan](plan.md) — Value proposition, data model, roadmap
 - [Architecture Diagrams](docs/architecture/) — Mermaid source files
-- [Project Evaluation](EVALUATION.md) — Assessment of legacy v1.x repos
 - [Contributing](CONTRIBUTING.md)
 
 ## Status
 
-This project is in active planning and early development. See [plan.md](plan.md) for current progress.
+This project is in active planning and early development.
 
 ## License
 

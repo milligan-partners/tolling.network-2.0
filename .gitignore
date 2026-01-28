@@ -4,6 +4,9 @@ industry-specs/
 # Claude Code project context
 CLAUDE.md
 
+# Product & development plan (internal working doc)
+plan.md
+
 # Dependencies
 node_modules/
 vendor/
