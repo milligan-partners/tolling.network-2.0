@@ -10,9 +10,7 @@ Tolling.Network replaces the file-based processing models used by toll agencies 
 
 ## Background
 
-US toll interoperability is fragmented across four regional consortiums (E-ZPass, CUSIOP, SEIOP, WRTO/FasTrak) coordinated through NIOP. Each agency runs its own back-office system. Data exchange happens via batch file transfers. Tag validation lists take 24-72 hours to propagate. Settlement lags 30-45 days. There is no shared source of truth.
-
-Congress mandated nationwide interoperability in 2012 (MAP-21). Over a decade later, it remains incomplete.
+US toll interoperability is coordinated across regional consortiums through a national interoperability effort. Each agency runs its own back-office system. Data exchange happens via batch file transfers. There is no shared source of truth.
 
 ### Approach
 
