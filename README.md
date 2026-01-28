@@ -128,7 +128,11 @@ make docker-down
 
 ## Status
 
-Active development. Chaincode domain models (Agency, Tag, Charge, Correction, Reconciliation, Acknowledgement, Settlement) are implemented with validation and 99.6% test coverage. Chaincode contract functions, CouchDB indexes, and the NestJS API are next.
+Active development. Chaincode is feature-complete for core NIOP protocol support:
+
+- **Domain models** — All 7 entities (Agency, Tag, Charge, Correction, Reconciliation, Acknowledgement, Settlement) with validation and 99.6% test coverage
+- **Smart contracts** — All 7 contractapi entry points implemented with 82.9% test coverage
+- **Next up** — CouchDB indexes, NestJS REST API
 
 ## License
 

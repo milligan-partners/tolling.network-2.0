@@ -24,6 +24,9 @@ bin/
 *.dylib
 *.test
 *.out
+# Chaincode binaries
+chaincode/*/niop-chaincode
+chaincode/*/ctoc-chaincode
 
 # Node
 npm-debug.log*
