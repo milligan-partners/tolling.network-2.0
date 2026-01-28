@@ -52,14 +52,16 @@ channel-create: ## Create channel and join all peers
 # =============================================================================
 
 chaincode-test: ## Run Go chaincode tests
-	cd chaincode/ctoc && go test ./...
 	cd chaincode/niop && go test ./...
 	cd chaincode/shared && go test ./...
+	@# ctoc has no packages yet - uncomment when implemented
+	@# cd chaincode/ctoc && go test ./...
 
 chaincode-lint: ## Lint Go chaincode
-	cd chaincode/ctoc && go vet ./...
 	cd chaincode/niop && go vet ./...
 	cd chaincode/shared && go vet ./...
+	@# ctoc has no packages yet - uncomment when implemented
+	@# cd chaincode/ctoc && go vet ./...
 
 chaincode-package: ## Package chaincode for deployment
 	@echo "Packaging CTOC chaincode..."
@@ -98,9 +100,9 @@ generate-data: ## Generate synthetic test data
 # Aggregate Targets
 # =============================================================================
 
-test: chaincode-test api-test ## Run all tests
+test: chaincode-test ## Run all tests (api-test added when API implemented)
 
-lint: chaincode-lint api-lint ## Run all linters
+lint: chaincode-lint ## Run all linters (api-lint added when API implemented)
 
 integration-test: ## Run integration tests against running network
 	./scripts/integration-test.sh
