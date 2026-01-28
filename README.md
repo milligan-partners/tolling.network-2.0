@@ -67,7 +67,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow and code standar
 
 ## Maintainers
 
-- [Milligan](https://milligan.co) — [@matt5000](https://github.com/matt5000)
+- [Milligan](https://milligan.co)
 
 ## License
 
