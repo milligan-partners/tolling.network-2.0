@@ -10,6 +10,7 @@ import (
 // Reconciliation represents the home agency's response to a submitted charge.
 // It records whether the charge was posted and any adjustments made.
 type Reconciliation struct {
+	DocType            string  `json:"docType"`
 	ReconciliationID   string  `json:"reconciliationID"`
 	ChargeID           string  `json:"chargeID"`
 	HomeAgencyID       string  `json:"homeAgencyID"`
@@ -83,8 +84,9 @@ func (r *Reconciliation) Key() string {
 	return "RECON_" + r.ChargeID
 }
 
-// SetCreatedAt sets CreatedAt to the current time.
+// SetCreatedAt sets CreatedAt to the current time and ensures DocType is set.
 func (r *Reconciliation) SetCreatedAt() {
+	r.DocType = "reconciliation"
 	r.CreatedAt = time.Now().UTC().Format(time.RFC3339)
 }
 

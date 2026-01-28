@@ -296,19 +296,21 @@ func TestCharge_Key(t *testing.T) {
 func TestCharge_SetCreatedAt(t *testing.T) {
 	c := validCharge()
 	assert.Empty(t, c.CreatedAt)
+	assert.Empty(t, c.DocType)
 	c.SetCreatedAt()
 	assert.NotEmpty(t, c.CreatedAt)
+	assert.Equal(t, "charge", c.DocType)
 }
 
 func TestCharge_CollectionName(t *testing.T) {
 	t.Run("alphabetical order A-B", func(t *testing.T) {
 		c := Charge{AwayAgencyID: "ORG2", HomeAgencyID: "ORG1"}
-		assert.Equal(t, "charges_ORG2_ORG1", c.CollectionName())
+		assert.Equal(t, "charges_ORG1_ORG2", c.CollectionName())
 	})
 
 	t.Run("alphabetical order reversed", func(t *testing.T) {
 		c := Charge{AwayAgencyID: "ORG1", HomeAgencyID: "ORG2"}
-		assert.Equal(t, "charges_ORG2_ORG1", c.CollectionName())
+		assert.Equal(t, "charges_ORG1_ORG2", c.CollectionName())
 	})
 
 	t.Run("same collection regardless of direction", func(t *testing.T) {

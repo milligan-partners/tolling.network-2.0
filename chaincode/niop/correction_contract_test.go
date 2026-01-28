@@ -36,7 +36,7 @@ func TestCreateCorrection(t *testing.T) {
 		require.NoError(t, err)
 
 		// Key format: CORRECTION_{chargeID}_{seqNo}
-		bytes, err := ctx.stub.GetPrivateData("charges_ORG2_ORG1", "CORRECTION_CHG-TEST-001_001")
+		bytes, err := ctx.stub.GetPrivateData("charges_ORG1_ORG2", "CORRECTION_CHG-TEST-001_001")
 		require.NoError(t, err)
 		require.NotNil(t, bytes)
 

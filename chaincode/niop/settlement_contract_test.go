@@ -38,7 +38,7 @@ func TestCreateSettlement(t *testing.T) {
 		err := contract.CreateSettlement(ctx, string(settlementJSON))
 		require.NoError(t, err)
 
-		bytes, err := ctx.stub.GetPrivateData("charges_ORG2_ORG1", "SETTLEMENT_SETTLE-TEST-001")
+		bytes, err := ctx.stub.GetPrivateData("charges_ORG1_ORG2", "SETTLEMENT_SETTLE-TEST-001")
 		require.NoError(t, err)
 		require.NotNil(t, bytes)
 
@@ -289,5 +289,5 @@ func TestSettlementCollectionNameSymmetry(t *testing.T) {
 	}
 
 	assert.Equal(t, s1.CollectionName(), s2.CollectionName())
-	assert.Equal(t, "charges_ORG2_ORG1", s1.CollectionName())
+	assert.Equal(t, "charges_ORG1_ORG2", s1.CollectionName())
 }

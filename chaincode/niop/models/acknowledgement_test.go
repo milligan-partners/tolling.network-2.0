@@ -131,8 +131,10 @@ func TestAcknowledgement_Key(t *testing.T) {
 func TestAcknowledgement_SetCreatedAt(t *testing.T) {
 	a := validAcknowledgement()
 	assert.Empty(t, a.CreatedAt)
+	assert.Empty(t, a.DocType)
 	a.SetCreatedAt()
 	assert.NotEmpty(t, a.CreatedAt)
+	assert.Equal(t, "acknowledgement", a.DocType)
 }
 
 func TestAcknowledgement_IsSuccess(t *testing.T) {

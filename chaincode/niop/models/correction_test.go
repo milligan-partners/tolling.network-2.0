@@ -202,19 +202,21 @@ func TestCorrection_Key_SeqNoPadding(t *testing.T) {
 func TestCorrection_SetCreatedAt(t *testing.T) {
 	c := validCorrection()
 	assert.Empty(t, c.CreatedAt)
+	assert.Empty(t, c.DocType)
 	c.SetCreatedAt()
 	assert.NotEmpty(t, c.CreatedAt)
+	assert.Equal(t, "correction", c.DocType)
 }
 
 func TestCorrection_CollectionName(t *testing.T) {
 	t.Run("alphabetical order", func(t *testing.T) {
 		c := Correction{FromAgencyID: "ORG1", ToAgencyID: "ORG2"}
-		assert.Equal(t, "charges_ORG2_ORG1", c.CollectionName())
+		assert.Equal(t, "charges_ORG1_ORG2", c.CollectionName())
 	})
 
 	t.Run("reversed order same result", func(t *testing.T) {
 		c := Correction{FromAgencyID: "ORG2", ToAgencyID: "ORG1"}
-		assert.Equal(t, "charges_ORG2_ORG1", c.CollectionName())
+		assert.Equal(t, "charges_ORG1_ORG2", c.CollectionName())
 	})
 }
 

@@ -3,6 +3,7 @@
 package niop
 
 import (
+	"encoding/json"
 	"sort"
 	"strings"
 
@@ -129,6 +130,98 @@ func (e *enhancedMockStub) GetStateByRange(startKey string, endKey string) (shim
 	}
 
 	return &mockKVIterator{keys: keys, values: values, index: 0}, nil
+}
+
+// GetQueryResult implements CouchDB rich queries for testing.
+// This is a simplified implementation that parses the selector and filters results.
+// It supports basic equality selectors like {"selector":{"docType":"tag","tagAgencyID":"ORG1"}}.
+func (e *enhancedMockStub) GetQueryResult(query string) (shim.StateQueryIteratorInterface, error) {
+	// Parse the query to extract selector conditions
+	var queryObj struct {
+		Selector map[string]interface{} `json:"selector"`
+	}
+	if err := json.Unmarshal([]byte(query), &queryObj); err != nil {
+		return nil, err
+	}
+
+	var matchingKeys []string
+	var matchingValues [][]byte
+
+	// Iterate through all keys in the mock stub's state
+	for element := e.MockStub.Keys.Front(); element != nil; element = element.Next() {
+		key := element.Value.(string)
+		val, _ := e.MockStub.GetState(key)
+		if val == nil {
+			continue
+		}
+
+		// Parse the stored value to check against selector
+		var doc map[string]interface{}
+		if err := json.Unmarshal(val, &doc); err != nil {
+			continue
+		}
+
+		// Check if all selector conditions match
+		match := true
+		for field, expected := range queryObj.Selector {
+			actual, exists := doc[field]
+			if !exists || actual != expected {
+				match = false
+				break
+			}
+		}
+
+		if match {
+			matchingKeys = append(matchingKeys, key)
+			matchingValues = append(matchingValues, val)
+		}
+	}
+
+	return &mockKVIterator{keys: matchingKeys, values: matchingValues, index: 0}, nil
+}
+
+// GetPrivateDataQueryResult implements CouchDB rich queries on private data collections.
+func (e *enhancedMockStub) GetPrivateDataQueryResult(collection string, query string) (shim.StateQueryIteratorInterface, error) {
+	collectionData := e.privateData[collection]
+	if collectionData == nil {
+		return &mockKVIterator{keys: nil, values: nil}, nil
+	}
+
+	// Parse the query to extract selector conditions
+	var queryObj struct {
+		Selector map[string]interface{} `json:"selector"`
+	}
+	if err := json.Unmarshal([]byte(query), &queryObj); err != nil {
+		return nil, err
+	}
+
+	var matchingKeys []string
+	var matchingValues [][]byte
+
+	for key, val := range collectionData {
+		// Parse the stored value to check against selector
+		var doc map[string]interface{}
+		if err := json.Unmarshal(val, &doc); err != nil {
+			continue
+		}
+
+		// Check if all selector conditions match
+		match := true
+		for field, expected := range queryObj.Selector {
+			actual, exists := doc[field]
+			if !exists || actual != expected {
+				match = false
+				break
+			}
+		}
+
+		if match {
+			matchingKeys = append(matchingKeys, key)
+			matchingValues = append(matchingValues, val)
+		}
+	}
+
+	return &mockKVIterator{keys: matchingKeys, values: matchingValues, index: 0}, nil
 }
 
 // enhancedMockContext wraps the enhanced stub in a transaction context.

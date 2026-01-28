@@ -10,6 +10,7 @@ import (
 // Agency represents a toll operator, hub, clearinghouse, or transit authority
 // on the Tolling.Network. Every other entity is scoped by an agency.
 type Agency struct {
+	DocType          string   `json:"docType"`
 	AgencyID         string   `json:"agencyID"`
 	Name             string   `json:"name"`
 	Consortium       []string `json:"consortium"`
@@ -98,10 +99,11 @@ func (a *Agency) Key() string {
 	return "AGENCY_" + a.AgencyID
 }
 
-// SetTimestamps sets CreatedAt and UpdatedAt to the current time.
+// SetTimestamps sets CreatedAt, UpdatedAt, and DocType.
 // Use on creation. For updates, call TouchUpdatedAt instead.
 func (a *Agency) SetTimestamps() {
 	now := time.Now().UTC().Format(time.RFC3339)
+	a.DocType = "agency"
 	a.CreatedAt = now
 	a.UpdatedAt = now
 }

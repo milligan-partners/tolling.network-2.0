@@ -66,14 +66,16 @@ func (c *AcknowledgementContract) GetAcknowledgement(ctx contractapi.Transaction
 }
 
 // GetAcknowledgementsBySubmissionType returns all acknowledgements of a specific type.
+// Uses a CouchDB rich query with index on (docType, submissionType).
 func (c *AcknowledgementContract) GetAcknowledgementsBySubmissionType(ctx contractapi.TransactionContextInterface, submissionType string) ([]*models.Acknowledgement, error) {
 	if !contains(models.ValidSubmissionTypes, submissionType) {
 		return nil, fmt.Errorf("invalid submissionType %q: must be one of %v", submissionType, models.ValidSubmissionTypes)
 	}
 
-	resultsIterator, err := ctx.GetStub().GetStateByRange("ACK_", "ACK_~")
+	query := fmt.Sprintf(`{"selector":{"docType":"acknowledgement","submissionType":"%s"}}`, submissionType)
+	resultsIterator, err := ctx.GetStub().GetQueryResult(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get state by range: %w", err)
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 	defer resultsIterator.Close()
 
@@ -88,23 +90,23 @@ func (c *AcknowledgementContract) GetAcknowledgementsBySubmissionType(ctx contra
 		if err := json.Unmarshal(queryResponse.Value, &ack); err != nil {
 			return nil, fmt.Errorf("failed to parse acknowledgement: %w", err)
 		}
-		if ack.SubmissionType == submissionType {
-			acks = append(acks, &ack)
-		}
+		acks = append(acks, &ack)
 	}
 
 	return acks, nil
 }
 
 // GetAcknowledgementsByReturnCode returns all acknowledgements with a specific return code.
+// Uses a CouchDB rich query with index on (docType, returnCode).
 func (c *AcknowledgementContract) GetAcknowledgementsByReturnCode(ctx contractapi.TransactionContextInterface, returnCode string) ([]*models.Acknowledgement, error) {
 	if !contains(models.ValidReturnCodes, returnCode) {
 		return nil, fmt.Errorf("invalid returnCode %q: must be one of 00-13", returnCode)
 	}
 
-	resultsIterator, err := ctx.GetStub().GetStateByRange("ACK_", "ACK_~")
+	query := fmt.Sprintf(`{"selector":{"docType":"acknowledgement","returnCode":"%s"}}`, returnCode)
+	resultsIterator, err := ctx.GetStub().GetQueryResult(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get state by range: %w", err)
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 	defer resultsIterator.Close()
 
@@ -119,9 +121,7 @@ func (c *AcknowledgementContract) GetAcknowledgementsByReturnCode(ctx contractap
 		if err := json.Unmarshal(queryResponse.Value, &ack); err != nil {
 			return nil, fmt.Errorf("failed to parse acknowledgement: %w", err)
 		}
-		if ack.ReturnCode == returnCode {
-			acks = append(acks, &ack)
-		}
+		acks = append(acks, &ack)
 	}
 
 	return acks, nil

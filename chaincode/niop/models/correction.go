@@ -10,6 +10,7 @@ import (
 // Correction represents an adjustment to a previously submitted charge.
 // Corrections maintain a full audit trail via sequence numbers.
 type Correction struct {
+	DocType          string  `json:"docType"`
 	CorrectionID     string  `json:"correctionID"`
 	OriginalChargeID string  `json:"originalChargeID"`
 	CorrectionSeqNo  int     `json:"correctionSeqNo"`
@@ -90,8 +91,9 @@ func (c *Correction) Key() string {
 	return fmt.Sprintf("CORRECTION_%s_%03d", c.OriginalChargeID, c.CorrectionSeqNo)
 }
 
-// SetCreatedAt sets CreatedAt to the current time.
+// SetCreatedAt sets CreatedAt to the current time and ensures DocType is set.
 func (c *Correction) SetCreatedAt() {
+	c.DocType = "correction"
 	c.CreatedAt = time.Now().UTC().Format(time.RFC3339)
 }
 

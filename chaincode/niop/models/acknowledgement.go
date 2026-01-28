@@ -11,6 +11,7 @@ import (
 // and validation of a data submission (TVL, transaction batch, correction
 // batch, or reconciliation batch).
 type Acknowledgement struct {
+	DocType           string `json:"docType"`
 	AcknowledgementID string `json:"acknowledgementID"`
 	SubmissionType    string `json:"submissionType"`
 	FromAgencyID      string `json:"fromAgencyID"`
@@ -87,8 +88,9 @@ func (a *Acknowledgement) Key() string {
 	return "ACK_" + a.AcknowledgementID
 }
 
-// SetCreatedAt sets CreatedAt to the current time.
+// SetCreatedAt sets CreatedAt to the current time and ensures DocType is set.
 func (a *Acknowledgement) SetCreatedAt() {
+	a.DocType = "acknowledgement"
 	a.CreatedAt = time.Now().UTC().Format(time.RFC3339)
 }
 

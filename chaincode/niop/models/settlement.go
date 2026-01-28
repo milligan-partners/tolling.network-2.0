@@ -11,6 +11,7 @@ import (
 // a reconciliation period. This aggregates reconciled charges into a net
 // amount owed.
 type Settlement struct {
+	DocType         string  `json:"docType"`
 	SettlementID    string  `json:"settlementID"`
 	PeriodStart     string  `json:"periodStart"`
 	PeriodEnd       string  `json:"periodEnd"`
@@ -112,8 +113,9 @@ func (s *Settlement) Key() string {
 	return "SETTLEMENT_" + s.SettlementID
 }
 
-// SetCreatedAt sets CreatedAt to the current time.
+// SetCreatedAt sets CreatedAt to the current time and ensures DocType is set.
 func (s *Settlement) SetCreatedAt() {
+	s.DocType = "settlement"
 	s.CreatedAt = time.Now().UTC().Format(time.RFC3339)
 }
 

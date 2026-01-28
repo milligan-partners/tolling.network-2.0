@@ -42,8 +42,8 @@ func TestCreateCharge(t *testing.T) {
 		err := contract.CreateCharge(ctx, string(chargeJSON))
 		require.NoError(t, err)
 
-		// Verify private data was written (collection is charges_ORG2_ORG1)
-		bytes, err := ctx.stub.GetPrivateData("charges_ORG2_ORG1", "CHARGE_CHG-TEST-001")
+		// Verify private data was written (collection is charges_ORG1_ORG2, alphabetically sorted)
+		bytes, err := ctx.stub.GetPrivateData("charges_ORG1_ORG2", "CHARGE_CHG-TEST-001")
 		require.NoError(t, err)
 		require.NotNil(t, bytes)
 
@@ -260,5 +260,5 @@ func TestChargeCollectionNameSymmetry(t *testing.T) {
 	}
 
 	assert.Equal(t, charge1.CollectionName(), charge2.CollectionName())
-	assert.Equal(t, "charges_ORG2_ORG1", charge1.CollectionName())
+	assert.Equal(t, "charges_ORG1_ORG2", charge1.CollectionName())
 }

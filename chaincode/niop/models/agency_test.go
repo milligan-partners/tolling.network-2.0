@@ -196,12 +196,14 @@ func TestAgency_SetTimestamps(t *testing.T) {
 	a := validAgency()
 	assert.Empty(t, a.CreatedAt)
 	assert.Empty(t, a.UpdatedAt)
+	assert.Empty(t, a.DocType)
 
 	a.SetTimestamps()
 
 	assert.NotEmpty(t, a.CreatedAt)
 	assert.NotEmpty(t, a.UpdatedAt)
 	assert.Equal(t, a.CreatedAt, a.UpdatedAt)
+	assert.Equal(t, "agency", a.DocType)
 }
 
 func TestAgency_TouchUpdatedAt(t *testing.T) {

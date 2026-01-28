@@ -165,8 +165,10 @@ func TestReconciliation_Key(t *testing.T) {
 func TestReconciliation_SetCreatedAt(t *testing.T) {
 	r := validReconciliation()
 	assert.Empty(t, r.CreatedAt)
+	assert.Empty(t, r.DocType)
 	r.SetCreatedAt()
 	assert.NotEmpty(t, r.CreatedAt)
+	assert.Equal(t, "reconciliation", r.DocType)
 }
 
 func TestReconciliation_IsPosted(t *testing.T) {

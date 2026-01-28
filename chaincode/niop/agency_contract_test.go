@@ -6,28 +6,15 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/hyperledger/fabric-chaincode-go/shim"
-	"github.com/hyperledger/fabric-chaincode-go/shimtest"
-	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/milligan-partners/tolling.network-2.0/chaincode/niop/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// mockTransactionContext creates a mock transaction context for testing.
-type mockTransactionContext struct {
-	contractapi.TransactionContextInterface
-	stub *shimtest.MockStub
-}
-
-func (m *mockTransactionContext) GetStub() shim.ChaincodeStubInterface {
-	return m.stub
-}
-
-func newMockContext() *mockTransactionContext {
-	stub := shimtest.NewMockStub("niop", nil)
-	stub.MockTransactionStart("test-tx")
-	return &mockTransactionContext{stub: stub}
+// newMockContext is defined in mock_stub_test.go as newEnhancedMockContext.
+// We alias it here for backwards compatibility with existing tests.
+func newMockContext() *enhancedMockContext {
+	return newEnhancedMockContext()
 }
 
 func validAgency() *models.Agency {

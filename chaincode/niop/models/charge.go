@@ -10,6 +10,7 @@ import (
 // Charge represents a toll or mobility charge generated when a vehicle uses
 // a facility. This is the central transaction entity.
 type Charge struct {
+	DocType         string  `json:"docType"`
 	ChargeID        string  `json:"chargeID"`
 	ChargeType      string  `json:"chargeType"`
 	RecordType      string  `json:"recordType"`
@@ -170,8 +171,9 @@ func (c *Charge) Key() string {
 	return "CHARGE_" + c.ChargeID
 }
 
-// SetCreatedAt sets CreatedAt to the current time.
+// SetCreatedAt sets CreatedAt to the current time and ensures DocType is set.
 func (c *Charge) SetCreatedAt() {
+	c.DocType = "charge"
 	c.CreatedAt = time.Now().UTC().Format(time.RFC3339)
 }
 

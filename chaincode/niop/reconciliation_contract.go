@@ -66,11 +66,12 @@ func (c *ReconciliationContract) GetReconciliation(ctx contractapi.TransactionCo
 }
 
 // GetReconciliationsByAgency returns all reconciliations for a home agency.
-// This performs a range scan and filters by agency.
+// Uses a CouchDB rich query with index on (docType, homeAgencyID).
 func (c *ReconciliationContract) GetReconciliationsByAgency(ctx contractapi.TransactionContextInterface, homeAgencyID string) ([]*models.Reconciliation, error) {
-	resultsIterator, err := ctx.GetStub().GetStateByRange("RECON_", "RECON_~")
+	query := fmt.Sprintf(`{"selector":{"docType":"reconciliation","homeAgencyID":"%s"}}`, homeAgencyID)
+	resultsIterator, err := ctx.GetStub().GetQueryResult(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get state by range: %w", err)
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 	defer resultsIterator.Close()
 
@@ -85,23 +86,23 @@ func (c *ReconciliationContract) GetReconciliationsByAgency(ctx contractapi.Tran
 		if err := json.Unmarshal(queryResponse.Value, &recon); err != nil {
 			return nil, fmt.Errorf("failed to parse reconciliation: %w", err)
 		}
-		if recon.HomeAgencyID == homeAgencyID {
-			reconciliations = append(reconciliations, &recon)
-		}
+		reconciliations = append(reconciliations, &recon)
 	}
 
 	return reconciliations, nil
 }
 
 // GetReconciliationsByDisposition returns all reconciliations with a specific disposition.
+// Uses a CouchDB rich query with index on (docType, postingDisposition).
 func (c *ReconciliationContract) GetReconciliationsByDisposition(ctx contractapi.TransactionContextInterface, disposition string) ([]*models.Reconciliation, error) {
 	if !contains(models.ValidPostingDispositions, disposition) {
 		return nil, fmt.Errorf("invalid postingDisposition %q: must be one of %v", disposition, models.ValidPostingDispositions)
 	}
 
-	resultsIterator, err := ctx.GetStub().GetStateByRange("RECON_", "RECON_~")
+	query := fmt.Sprintf(`{"selector":{"docType":"reconciliation","postingDisposition":"%s"}}`, disposition)
+	resultsIterator, err := ctx.GetStub().GetQueryResult(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get state by range: %w", err)
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 	defer resultsIterator.Close()
 
@@ -116,9 +117,7 @@ func (c *ReconciliationContract) GetReconciliationsByDisposition(ctx contractapi
 		if err := json.Unmarshal(queryResponse.Value, &recon); err != nil {
 			return nil, fmt.Errorf("failed to parse reconciliation: %w", err)
 		}
-		if recon.PostingDisposition == disposition {
-			reconciliations = append(reconciliations, &recon)
-		}
+		reconciliations = append(reconciliations, &recon)
 	}
 
 	return reconciliations, nil

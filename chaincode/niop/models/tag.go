@@ -27,6 +27,7 @@ type Plate struct {
 // Tag represents a transponder or device associated with an account.
 // Tags are the primary identifier for electronic toll collection.
 type Tag struct {
+	DocType         string         `json:"docType"`
 	TagSerialNumber string         `json:"tagSerialNumber"`
 	TagAgencyID     string         `json:"tagAgencyID"`
 	HomeAgencyID    string         `json:"homeAgencyID"`
@@ -126,7 +127,8 @@ func (t *Tag) Key() string {
 	return "TAG_" + t.TagSerialNumber
 }
 
-// TouchUpdatedAt sets UpdatedAt to the current time.
+// TouchUpdatedAt sets UpdatedAt to the current time and ensures DocType is set.
 func (t *Tag) TouchUpdatedAt() {
+	t.DocType = "tag"
 	t.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 }

@@ -215,8 +215,10 @@ func TestTag_Key(t *testing.T) {
 func TestTag_TouchUpdatedAt(t *testing.T) {
 	tag := validTag()
 	assert.Empty(t, tag.UpdatedAt)
+	assert.Empty(t, tag.DocType)
 	tag.TouchUpdatedAt()
 	assert.NotEmpty(t, tag.UpdatedAt)
+	assert.Equal(t, "tag", tag.DocType)
 }
 
 func TestTag_Validate_AllStatuses(t *testing.T) {

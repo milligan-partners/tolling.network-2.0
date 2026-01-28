@@ -91,12 +91,12 @@ func (c *TagContract) UpdateTagStatus(ctx contractapi.TransactionContextInterfac
 }
 
 // GetTagsByAgency returns all tags issued by a specific agency.
-// This uses a range query which may be slow for large datasets.
-// Consider CouchDB indexes for production use.
+// Uses a CouchDB rich query with index on (docType, tagAgencyID).
 func (c *TagContract) GetTagsByAgency(ctx contractapi.TransactionContextInterface, tagAgencyID string) ([]*models.Tag, error) {
-	resultsIterator, err := ctx.GetStub().GetStateByRange("TAG_", "TAG_~")
+	query := fmt.Sprintf(`{"selector":{"docType":"tag","tagAgencyID":"%s"}}`, tagAgencyID)
+	resultsIterator, err := ctx.GetStub().GetQueryResult(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get state by range: %w", err)
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 	defer resultsIterator.Close()
 
@@ -111,9 +111,7 @@ func (c *TagContract) GetTagsByAgency(ctx contractapi.TransactionContextInterfac
 		if err := json.Unmarshal(queryResponse.Value, &tag); err != nil {
 			return nil, fmt.Errorf("failed to parse tag: %w", err)
 		}
-		if tag.TagAgencyID == tagAgencyID {
-			tags = append(tags, &tag)
-		}
+		tags = append(tags, &tag)
 	}
 
 	return tags, nil

@@ -212,19 +212,21 @@ func TestSettlement_Key(t *testing.T) {
 func TestSettlement_SetCreatedAt(t *testing.T) {
 	s := validSettlement()
 	assert.Empty(t, s.CreatedAt)
+	assert.Empty(t, s.DocType)
 	s.SetCreatedAt()
 	assert.NotEmpty(t, s.CreatedAt)
+	assert.Equal(t, "settlement", s.DocType)
 }
 
 func TestSettlement_CollectionName(t *testing.T) {
 	t.Run("alphabetical order", func(t *testing.T) {
 		s := Settlement{PayorAgencyID: "ORG1", PayeeAgencyID: "ORG2"}
-		assert.Equal(t, "charges_ORG2_ORG1", s.CollectionName())
+		assert.Equal(t, "charges_ORG1_ORG2", s.CollectionName())
 	})
 
 	t.Run("reversed order same result", func(t *testing.T) {
 		s := Settlement{PayorAgencyID: "ORG2", PayeeAgencyID: "ORG1"}
-		assert.Equal(t, "charges_ORG2_ORG1", s.CollectionName())
+		assert.Equal(t, "charges_ORG1_ORG2", s.CollectionName())
 	})
 }
 
