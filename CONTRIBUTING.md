@@ -71,11 +71,22 @@ We follow a **Research → Plan → Implement → Test → Document** workflow:
 
 ### 5. Document
 
-- Update relevant documentation for user-facing changes
-- Add/update ADRs for architectural decisions (`docs/architecture/decisions/`)
-- Update the glossary if introducing new domain terms (`docs/domain/glossary.md`)
-- Update workflow diagrams if process flows change (`docs/domain/workflows.md`)
-- Add inline code comments for non-obvious logic
+Use this checklist to identify which docs need updating:
+
+| When you... | Update... |
+|-------------|-----------|
+| Make an architectural decision | `docs/architecture/decisions/` (create new ADR) |
+| Introduce a new domain term | `docs/domain/glossary.md` |
+| Change a process flow | `docs/domain/workflows.md` |
+| Add a Makefile target | `README.md` (Usage section) |
+| Add a script or directory | `README.md` (Repository Structure) |
+| Change developer setup | `docs/onboarding/getting-started.md` |
+| Complete an epic/feature | `docs/roadmap/epics.md` |
+| Change test patterns | `docs/onboarding/testing.md` |
+| Change deployment process | `docs/onboarding/deployment.md` |
+| Add non-obvious logic | Inline code comments |
+
+**Always ask:** "If someone reads this code/feature tomorrow, what do they need to know?"
 
 ### 6. Submit
 
