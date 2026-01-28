@@ -39,13 +39,50 @@ make help
 
 ## Development Workflow
 
-1. Create a feature branch from `main`
-2. Make your changes
-3. Write tests for any new or modified code
-4. Run tests: `make test`
-5. Run linting: `make lint`
-6. Commit using conventional commit format
-7. Submit a pull request
+We follow a **Research → Plan → Implement → Test → Document** workflow:
+
+### 1. Research
+
+- Understand the problem or feature requirements
+- Review existing code and patterns in the codebase
+- Check ADRs in `docs/architecture/decisions/` for relevant prior decisions
+- Consult the [glossary](docs/domain/glossary.md) for domain terminology
+
+### 2. Plan
+
+- For significant changes, write a brief plan before coding
+- Consider architectural implications — does this need an ADR?
+- Identify affected files and potential breaking changes
+- Break large work into smaller, reviewable chunks
+
+### 3. Implement
+
+- Create a feature branch from `main`
+- Follow [code standards](#code-standards) for your language
+- Keep commits focused and atomic
+- Use conventional commit format
+
+### 4. Test
+
+- Write tests for any new or modified code
+- Run tests: `make test`
+- Run linting: `make lint`
+- Verify no regressions in existing functionality
+
+### 5. Document
+
+- Update relevant documentation for user-facing changes
+- Add/update ADRs for architectural decisions (`docs/architecture/decisions/`)
+- Update the glossary if introducing new domain terms (`docs/domain/glossary.md`)
+- Update workflow diagrams if process flows change (`docs/domain/workflows.md`)
+- Add inline code comments for non-obvious logic
+
+### 6. Submit
+
+- Submit a pull request with clear description
+- Reference related issues
+- Respond to reviewer feedback
+- Squash-merge when approved
 
 ## Branch Naming
 
