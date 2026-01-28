@@ -77,7 +77,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow and code standar
 
 ## Maintainers
 
-- [Milligan Partners LLC](https://github.com/milligan-partners)
+- [Milligan](https://milligan.co)
 
 ## License
 
