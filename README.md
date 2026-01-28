@@ -47,15 +47,6 @@ make help             # See all commands
 
 See [Getting Started](docs/onboarding/getting-started.md) for full setup instructions.
 
-## Status
-
-| Component | Status |
-|-----------|--------|
-| Chaincode (NIOP) | Complete |
-| Local Dev Environment | Complete |
-| REST API | Scaffold |
-| CI/CD | Planned |
-
 ## Documentation
 
 - [Architecture & Design](docs/architecture/design.md) — Data model, chaincode structure, indexing
