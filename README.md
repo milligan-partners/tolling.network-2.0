@@ -14,7 +14,7 @@ US toll interoperability is coordinated across regional consortiums through a na
 
 ### Approach
 
-**Hub-compatible, agency-native.** Every toll agency is a first-class Fabric organization — own peers, own certificate authority, own identity. Agencies can transact directly with any other agency on the network. Existing hubs participate as optional aggregators, not required middlemen. The system speaks NIOP, IAG, and CTOC data formats natively as chaincode validation rules.
+**Hub-compatible, agency-native.** Every toll agency is a first-class Fabric organization — own peers, own certificate authority, own identity. Agencies can transact directly with any other agency on the network. Existing hubs participate as optional aggregators, not required middlemen. The system can speak NIOP, IAG, CTOC, and other data formats natively as chaincode validation rules.
 
 **Layered governance as code.** Smart contracts encode business rules at three levels — agency, consortium, and national — matching how the industry actually operates. Compliance is enforced through Fabric endorsement policies, not committee politics.
 
