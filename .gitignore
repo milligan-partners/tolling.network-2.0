@@ -1,6 +1,9 @@
 # Industry specs (proprietary, do not commit)
 industry-specs/
 
+# Claude Code project context
+CLAUDE.md
+
 # Dependencies
 node_modules/
 vendor/
