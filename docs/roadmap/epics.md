@@ -31,15 +31,15 @@ This document outlines major epics for the Tolling Network project. Each epic re
 
 ## Epic 2: Network Deployment Infrastructure
 
-**Status**: Not Started
+**Status**: In Progress
 
 **Description**: Build the infrastructure and tooling for deploying and operating the Fabric network.
 
 ### Features
 
-- [ ] **2.1 Network Configuration** - Configtx, crypto-config, docker-compose
-- [ ] **2.2 Collection Config Generator** - Tool to generate bilateral collections for N agencies
-- [ ] **2.3 Deployment Scripts** - Automated chaincode packaging and deployment
+- [x] **2.1 Network Configuration** - Configtx, crypto-config, docker-compose for Fabric 2.5.x
+- [x] **2.2 Collection Config Generator** - Tool to generate bilateral collections for N agencies
+- [x] **2.3 Deployment Scripts** - Automated chaincode packaging and deployment (Fabric lifecycle)
 - [ ] **2.4 Upgrade Procedures** - Safe chaincode upgrade with zero downtime
 - [ ] **2.5 Monitoring & Alerting** - Network health dashboards
 - [ ] **2.6 Backup & Recovery** - State database backup procedures

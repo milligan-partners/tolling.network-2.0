@@ -100,8 +100,17 @@ Congress mandated nationwide interoperability in 2012 (MAP-21). Over a decade la
 git clone https://github.com/milligan-partners/tolling-network-2.0.git
 cd tolling-network-2.0
 
+# Initialize the network (generate crypto material and channel artifacts)
+make network-init
+
 # Start the local Fabric network
 make docker-up
+
+# Create the channel and join all peers
+make channel-create
+
+# Deploy chaincode
+make chaincode-deploy
 
 # Run chaincode tests to verify setup
 make chaincode-test
@@ -113,17 +122,28 @@ make chaincode-test
 # Show all available commands
 make help
 
-# Run the full test suite
-make test
+# Network lifecycle
+make network-init      # Generate crypto material and channel artifacts
+make docker-up         # Start the Fabric network
+make docker-down       # Stop the network
+make docker-reset      # Stop, remove volumes, and restart
+make docker-logs       # Tail logs from all containers
+make docker-status     # Show container status
+make network-down      # Full teardown (use CLEAN=crypto to remove crypto material)
 
-# Lint all code
-make lint
+# Channel and chaincode
+make channel-create    # Create channel and join all peers
+make chaincode-deploy  # Deploy chaincode using Fabric lifecycle
+make chaincode-package # Package chaincode for deployment
 
-# Generate synthetic test data
-make generate-data
+# Testing
+make test              # Run all tests (chaincode + API)
+make chaincode-test    # Run Go chaincode tests
+make integration-test  # Run integration tests against running network
 
-# Stop the network
-make docker-down
+# Other
+make lint              # Lint all code
+make generate-data     # Generate synthetic test data
 ```
 
 ### Repository Structure
@@ -132,9 +152,10 @@ make docker-down
 chaincode/           Go smart contracts (NIOP feature-complete, CTOC stub)
 api/                 NestJS REST API (scaffold)
 infrastructure/      Docker, Terraform, Bevel, K8s configs
-network-config/      Fabric channel and crypto configuration
+network-config/      Fabric channel and crypto configuration (configtx, crypto-config)
+scripts/             Network lifecycle scripts (init, channel, deploy, teardown)
 tools/               Data generation and analytics scripts
-docs/                Architecture diagrams, onboarding guides
+docs/                Architecture decisions, domain glossary, onboarding guides
 ```
 
 See [docs/onboarding/](docs/onboarding/) for detailed documentation.
