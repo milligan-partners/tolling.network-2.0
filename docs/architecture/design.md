@@ -1,6 +1,34 @@
 # Tolling.Network Technical Design
 
-## 1. Data Model
+## 1. Network Topology
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  NATIONAL CHANNEL                    │
+│              Agency Registry + Versioning            │
+└──┬──────────┬──────────┬──────────┬──────────┬──────┘
+   │          │          │          │          │
+┌──┴───┐  ┌──┴───┐  ┌──┴───┐  ┌──┴───┐  ┌──┴──────────────┐
+│E-ZPass│  │CUSIOP│  │ WRTO │  │SEIOP │  │  INTEROP CHANNEL │
+│  IAG  │  │      │  │FasTrak│  │      │  │  Cross-Consortium│
+│ Rules │  │Rules │  │ CTOC │  │Rules │  │  Charges, Recon,  │
+│       │  │      │  │Rules │  │      │  │  Settlement       │
+└───────┘  └──────┘  └──────┘  └──────┘  │                   │
+                                          │  Private Data:    │
+                                          │  tvl_{agency}     │
+                                          │  charges_{A}_{B}  │
+                                          └───────────────────┘
+```
+
+### Supported Protocols
+
+| Protocol | Scope | Record Types |
+|---|---|---|
+| **NIOP ICD** | National interop | TB01, TC01, TC02, VB01, VC01, VC02 |
+| **IAG Inter-CSC** | E-ZPass consortium | v1.51n, v1.60 file formats |
+| **CTOC** | Western/California | CTOC-1, CTOC-2, CTOC-5, CTOC-6 reports |
+
+## 2. Data Model
 
 ### Entity Relationships
 
@@ -52,7 +80,7 @@ Examples:
 - Charges between E470 and TCA → `charges_E470_TCA`
 - Settlements and corrections share the same collection as their related charges
 
-## 2. Chaincode Architecture
+## 3. Chaincode Architecture
 
 ### Contract Structure
 
@@ -97,7 +125,7 @@ Two-level validation:
 - Validation errors are descriptive: `"invalid tagStatus \"foo\": must be one of [valid invalid inactive lost stolen]"`
 - Not-found errors are explicit: `"tag ABC123 not found"`
 
-## 3. Indexing Strategy
+## 4. Indexing Strategy
 
 ### Overview
 
@@ -183,7 +211,7 @@ func (c *ChargeContract) GetChargesByStatus(ctx contractapi.TransactionContextIn
 }
 ```
 
-## 4. API Design
+## 5. API Design
 
 *Stub for future - NestJS + Fabric Gateway*
 
