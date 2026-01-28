@@ -1,96 +1,117 @@
-# Copyright IBM Corp. All Rights Reserved.
+# Copyright 2016-2026 Milligan Partners LLC
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# ============================================================================
-# WARNING: LEGACY REFERENCE CONFIGURATION — DO NOT USE IN PRODUCTION
-# ============================================================================
-# This crypto-config.yaml is kept for reference only.
-# For 2.0, use Hyperledger Bevel or Fabric CA for production identity management.
+# ===========================================================================
+# Hyperledger Fabric 2.5.x Cryptogen Configuration
+# Tolling.Network - National Toll Interoperability Blockchain
+# ===========================================================================
 #
-# SECURITY ISSUES IN THIS CONFIG:
-# 1. Single peer per org - Production requires 2+ peers for HA
-# 2. Single admin user per org - Production needs role separation
-# 3. Uses cryptogen - Production should use Fabric CA
-# 4. Single orderer node - Production requires Raft with 3+ nodes
-# ============================================================================
+# This configuration generates cryptographic material for:
+# - 1 Orderer organization with 3 Raft consensus nodes
+# - 4 Peer organizations (one peer each for development/testing)
+#
+# PRODUCTION NOTE: For production deployments, use Fabric CA instead of
+# cryptogen for proper certificate lifecycle management (renewal, revocation).
+# ===========================================================================
 
 # ---------------------------------------------------------------------------
-# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# OrdererOrgs - Organizations managing orderer nodes
 # ---------------------------------------------------------------------------
-# PRODUCTION NOTE: Use Raft consensus with 3 or 5 orderer nodes across
-# different failure domains for Byzantine fault tolerance.
+# Raft consensus requires an odd number of nodes (3, 5, 7) for Byzantine
+# fault tolerance. With 3 nodes, the cluster tolerates 1 failure.
 # ---------------------------------------------------------------------------
 OrdererOrgs:
   - Name: Orderer
-    Domain: example.com
+    Domain: orderer.tolling.network
+    EnableNodeOUs: true
     # Explicit CA settings for generated certificates
     CA:
       Country: US
-      Province: California
-      Locality: San Francisco
-    EnableNodeOUs: true
+      Province: Virginia
+      Locality: Richmond
+    # Three orderer nodes for Raft consensus
     Specs:
-      - Hostname: orderer
-        # PRODUCTION: Add additional orderer nodes for Raft consensus:
-        # - Hostname: orderer2
-        # - Hostname: orderer3
+      - Hostname: orderer1
+        SANS:
+          - localhost
+          - 127.0.0.1
+      - Hostname: orderer2
+        SANS:
+          - localhost
+          - 127.0.0.1
+      - Hostname: orderer3
+        SANS:
+          - localhost
+          - 127.0.0.1
 
 # ---------------------------------------------------------------------------
-# "PeerOrgs" - Definition of organizations managing peer nodes
+# PeerOrgs - Organizations managing peer nodes
 # ---------------------------------------------------------------------------
-# PRODUCTION REQUIREMENTS:
-# - Minimum 2 peers per org for high availability
-# - Multiple admin users with role separation (Admin, Client, Orderer, Peer)
-# - Use Fabric CA instead of cryptogen for certificate lifecycle management
+# Each organization represents a toll agency or consortium participant.
+# EnableNodeOUs provides role-based access control (admin, peer, client, orderer).
 # ---------------------------------------------------------------------------
 PeerOrgs:
+  # Org1 - Example: E-ZPass consortium member
   - Name: Org1
-    Domain: org1.example.com
+    Domain: org1.tolling.network
+    EnableNodeOUs: true
     CA:
       Country: US
-      Province: California
-      Locality: San Francisco
-    EnableNodeOUs: true
+      Province: Virginia
+      Locality: Richmond
     Template:
-      # PRODUCTION: Set Count: 2 or higher for HA
-      Count: 1
+      Count: 1  # peer0.org1.tolling.network
+      SANS:
+        - localhost
+        - 127.0.0.1
     Users:
-      # PRODUCTION: Create multiple users with different roles
-      Count: 1
+      Count: 1  # User1@org1.tolling.network (Admin is automatic)
 
+  # Org2 - Example: CUSIOP consortium member
   - Name: Org2
-    Domain: org2.example.com
+    Domain: org2.tolling.network
+    EnableNodeOUs: true
     CA:
       Country: US
-      Province: California
-      Locality: San Francisco
-    EnableNodeOUs: true
+      Province: Texas
+      Locality: Austin
     Template:
-      Count: 1
+      Count: 1  # peer0.org2.tolling.network
+      SANS:
+        - localhost
+        - 127.0.0.1
     Users:
-      Count: 1
+      Count: 1  # User1@org2.tolling.network (Admin is automatic)
 
+  # Org3 - Example: SEIOP consortium member
   - Name: Org3
-    Domain: org3.example.com
+    Domain: org3.tolling.network
+    EnableNodeOUs: true
     CA:
       Country: US
-      Province: California
-      Locality: San Francisco
-    EnableNodeOUs: true
+      Province: Florida
+      Locality: Orlando
     Template:
-      Count: 1
+      Count: 1  # peer0.org3.tolling.network
+      SANS:
+        - localhost
+        - 127.0.0.1
     Users:
-      Count: 1
+      Count: 1  # User1@org3.tolling.network (Admin is automatic)
 
+  # Org4 - Example: WRTO/FasTrak consortium member
   - Name: Org4
-    Domain: org4.example.com
+    Domain: org4.tolling.network
+    EnableNodeOUs: true
     CA:
       Country: US
       Province: California
-      Locality: San Francisco
-    EnableNodeOUs: true
+      Locality: Sacramento
     Template:
-      Count: 1
+      Count: 1  # peer0.org4.tolling.network
+      SANS:
+        - localhost
+        - 127.0.0.1
     Users:
-      Count: 1
+      Count: 1  # User1@org4.tolling.network (Admin is automatic)

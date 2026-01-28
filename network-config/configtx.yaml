@@ -1,26 +1,19 @@
-# Copyright IBM Corp. All Rights Reserved.
+# Copyright 2016-2026 Milligan Partners LLC
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 # ============================================================================
-# WARNING: LEGACY REFERENCE CONFIGURATION — DO NOT USE IN PRODUCTION
+# Hyperledger Fabric 2.5.x ConfigTX Configuration
+# Tolling.Network - National Toll Interoperability Blockchain
 # ============================================================================
-# This configtx.yaml is from 2019-2020 and contains critical issues:
 #
-# 1. SOLO orderer (line ~134) — Single point of failure, no fault tolerance
-#    2.0 MUST use Raft ordering with at least 3 orderer nodes
-#
-# 2. V1_x capabilities (lines ~97-107) — Obsolete Fabric 1.x capabilities
-#    2.0 MUST set V2_5 capabilities for Fabric 2.5.x LTS
-#
-# 3. No TLS configuration — All communication is unencrypted
-#    2.0 MUST enable TLS by default
-#
-# For 2.0 development, use Hyperledger Bevel (infrastructure/bevel/) which
-# generates production-ready configtx.yaml with:
-# - Raft ordering service with 3+ nodes
-# - V2_5 capabilities
+# This configuration defines:
+# - 1 Orderer organization with 3 Raft consensus nodes
+# - 4 Peer organizations (toll agencies/consortiums)
+# - V2_5 capabilities for Fabric 2.5.x LTS
 # - TLS enabled by default
+#
+# PRODUCTION NOTE: Update MSPDir paths and addresses for your deployment.
 # ============================================================================
 
 ---
@@ -28,192 +21,299 @@
 #
 #   Section: Organizations
 #
-#   - This section defines the different organizational identities which will
-#   be referenced later in the configuration.
+#   This section defines the organizational identities for the network.
+#   Each organization has an MSP (Membership Service Provider) that defines
+#   its identity and policies.
 #
 ################################################################################
 Organizations:
 
-    # SampleOrg defines an MSP using the sampleconfig.  It should never be used
-    # in production but may be used as a template for other definitions
+    # ---------------------------------------------------------------------------
+    # Orderer Organization
+    # ---------------------------------------------------------------------------
+    # Manages the ordering service (Raft consensus with 3 nodes).
+    # In production, orderer nodes may be distributed across organizations.
+    # ---------------------------------------------------------------------------
     - &OrdererOrg
-        # DefaultOrg defines the organization which is used in the sampleconfig
-        # of the fabric.git development environment
         Name: OrdererOrg
-
-        # ID to load the MSP definition as
         ID: OrdererMSP
+        MSPDir: crypto-config/ordererOrganizations/orderer.tolling.network/msp
 
-        # MSPDir is the filesystem path which contains the MSP configuration
-        MSPDir: crypto-config/ordererOrganizations/example.com/msp
+        # Policies define who can perform what actions
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
 
+        # OrdererEndpoints for service discovery
+        OrdererEndpoints:
+            - orderer1.orderer.tolling.network:7050
+            - orderer2.orderer.tolling.network:7150
+            - orderer3.orderer.tolling.network:7250
+
+    # ---------------------------------------------------------------------------
+    # Peer Organizations
+    # ---------------------------------------------------------------------------
+    # Each organization represents a toll agency or consortium participant.
+    # Anchor peers enable cross-org gossip communication.
+    # ---------------------------------------------------------------------------
+
+    # Org1 - Example: E-ZPass consortium member
     - &Org1
-        # DefaultOrg defines the organization which is used in the sampleconfig
-        # of the fabric.git development environment
-        Name: Org1
-
-        # ID to load the MSP definition as
+        Name: Org1MSP
         ID: Org1MSP
+        MSPDir: crypto-config/peerOrganizations/org1.tolling.network/msp
 
-        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin', 'Org1MSP.peer', 'Org1MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin', 'Org1MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Org1MSP.peer')"
 
         AnchorPeers:
-            # AnchorPeers defines the location of peers which can be used
-            # for cross org gossip communication.  Note, this value is only
-            # encoded in the genesis block in the Application section context
-            - Host: peer0.org1.example.com
+            - Host: peer0.org1.tolling.network
               Port: 7051
 
+    # Org2 - Example: CUSIOP consortium member
     - &Org2
-        # DefaultOrg defines the organization which is used in the sampleconfig
-        # of the fabric.git development environment
-        Name: Org2
-
-        # ID to load the MSP definition as
+        Name: Org2MSP
         ID: Org2MSP
+        MSPDir: crypto-config/peerOrganizations/org2.tolling.network/msp
 
-        MSPDir: crypto-config/peerOrganizations/org2.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Org2MSP.admin', 'Org2MSP.peer', 'Org2MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Org2MSP.admin', 'Org2MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Org2MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Org2MSP.peer')"
 
         AnchorPeers:
-            # AnchorPeers defines the location of peers which can be used
-            # for cross org gossip communication.  Note, this value is only
-            # encoded in the genesis block in the Application section context
-            - Host: peer0.org2.example.com
-              Port: 7051
+            - Host: peer0.org2.tolling.network
+              Port: 8051
 
+    # Org3 - Example: SEIOP consortium member
     - &Org3
-        # DefaultOrg defines the organization which is used in the sampleconfig
-        # of the fabric.git development environment
-        Name: Org3
-
-        # ID to load the MSP definition as
+        Name: Org3MSP
         ID: Org3MSP
+        MSPDir: crypto-config/peerOrganizations/org3.tolling.network/msp
 
-        MSPDir: crypto-config/peerOrganizations/org3.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Org3MSP.admin', 'Org3MSP.peer', 'Org3MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Org3MSP.admin', 'Org3MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Org3MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Org3MSP.peer')"
 
         AnchorPeers:
-            # AnchorPeers defines the location of peers which can be used
-            # for cross org gossip communication.  Note, this value is only
-            # encoded in the genesis block in the Application section context
-            - Host: peer0.org3.example.com
-              Port: 7051
+            - Host: peer0.org3.tolling.network
+              Port: 9051
 
+    # Org4 - Example: WRTO/FasTrak consortium member
     - &Org4
-        # DefaultOrg defines the organization which is used in the sampleconfig
-        # of the fabric.git development environment
-        Name: Org4
-
-        # ID to load the MSP definition as
+        Name: Org4MSP
         ID: Org4MSP
+        MSPDir: crypto-config/peerOrganizations/org4.tolling.network/msp
 
-        MSPDir: crypto-config/peerOrganizations/org4.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Org4MSP.admin', 'Org4MSP.peer', 'Org4MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Org4MSP.admin', 'Org4MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Org4MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Org4MSP.peer')"
 
         AnchorPeers:
-            # AnchorPeers defines the location of peers which can be used
-            # for cross org gossip communication.  Note, this value is only
-            # encoded in the genesis block in the Application section context
-            - Host: peer0.org4.example.com
-              Port: 7051
-# SECURITY: These V1_x capabilities are obsolete. 2.0 must use V2_5.
-# Example for Fabric 2.5.x:
-#   Channel: &ChannelCapabilities
-#       V2_0: true
-#   Orderer: &OrdererCapabilities
-#       V2_0: true
-#   Application: &ApplicationCapabilities
-#       V2_5: true
-Capabilities:
-    Channel: &ChannelCapabilities
-        V1_3: true
-        V1_2: true
-        V1_1: false
-    Orderer: &OrdererCapabilities
-        V1_1: true
-    Application: &ApplicationCapabilities
-        V1_2: true
-        V1_3: true
-        V1_1: false
+            - Host: peer0.org4.tolling.network
+              Port: 10051
+
 ################################################################################
 #
-#   SECTION: Application
+#   Section: Capabilities
 #
-#   - This section defines the values to encode into a config transaction or
-#   genesis block for application related parameters
+#   Capabilities define the features that must be supported by the network
+#   components. Setting V2_5 requires all peers and orderers to be at least
+#   Fabric 2.5.x.
+#
+################################################################################
+Capabilities:
+    Channel: &ChannelCapabilities
+        V2_0: true
+
+    Orderer: &OrdererCapabilities
+        V2_0: true
+
+    Application: &ApplicationCapabilities
+        V2_5: true
+
+################################################################################
+#
+#   Section: Application
+#
+#   Application configuration for peer organizations on channels.
+#   Defines default policies for chaincode lifecycle, endorsement, etc.
 #
 ################################################################################
 Application: &ApplicationDefaults
-
-    # Organizations is the list of orgs which are defined as participants on
-    # the application side of the network
     Organizations:
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        LifecycleEndorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+
+    Capabilities:
+        <<: *ApplicationCapabilities
 
 ################################################################################
 #
-#   SECTION: Orderer
+#   Section: Orderer
 #
-#   - This section defines the values to encode into a config transaction or
-#   genesis block for orderer related parameters
+#   Orderer configuration for the Raft consensus ordering service.
+#   Raft provides crash fault tolerance with 3 nodes tolerating 1 failure.
 #
 ################################################################################
 Orderer: &OrdererDefaults
+    # Raft ordering service (etcdraft)
+    OrdererType: etcdraft
 
-    # Orderer Type: The orderer implementation to start
-    # SECURITY: SOLO orderer is single point of failure — no fault tolerance.
-    # 2.0 MUST use "etcdraft" with at least 3 orderer nodes.
-    # Example for Fabric 2.5.x:
-    #   OrdererType: etcdraft
-    #   EtcdRaft:
-    #       Consenters:
-    #           - Host: orderer1.example.com
-    #             Port: 7050
-    #             ClientTLSCert: path/to/client.crt
-    #             ServerTLSCert: path/to/server.crt
-    #           - Host: orderer2.example.com
-    #             ...
-    OrdererType: solo
+    # Raft consensus configuration
+    EtcdRaft:
+        Consenters:
+            - Host: orderer1.orderer.tolling.network
+              Port: 7050
+              ClientTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/tls/server.crt
+            - Host: orderer2.orderer.tolling.network
+              Port: 7150
+              ClientTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/tls/server.crt
+            - Host: orderer3.orderer.tolling.network
+              Port: 7250
+              ClientTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/tls/server.crt
 
-    Addresses:
-        - orderer.example.com:7050
+        # Raft options - tuned for local development
+        Options:
+            TickInterval: 500ms
+            ElectionTick: 10
+            HeartbeatTick: 1
+            MaxInflightBlocks: 5
+            SnapshotIntervalSize: 16 MB
 
-    # Batch Timeout: The amount of time to wait before creating a batch
+    # Batch configuration
     BatchTimeout: 2s
-
-    # Batch Size: Controls the number of messages batched into a block
     BatchSize:
-
-        # Max Message Count: The maximum number of messages to permit in a batch
         MaxMessageCount: 10
-
-        # Absolute Max Bytes: The absolute maximum number of bytes allowed for
-        # the serialized messages in a batch.
         AbsoluteMaxBytes: 99 MB
-
-        # Preferred Max Bytes: The preferred maximum number of bytes allowed for
-        # the serialized messages in a batch. A message larger than the preferred
-        # max bytes will result in a batch larger than preferred max bytes.
         PreferredMaxBytes: 512 KB
 
-    Kafka:
-        # Brokers: A list of Kafka brokers to which the orderer connects
-        # NOTE: Use IP:port notation
-        Brokers:
-            - 127.0.0.1:9092
+    # Orderer addresses (for client connections)
+    Addresses:
+        - orderer1.orderer.tolling.network:7050
+        - orderer2.orderer.tolling.network:7150
+        - orderer3.orderer.tolling.network:7250
 
-    # Organizations is the list of orgs which are defined as participants on
-    # the orderer side of the network
     Organizations:
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
 
 ################################################################################
 #
-#   Profile
+#   Section: Channel
 #
-#   - Different configuration profiles may be encoded here to be specified
-#   as parameters to the configtxgen tool
+#   Channel configuration defaults. Defines the default policies for channels.
+#
+################################################################################
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+    Capabilities:
+        <<: *ChannelCapabilities
+
+################################################################################
+#
+#   Section: Profiles
+#
+#   Configuration profiles for configtxgen tool.
 #
 ################################################################################
 Profiles:
 
-    SampleOrdererGenesis:
+    # ---------------------------------------------------------------------------
+    # TollingGenesis - Genesis block for system channel
+    # ---------------------------------------------------------------------------
+    # Used to bootstrap the ordering service. Creates the system channel with
+    # the orderer organization and defines the TollingConsortium.
+    # ---------------------------------------------------------------------------
+    TollingGenesis:
+        <<: *ChannelDefaults
         Orderer:
             <<: *OrdererDefaults
             Organizations:
@@ -221,14 +321,22 @@ Profiles:
             Capabilities:
                 <<: *OrdererCapabilities
         Consortiums:
-            SampleConsortium:
+            TollingConsortium:
                 Organizations:
                     - *Org1
                     - *Org2
                     - *Org3
                     - *Org4
-    samplechannel:
-        Consortium: SampleConsortium
+
+    # ---------------------------------------------------------------------------
+    # TollingChannel - Application channel for tolling transactions
+    # ---------------------------------------------------------------------------
+    # Main channel for toll interoperability. All four organizations participate.
+    # Used to create channel transactions and anchor peer updates.
+    # ---------------------------------------------------------------------------
+    TollingChannel:
+        Consortium: TollingConsortium
+        <<: *ChannelDefaults
         Application:
             <<: *ApplicationDefaults
             Organizations:

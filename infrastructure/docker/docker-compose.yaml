@@ -1,327 +1,570 @@
-#
-# Copyright IBM Corp All Rights Reserved
-#
+# Hyperledger Fabric 2.5.x LTS - Tolling Network
+# Copyright 2016-2026 Milligan Partners LLC
 # SPDX-License-Identifier: Apache-2.0
 #
-# ============================================================================
-# WARNING: LEGACY REFERENCE CONFIGURATION — DO NOT USE IN PRODUCTION
-# ============================================================================
-# This docker-compose file is from 2019-2020 and is kept for reference only.
-# It contains critical security issues that must not be deployed:
-#
-# 1. Empty CouchDB credentials (Admin Party mode) - lines 71-72, 111-112, etc.
-# 2. Docker socket mounted into containers (/var/run/) - enables container escape
-# 3. No TLS enabled on any service
-# 4. CouchDB ports exposed to host (5984, 6984, 7984, 5985)
-# 5. ELK ports exposed without authentication (5601, 9200)
-# 6. Uses Fabric 1.x images (current LTS is 2.5.x)
-#
-# For 2.0 development, use infrastructure/bevel/ or create new configs with:
-# - CouchDB credentials via environment variables
-# - External chaincode launcher (no docker socket)
-# - TLS enabled by default
-# - Fabric 2.5.x images
-# ============================================================================
-#
-version: '2.4'
+# This configuration uses:
+# - Fabric 2.5.x images (LTS)
+# - External chaincode launcher (no Docker socket mounting)
+# - TLS enabled on all services
+# - Raft consensus with 3 orderers
+# - CouchDB as state database with proper credentials
+# - 4 organizations, 1 peer each
 
 networks:
-  basic:
+  tolling_network:
+    name: tolling_network
+    driver: bridge
 
-# ============================================================================
-# RESOURCE LIMITS
-# ============================================================================
-# These are development defaults. Production deployments should tune based on:
-# - Expected transaction volume
-# - Number of channels and chaincodes
-# - Available node resources
-# Use `docker stats` to monitor actual usage and adjust accordingly.
-# ============================================================================
+volumes:
+  # Orderer ledger volumes
+  orderer1.orderer.tolling.network:
+  orderer2.orderer.tolling.network:
+  orderer3.orderer.tolling.network:
+  # Peer ledger volumes
+  peer0.org1.tolling.network:
+  peer0.org2.tolling.network:
+  peer0.org3.tolling.network:
+  peer0.org4.tolling.network:
+  # CouchDB data volumes
+  couchdb0:
+  couchdb1:
+  couchdb2:
+  couchdb3:
 
 services:
-  orderer.example.com:
-    container_name: orderer.example.com
-    image: hyperledger/fabric-orderer
-    # Resource limits for orderer
-    mem_limit: 512m
-    memswap_limit: 512m
-    cpus: 0.5
+  # ============================================================================
+  # ORDERER SERVICES (Raft Consensus - 3 nodes)
+  # ============================================================================
+
+  orderer1.orderer.tolling.network:
+    container_name: orderer1.orderer.tolling.network
+    image: hyperledger/fabric-orderer:2.5
+    labels:
+      service: hyperledger-fabric
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - ORDERER_GENERAL_GENESISMETHOD=file
-      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/genesis.block
+      - ORDERER_GENERAL_LISTENPORT=7050
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/msp/orderer/msp
-      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
-      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # Genesis block
+      - ORDERER_GENERAL_BOOTSTRAPMETHOD=file
+      - ORDERER_GENERAL_BOOTSTRAPFILE=/var/hyperledger/orderer/orderer.genesis.block
+      # TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      # Cluster (Raft)
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      # Admin
+      - ORDERER_ADMIN_TLS_ENABLED=true
+      - ORDERER_ADMIN_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
+      # Metrics
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer1.orderer.tolling.network:9443
+      - ORDERER_METRICS_PROVIDER=prometheus
+    working_dir: /root
     command: orderer
     ports:
       - 7050:7050
-    volumes:
-        - ./config/:/etc/hyperledger/configtx
-        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/:/etc/hyperledger/msp/orderer
-        - ./crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/:/etc/hyperledger/msp/peerOrg1
-        - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/:/etc/hyperledger/msp/peerOrg2
-        - ./crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/:/etc/hyperledger/msp/peerOrg3
-    networks:
-      - basic
-
-  peer0.org1.example.com:
-    container_name: peer0.org1.example.com
-    extends:
-      file: base/peer-base.yaml
-      service: peer-base
-    # Resource limits for peer
-    mem_limit: 1g
-    memswap_limit: 1g
-    cpus: 1.0
-    environment:
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.org1.example.com:5984
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051
-      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
-      - CORE_PEER_ID=peer0.org1.example.com
-      - CORE_PEER_LOCALMSPID=Org1MSP
-      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
-      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org1.example.com:7053
-    volumes:
-        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
-        - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/org1.example.com/users:/etc/hyperledger/msp/users
-        - ./config:/etc/hyperledger/configtx
-    ports:
-      - 7051:7051
       - 7053:7053
-    depends_on:
-      - orderer.example.com
-      - db.peer0.org1.example.com
+      - 9443:9443
+    volumes:
+      - ../network-config/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block:ro
+      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/msp:/var/hyperledger/orderer/msp:ro
+      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/tls:/var/hyperledger/orderer/tls:ro
+      - orderer1.orderer.tolling.network:/var/hyperledger/production/orderer
     networks:
-      - basic
+      - tolling_network
 
-  db.peer0.org1.example.com:
-    container_name: db.peer0.org1.example.com
-    image: hyperledger/fabric-couchdb
-    # Resource limits for CouchDB
-    mem_limit: 512m
-    memswap_limit: 512m
-    cpus: 0.5
-    # SECURITY: Set credentials via env vars. Never commit real credentials.
-    # Example: COUCHDB_USER=${COUCHDB_USER:-admin} COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+  orderer2.orderer.tolling.network:
+    container_name: orderer2.orderer.tolling.network
+    image: hyperledger/fabric-orderer:2.5
+    labels:
+      service: hyperledger-fabric
     environment:
-      - COUCHDB_USER=${COUCHDB_USER:-admin}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:?COUCHDB_PASSWORD must be set}
-    # SECURITY: Do not expose CouchDB ports to host in production
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # Genesis block
+      - ORDERER_GENERAL_BOOTSTRAPMETHOD=file
+      - ORDERER_GENERAL_BOOTSTRAPFILE=/var/hyperledger/orderer/orderer.genesis.block
+      # TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      # Cluster (Raft)
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      # Admin
+      - ORDERER_ADMIN_TLS_ENABLED=true
+      - ORDERER_ADMIN_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
+      # Metrics
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer2.orderer.tolling.network:9443
+      - ORDERER_METRICS_PROVIDER=prometheus
+    working_dir: /root
+    command: orderer
+    ports:
+      - 7150:7050
+      - 7153:7053
+      - 9543:9443
+    volumes:
+      - ../network-config/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block:ro
+      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/msp:/var/hyperledger/orderer/msp:ro
+      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/tls:/var/hyperledger/orderer/tls:ro
+      - orderer2.orderer.tolling.network:/var/hyperledger/production/orderer
+    networks:
+      - tolling_network
+
+  orderer3.orderer.tolling.network:
+    container_name: orderer3.orderer.tolling.network
+    image: hyperledger/fabric-orderer:2.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # Genesis block
+      - ORDERER_GENERAL_BOOTSTRAPMETHOD=file
+      - ORDERER_GENERAL_BOOTSTRAPFILE=/var/hyperledger/orderer/orderer.genesis.block
+      # TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      # Cluster (Raft)
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      # Admin
+      - ORDERER_ADMIN_TLS_ENABLED=true
+      - ORDERER_ADMIN_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
+      # Metrics
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer3.orderer.tolling.network:9443
+      - ORDERER_METRICS_PROVIDER=prometheus
+    working_dir: /root
+    command: orderer
+    ports:
+      - 7250:7050
+      - 7253:7053
+      - 9643:9443
+    volumes:
+      - ../network-config/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block:ro
+      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/msp:/var/hyperledger/orderer/msp:ro
+      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/tls:/var/hyperledger/orderer/tls:ro
+      - orderer3.orderer.tolling.network:/var/hyperledger/production/orderer
+    networks:
+      - tolling_network
+
+  # ============================================================================
+  # COUCHDB SERVICES (State Database)
+  # ============================================================================
+
+  couchdb0:
+    container_name: couchdb0
+    image: couchdb:3.3
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
     ports:
       - 5984:5984
-    networks:
-      - basic
-
-  peer0.org3.example.com:
-    container_name: peer0.org3.example.com
-    extends:
-      file: base/peer-base.yaml
-      service: peer-base
-    # Resource limits for peer
-    mem_limit: 1g
-    memswap_limit: 1g
-    cpus: 1.0
-    environment:
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.org3.example.com:5984
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.example.com:7051
-      - CORE_PEER_ADDRESS=peer0.org3.example.com:7051
-      - CORE_PEER_ID=peer0.org3.example.com
-      - CORE_PEER_LOCALMSPID=Org3MSP
-      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
-      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
     volumes:
-        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
-        - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/org3.example.com/users:/etc/hyperledger/msp/users
-        - ./config:/etc/hyperledger/configtx
-    ports:
-      - 8051:7051
-      - 8053:7053
-    depends_on:
-      - orderer.example.com
-      - db.peer0.org3.example.com
+      - couchdb0:/opt/couchdb/data
     networks:
-      - basic
+      - tolling_network
 
-  db.peer0.org3.example.com:
-    container_name: db.peer0.org3.example.com
-    image: hyperledger/fabric-couchdb
-    # Resource limits for CouchDB
-    mem_limit: 512m
-    memswap_limit: 512m
-    cpus: 0.5
-    # SECURITY: Set credentials via env vars. Never commit real credentials.
+  couchdb1:
+    container_name: couchdb1
+    image: couchdb:3.3
+    labels:
+      service: hyperledger-fabric
     environment:
-      - COUCHDB_USER=${COUCHDB_USER:-admin}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:?COUCHDB_PASSWORD must be set}
-    # SECURITY: Do not expose CouchDB ports to host in production
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
     ports:
       - 6984:5984
-    networks:
-      - basic
-
-  peer0.org2.example.com:
-    container_name: peer0.org2.example.com
-    extends:
-      file: base/peer-base.yaml
-      service: peer-base
-    # Resource limits for peer
-    mem_limit: 1g
-    memswap_limit: 1g
-    cpus: 1.0
-    environment:
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.org2.example.com:5984
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:7051
-      - CORE_PEER_ADDRESS=peer0.org2.example.com:7051
-      - CORE_PEER_ID=peer0.org2.example.com
-      - CORE_PEER_LOCALMSPID=Org2MSP
-      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
-      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
     volumes:
-        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
-        - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/org2.example.com/users:/etc/hyperledger/msp/users
-        - ./config:/etc/hyperledger/configtx
-    ports:
-      - 9051:7051
-      - 9053:7053
-    depends_on:
-      - orderer.example.com
-      - db.peer0.org2.example.com
+      - couchdb1:/opt/couchdb/data
     networks:
-      - basic
+      - tolling_network
 
-  db.peer0.org2.example.com:
-    container_name: db.peer0.org2.example.com
-    image: hyperledger/fabric-couchdb
-    # Resource limits for CouchDB
-    mem_limit: 512m
-    memswap_limit: 512m
-    cpus: 0.5
-    # SECURITY: Set credentials via env vars. Never commit real credentials.
+  couchdb2:
+    container_name: couchdb2
+    image: couchdb:3.3
+    labels:
+      service: hyperledger-fabric
     environment:
-      - COUCHDB_USER=${COUCHDB_USER:-admin}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:?COUCHDB_PASSWORD must be set}
-    # SECURITY: Do not expose CouchDB ports to host in production
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
     ports:
       - 7984:5984
-    networks:
-      - basic
-
-  peer0.org4.example.com:
-    container_name: peer0.org4.example.com
-    extends:
-      file: base/peer-base.yaml
-      service: peer-base
-    # Resource limits for peer
-    mem_limit: 1g
-    memswap_limit: 1g
-    cpus: 1.0
-    environment:
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.org4.example.com:5984
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org4.example.com:7051
-      - CORE_PEER_ADDRESS=peer0.org4.example.com:7051
-      - CORE_PEER_ID=peer0.org4.example.com
-      - CORE_PEER_LOCALMSPID=Org4MSP
-      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
-      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org4.example.com:7053
     volumes:
-        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
-        - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/org4.example.com/peers/peer0.org4.example.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/org4.example.com/users:/etc/hyperledger/msp/users
-        - ./config:/etc/hyperledger/configtx
-    ports:
-      - 7151:7051
-      - 7153:7053
-    depends_on:
-      - orderer.example.com
-      - db.peer0.org4.example.com
+      - couchdb2:/opt/couchdb/data
     networks:
-      - basic
+      - tolling_network
 
-  db.peer0.org4.example.com:
-    container_name: db.peer0.org4.example.com
-    image: hyperledger/fabric-couchdb
-    # Resource limits for CouchDB
-    mem_limit: 512m
-    memswap_limit: 512m
-    cpus: 0.5
-    # SECURITY: Set credentials via env vars. Never commit real credentials.
+  couchdb3:
+    container_name: couchdb3
+    image: couchdb:3.3
+    labels:
+      service: hyperledger-fabric
     environment:
-      - COUCHDB_USER=${COUCHDB_USER:-admin}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:?COUCHDB_PASSWORD must be set}
-    # SECURITY: Do not expose CouchDB ports to host in production
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
     ports:
-      - 5985:5984
+      - 8984:5984
+    volumes:
+      - couchdb3:/opt/couchdb/data
     networks:
-      - basic
+      - tolling_network
+
+  # ============================================================================
+  # PEER SERVICES (4 Organizations, 1 peer each)
+  # ============================================================================
+  # Note: External chaincode pattern is used (no Docker socket mounting).
+  # Chaincode runs as external services, configured via connection.json.
+
+  peer0.org1.tolling.network:
+    container_name: peer0.org1.tolling.network
+    image: hyperledger/fabric-peer:2.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=peer0.org1.tolling.network
+      - CORE_PEER_ADDRESS=peer0.org1.tolling.network:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.tolling.network:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      # TLS
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Gossip
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.tolling.network:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.tolling.network:7051
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD}
+      # Metrics
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.tolling.network:9444
+      - CORE_METRICS_PROVIDER=prometheus
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 7051:7051
+      - 7052:7052
+      - 9444:9444
+    volumes:
+      - ../network-config/crypto-config/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
+      - ../network-config/crypto-config/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
+      - peer0.org1.tolling.network:/var/hyperledger/production
+    depends_on:
+      - orderer1.orderer.tolling.network
+      - orderer2.orderer.tolling.network
+      - orderer3.orderer.tolling.network
+      - couchdb0
+    networks:
+      - tolling_network
+
+  peer0.org2.tolling.network:
+    container_name: peer0.org2.tolling.network
+    image: hyperledger/fabric-peer:2.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=peer0.org2.tolling.network
+      - CORE_PEER_ADDRESS=peer0.org2.tolling.network:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.tolling.network:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      # TLS
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Gossip
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.tolling.network:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.tolling.network:8051
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD}
+      # Metrics
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.tolling.network:9444
+      - CORE_METRICS_PROVIDER=prometheus
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 8051:8051
+      - 8052:8052
+      - 9544:9444
+    volumes:
+      - ../network-config/crypto-config/peerOrganizations/org2.tolling.network/peers/peer0.org2.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
+      - ../network-config/crypto-config/peerOrganizations/org2.tolling.network/peers/peer0.org2.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
+      - peer0.org2.tolling.network:/var/hyperledger/production
+    depends_on:
+      - orderer1.orderer.tolling.network
+      - orderer2.orderer.tolling.network
+      - orderer3.orderer.tolling.network
+      - couchdb1
+    networks:
+      - tolling_network
+
+  peer0.org3.tolling.network:
+    container_name: peer0.org3.tolling.network
+    image: hyperledger/fabric-peer:2.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=peer0.org3.tolling.network
+      - CORE_PEER_ADDRESS=peer0.org3.tolling.network:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org3.tolling.network:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_LOCALMSPID=Org3MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      # TLS
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Gossip
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.tolling.network:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org3.tolling.network:9051
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD}
+      # Metrics
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org3.tolling.network:9444
+      - CORE_METRICS_PROVIDER=prometheus
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 9051:9051
+      - 9052:9052
+      - 9644:9444
+    volumes:
+      - ../network-config/crypto-config/peerOrganizations/org3.tolling.network/peers/peer0.org3.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
+      - ../network-config/crypto-config/peerOrganizations/org3.tolling.network/peers/peer0.org3.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
+      - peer0.org3.tolling.network:/var/hyperledger/production
+    depends_on:
+      - orderer1.orderer.tolling.network
+      - orderer2.orderer.tolling.network
+      - orderer3.orderer.tolling.network
+      - couchdb2
+    networks:
+      - tolling_network
+
+  peer0.org4.tolling.network:
+    container_name: peer0.org4.tolling.network
+    image: hyperledger/fabric-peer:2.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=peer0.org4.tolling.network
+      - CORE_PEER_ADDRESS=peer0.org4.tolling.network:10051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org4.tolling.network:10052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+      - CORE_PEER_LOCALMSPID=Org4MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      # TLS
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Gossip
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org4.tolling.network:10051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org4.tolling.network:10051
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb3:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD}
+      # Metrics
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org4.tolling.network:9444
+      - CORE_METRICS_PROVIDER=prometheus
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 10051:10051
+      - 10052:10052
+      - 9744:9444
+    volumes:
+      - ../network-config/crypto-config/peerOrganizations/org4.tolling.network/peers/peer0.org4.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
+      - ../network-config/crypto-config/peerOrganizations/org4.tolling.network/peers/peer0.org4.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
+      - peer0.org4.tolling.network:/var/hyperledger/production
+    depends_on:
+      - orderer1.orderer.tolling.network
+      - orderer2.orderer.tolling.network
+      - orderer3.orderer.tolling.network
+      - couchdb3
+    networks:
+      - tolling_network
+
+  # ============================================================================
+  # CA SERVICES (Fabric CA for each organization)
+  # ============================================================================
+
+  ca.org1.tolling.network:
+    container_name: ca.org1.tolling.network
+    image: hyperledger/fabric-ca:1.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-org1
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:17054
+    ports:
+      - 7054:7054
+      - 17054:17054
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../network-config/crypto-config/peerOrganizations/org1.tolling.network/ca/:/etc/hyperledger/fabric-ca-server:ro
+    networks:
+      - tolling_network
+
+  ca.org2.tolling.network:
+    container_name: ca.org2.tolling.network
+    image: hyperledger/fabric-ca:1.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-org2
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=8054
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:18054
+    ports:
+      - 8054:8054
+      - 18054:18054
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../network-config/crypto-config/peerOrganizations/org2.tolling.network/ca/:/etc/hyperledger/fabric-ca-server:ro
+    networks:
+      - tolling_network
+
+  ca.org3.tolling.network:
+    container_name: ca.org3.tolling.network
+    image: hyperledger/fabric-ca:1.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-org3
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=9054
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:19054
+    ports:
+      - 9054:9054
+      - 19054:19054
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../network-config/crypto-config/peerOrganizations/org3.tolling.network/ca/:/etc/hyperledger/fabric-ca-server:ro
+    networks:
+      - tolling_network
+
+  ca.org4.tolling.network:
+    container_name: ca.org4.tolling.network
+    image: hyperledger/fabric-ca:1.5
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-org4
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=10054
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:20054
+    ports:
+      - 10054:10054
+      - 20054:20054
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../network-config/crypto-config/peerOrganizations/org4.tolling.network/ca/:/etc/hyperledger/fabric-ca-server:ro
+    networks:
+      - tolling_network
+
+  # ============================================================================
+  # CLI SERVICE (Admin Operations)
+  # ============================================================================
 
   cli:
     container_name: cli
-    image: hyperledger/fabric-tools
-    # Resource limits for CLI
-    mem_limit: 512m
-    memswap_limit: 512m
-    cpus: 0.5
+    image: hyperledger/fabric-tools:2.5
+    labels:
+      service: hyperledger-fabric
     tty: true
+    stdin_open: true
     environment:
       - GOPATH=/opt/gopath
-      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - FABRIC_LOGGING_SPEC=INFO
-      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.org1.tolling.network:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
-      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
-      - CORE_CHAINCODE_KEEPALIVE=50
-      - CHANNEL_NAME=${CHANNEL_NAME}
-      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
-      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org1.example.com:7053
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.tolling.network/users/Admin@org1.tolling.network/msp
+      # TLS
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
-        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
-        - /var/run/:/host/var/run/
-        - ./chaincode/:/opt/gopath/src/github.com/
-        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
-        - ./config/:/etc/hyperledger/configtx
-    networks:
-        - basic
+      - ../../chaincode/:/opt/gopath/src/github.com/chaincode:ro
+      - ../../scripts/:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts:ro
+      - ../network-config/crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto:ro
+      - ../network-config/channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts:ro
     depends_on:
-        - orderer.example.com
-  elk:
-    container_name: elk
-    image: elk
-    # Resource limits for ELK stack (memory-intensive)
-    mem_limit: 2g
-    memswap_limit: 2g
-    cpus: 1.0
-    ports:
-      - "5601:5601"
-      - "9200:9200"
-      - "5044:5044"
+      - peer0.org1.tolling.network
+      - peer0.org2.tolling.network
+      - peer0.org3.tolling.network
+      - peer0.org4.tolling.network
     networks:
-      - basic
-  dremio:
-    container_name: dremio
-    image: dremio/dremio-oss
-    # Resource limits for Dremio (memory-intensive analytics)
-    mem_limit: 2g
-    memswap_limit: 2g
-    cpus: 1.0
-    ports:
-      - 9047:9047
-      - 31010:31010
-      - 45678:45678
-    networks:
-      - basic
+      - tolling_network

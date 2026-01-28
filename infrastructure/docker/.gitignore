@@ -1,0 +1,8 @@
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local
+
+# Docker override files
+docker-compose.override.yml
+docker-compose.override.yaml
