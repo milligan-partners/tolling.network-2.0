@@ -70,4 +70,3 @@ tolling-network-2.0/
 - Read the [Architecture & Design](../architecture/design.md) document
 - Review the [Domain Glossary](../domain/glossary.md) for industry terminology
 - Check [Testing](testing.md) for test conventions
-- See [Project Roadmap](../roadmap/epics.md) for current status

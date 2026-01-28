@@ -7,6 +7,9 @@ CLAUDE.md
 # Product & development plan (internal working doc)
 plan.md
 
+# Project roadmap (internal until ready for public)
+docs/roadmap/
+
 # Dependencies
 node_modules/
 vendor/

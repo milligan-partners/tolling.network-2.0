@@ -61,7 +61,6 @@ See [Getting Started](docs/onboarding/getting-started.md) for full setup instruc
 - [Architecture & Design](docs/architecture/design.md) — Data model, chaincode structure, indexing
 - [Domain Glossary](docs/domain/glossary.md) — Industry terms and concepts
 - [Developer Guide](docs/onboarding/getting-started.md) — Setup, testing, deployment
-- [Project Roadmap](docs/roadmap/epics.md) — Epics and feature status
 
 ## Security
 
