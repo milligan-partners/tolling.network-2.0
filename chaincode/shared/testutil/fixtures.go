@@ -124,6 +124,50 @@ func SampleCorrection() map[string]interface{} {
 	}
 }
 
+// SampleAcknowledgement returns a minimal valid acknowledgement for testing.
+func SampleAcknowledgement() map[string]interface{} {
+	return map[string]interface{}{
+		"acknowledgementID": "ACK-TEST-001",
+		"submissionType":    "STVL",
+		"fromAgencyID":      SampleAgencies.TCA,
+		"toAgencyID":        SampleAgencies.BATA,
+		"returnCode":        "00",
+		"returnMessage":     "Success",
+	}
+}
+
+// SampleSettlement returns a minimal valid settlement for testing.
+func SampleSettlement() map[string]interface{} {
+	return map[string]interface{}{
+		"settlementID":    "SETTLE-TEST-001",
+		"periodStart":     "2026-01-01",
+		"periodEnd":       "2026-01-31",
+		"payorAgencyID":   SampleAgencies.TCA,
+		"payeeAgencyID":   SampleAgencies.BATA,
+		"grossAmount":     15000.00,
+		"totalFees":       150.00,
+		"netAmount":       14850.00,
+		"chargeCount":     3000,
+		"correctionCount": 15,
+		"status":          "draft",
+	}
+}
+
+// SampleAgency returns a minimal valid agency for testing.
+func SampleAgency() map[string]interface{} {
+	return map[string]interface{}{
+		"agencyID":         SampleAgencies.TCA,
+		"name":             "Transportation Corridor Agencies",
+		"consortium":       []string{"WRTO"},
+		"state":            "CA",
+		"role":             "toll_operator",
+		"connectivityMode": "direct",
+		"status":           "active",
+		"capabilities":     []string{"toll"},
+		"protocolSupport":  []string{"ctoc_rev_a"},
+	}
+}
+
 // PostingDispositions maps codes to descriptions for test assertions.
 var PostingDispositions = map[string]string{
 	"P": "Posted successfully",

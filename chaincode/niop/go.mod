@@ -2,12 +2,15 @@ module github.com/milligan-partners/tolling.network-2.0/chaincode/niop
 
 go 1.22
 
+require github.com/stretchr/testify v1.9.0
+
 require (
-	github.com/hyperledger/fabric-chaincode-go v0.0.0-20240124143825-007f35e8ee1b
-	github.com/hyperledger/fabric-contract-api-go v1.2.2
-	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.4
-	github.com/milligan-partners/tolling.network-2.0/chaincode/shared v0.0.0
-	github.com/stretchr/testify v1.9.0
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/kr/pretty v0.3.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rogpeppe/go-internal v1.11.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 replace github.com/milligan-partners/tolling.network-2.0/chaincode/shared => ../shared
