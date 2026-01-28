@@ -227,7 +227,7 @@ make api-test
 
 ## Getting Help
 
-- **Documentation**: See [docs/onboarding/](docs/onboarding/) for detailed guides
+- **Documentation**: See [docs/development/](docs/development/) for developer guides and [docs/onboarding/](docs/onboarding/) for design methodology
 - **Questions**: Open a [GitHub Discussion](https://github.com/milligan-partners/tolling.network-2.0/discussions)
 - **Bugs**: Open an [issue](https://github.com/milligan-partners/tolling.network-2.0/issues)
 - **Security**: See [SECURITY.md](SECURITY.md)
