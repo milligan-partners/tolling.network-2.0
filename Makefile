@@ -1,5 +1,6 @@
 .PHONY: help docker-up docker-down docker-reset docker-logs docker-status \
        network-init network-down channel-create chaincode-deploy \
+       chaincode-upgrade chaincode-rollback chaincode-status \
        chaincode-test chaincode-lint chaincode-package \
        api-install api-dev api-test api-lint \
        generate-data test lint integration-test
@@ -72,6 +73,30 @@ chaincode-package: ## Package chaincode for deployment
 
 chaincode-deploy: ## Deploy chaincode to the network
 	./scripts/deploy-chaincode.sh
+
+chaincode-upgrade: ## Upgrade chaincode (use VERSION=x.y and optionally PATH=...)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Usage: make chaincode-upgrade VERSION=1.1 [PATH=chaincode/niop] [NAME=niop]"; \
+		exit 1; \
+	fi
+	./scripts/upgrade-chaincode.sh -n $(or $(NAME),niop) -v $(VERSION) $(if $(PATH),-p $(PATH))
+
+chaincode-rollback: ## Rollback chaincode (requires VERSION and TAG or PATH)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Usage: make chaincode-rollback VERSION=1.0 TAG=v1.0.0"; \
+		echo "   or: make chaincode-rollback VERSION=1.0 PATH=/path/to/old/code"; \
+		exit 1; \
+	fi
+	@if [ -z "$(TAG)" ] && [ -z "$(PATH)" ]; then \
+		echo "Error: Either TAG or PATH must be specified"; \
+		exit 1; \
+	fi
+	./scripts/rollback-chaincode.sh -n $(or $(NAME),niop) -v $(VERSION) $(if $(TAG),-t $(TAG)) $(if $(PATH),-p $(PATH))
+
+chaincode-status: ## Show current chaincode status on the network
+	@echo "Querying committed chaincode..."
+	@docker exec peer0.org1.tolling.network peer lifecycle chaincode querycommitted \
+		--channelID tolling --name niop 2>/dev/null || echo "Chaincode not deployed or network not running"
 
 # =============================================================================
 # API Operations
