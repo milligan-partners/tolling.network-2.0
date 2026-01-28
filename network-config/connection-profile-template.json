@@ -1,8 +1,17 @@
 {
-    "name": "basic-network",
-    "version": "1.0.0",
+    "_comment": [
+        "============================================================================",
+        "WARNING: TEMPLATE ONLY — REPLACE PLACEHOLDERS BEFORE USE",
+        "============================================================================",
+        "This is a connection profile template for Hyperledger Fabric 2.5.x networks.",
+        "Replace all {{PLACEHOLDER}} values with actual deployment values.",
+        "For production, generate profiles dynamically from your network configuration.",
+        "============================================================================"
+    ],
+    "name": "tolling-network",
+    "version": "2.0.0",
     "client": {
-        "organization": "Org1",
+        "organization": "{{CLIENT_ORG}}",
         "connection": {
             "timeout": {
                 "peer": {
@@ -10,15 +19,44 @@
                 },
                 "orderer": "300"
             }
+        },
+        "credentialStore": {
+            "path": "./wallet",
+            "cryptoStore": {
+                "path": "./wallet"
+            }
         }
     },
     "channels": {
-        "channel1": {
+        "{{CHANNEL_NAME}}": {
             "orderers": [
-                "orderer.example.com"
+                "orderer.{{NETWORK_DOMAIN}}"
             ],
             "peers": {
-                "peer0.org1.example.com": {}
+                "peer0.org1.{{NETWORK_DOMAIN}}": {
+                    "endorsingPeer": true,
+                    "chaincodeQuery": true,
+                    "ledgerQuery": true,
+                    "eventSource": true
+                },
+                "peer0.org2.{{NETWORK_DOMAIN}}": {
+                    "endorsingPeer": true,
+                    "chaincodeQuery": true,
+                    "ledgerQuery": true,
+                    "eventSource": true
+                },
+                "peer0.org3.{{NETWORK_DOMAIN}}": {
+                    "endorsingPeer": true,
+                    "chaincodeQuery": true,
+                    "ledgerQuery": true,
+                    "eventSource": true
+                },
+                "peer0.org4.{{NETWORK_DOMAIN}}": {
+                    "endorsingPeer": true,
+                    "chaincodeQuery": true,
+                    "ledgerQuery": true,
+                    "eventSource": true
+                }
             }
         }
     },
@@ -26,27 +64,144 @@
         "Org1": {
             "mspid": "Org1MSP",
             "peers": [
-                "peer0.org1.example.com"
+                "peer0.org1.{{NETWORK_DOMAIN}}"
             ],
             "certificateAuthorities": [
-                "ca.example.com"
+                "ca.org1.{{NETWORK_DOMAIN}}"
+            ]
+        },
+        "Org2": {
+            "mspid": "Org2MSP",
+            "peers": [
+                "peer0.org2.{{NETWORK_DOMAIN}}"
+            ],
+            "certificateAuthorities": [
+                "ca.org2.{{NETWORK_DOMAIN}}"
+            ]
+        },
+        "Org3": {
+            "mspid": "Org3MSP",
+            "peers": [
+                "peer0.org3.{{NETWORK_DOMAIN}}"
+            ],
+            "certificateAuthorities": [
+                "ca.org3.{{NETWORK_DOMAIN}}"
+            ]
+        },
+        "Org4": {
+            "mspid": "Org4MSP",
+            "peers": [
+                "peer0.org4.{{NETWORK_DOMAIN}}"
+            ],
+            "certificateAuthorities": [
+                "ca.org4.{{NETWORK_DOMAIN}}"
             ]
         }
     },
     "orderers": {
-        "orderer.example.com": {
-            "url": "grpc://localhost:7050"
+        "orderer.{{NETWORK_DOMAIN}}": {
+            "url": "grpcs://{{ORDERER_HOST}}:{{ORDERER_PORT}}",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer.{{NETWORK_DOMAIN}}",
+                "hostnameOverride": "orderer.{{NETWORK_DOMAIN}}",
+                "grpc.keepalive_time_ms": 600000,
+                "grpc.keepalive_timeout_ms": 20000
+            },
+            "tlsCACerts": {
+                "path": "{{TLS_CA_CERT_PATH}}/ordererOrganizations/{{NETWORK_DOMAIN}}/tlsca/tlsca.{{NETWORK_DOMAIN}}-cert.pem"
+            }
         }
     },
     "peers": {
-        "peer0.org1.example.com": {
-            "url": "grpc://localhost:7051"
+        "peer0.org1.{{NETWORK_DOMAIN}}": {
+            "url": "grpcs://{{PEER0_ORG1_HOST}}:{{PEER0_ORG1_PORT}}",
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.org1.{{NETWORK_DOMAIN}}",
+                "hostnameOverride": "peer0.org1.{{NETWORK_DOMAIN}}",
+                "grpc.keepalive_time_ms": 600000,
+                "grpc.keepalive_timeout_ms": 20000
+            },
+            "tlsCACerts": {
+                "path": "{{TLS_CA_CERT_PATH}}/peerOrganizations/org1.{{NETWORK_DOMAIN}}/tlsca/tlsca.org1.{{NETWORK_DOMAIN}}-cert.pem"
+            }
+        },
+        "peer0.org2.{{NETWORK_DOMAIN}}": {
+            "url": "grpcs://{{PEER0_ORG2_HOST}}:{{PEER0_ORG2_PORT}}",
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.org2.{{NETWORK_DOMAIN}}",
+                "hostnameOverride": "peer0.org2.{{NETWORK_DOMAIN}}",
+                "grpc.keepalive_time_ms": 600000,
+                "grpc.keepalive_timeout_ms": 20000
+            },
+            "tlsCACerts": {
+                "path": "{{TLS_CA_CERT_PATH}}/peerOrganizations/org2.{{NETWORK_DOMAIN}}/tlsca/tlsca.org2.{{NETWORK_DOMAIN}}-cert.pem"
+            }
+        },
+        "peer0.org3.{{NETWORK_DOMAIN}}": {
+            "url": "grpcs://{{PEER0_ORG3_HOST}}:{{PEER0_ORG3_PORT}}",
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.org3.{{NETWORK_DOMAIN}}",
+                "hostnameOverride": "peer0.org3.{{NETWORK_DOMAIN}}",
+                "grpc.keepalive_time_ms": 600000,
+                "grpc.keepalive_timeout_ms": 20000
+            },
+            "tlsCACerts": {
+                "path": "{{TLS_CA_CERT_PATH}}/peerOrganizations/org3.{{NETWORK_DOMAIN}}/tlsca/tlsca.org3.{{NETWORK_DOMAIN}}-cert.pem"
+            }
+        },
+        "peer0.org4.{{NETWORK_DOMAIN}}": {
+            "url": "grpcs://{{PEER0_ORG4_HOST}}:{{PEER0_ORG4_PORT}}",
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.org4.{{NETWORK_DOMAIN}}",
+                "hostnameOverride": "peer0.org4.{{NETWORK_DOMAIN}}",
+                "grpc.keepalive_time_ms": 600000,
+                "grpc.keepalive_timeout_ms": 20000
+            },
+            "tlsCACerts": {
+                "path": "{{TLS_CA_CERT_PATH}}/peerOrganizations/org4.{{NETWORK_DOMAIN}}/tlsca/tlsca.org4.{{NETWORK_DOMAIN}}-cert.pem"
+            }
         }
     },
     "certificateAuthorities": {
-        "ca.example.com": {
-            "url": "http://localhost:7054",
-            "caName": "ca.example.com"
+        "ca.org1.{{NETWORK_DOMAIN}}": {
+            "url": "https://{{CA_ORG1_HOST}}:{{CA_ORG1_PORT}}",
+            "caName": "ca-org1",
+            "tlsCACerts": {
+                "path": "{{TLS_CA_CERT_PATH}}/peerOrganizations/org1.{{NETWORK_DOMAIN}}/ca/ca.org1.{{NETWORK_DOMAIN}}-cert.pem"
+            },
+            "httpOptions": {
+                "verify": true
+            }
+        },
+        "ca.org2.{{NETWORK_DOMAIN}}": {
+            "url": "https://{{CA_ORG2_HOST}}:{{CA_ORG2_PORT}}",
+            "caName": "ca-org2",
+            "tlsCACerts": {
+                "path": "{{TLS_CA_CERT_PATH}}/peerOrganizations/org2.{{NETWORK_DOMAIN}}/ca/ca.org2.{{NETWORK_DOMAIN}}-cert.pem"
+            },
+            "httpOptions": {
+                "verify": true
+            }
+        },
+        "ca.org3.{{NETWORK_DOMAIN}}": {
+            "url": "https://{{CA_ORG3_HOST}}:{{CA_ORG3_PORT}}",
+            "caName": "ca-org3",
+            "tlsCACerts": {
+                "path": "{{TLS_CA_CERT_PATH}}/peerOrganizations/org3.{{NETWORK_DOMAIN}}/ca/ca.org3.{{NETWORK_DOMAIN}}-cert.pem"
+            },
+            "httpOptions": {
+                "verify": true
+            }
+        },
+        "ca.org4.{{NETWORK_DOMAIN}}": {
+            "url": "https://{{CA_ORG4_HOST}}:{{CA_ORG4_PORT}}",
+            "caName": "ca-org4",
+            "tlsCACerts": {
+                "path": "{{TLS_CA_CERT_PATH}}/peerOrganizations/org4.{{NETWORK_DOMAIN}}/ca/ca.org4.{{NETWORK_DOMAIN}}-cert.pem"
+            },
+            "httpOptions": {
+                "verify": true
+            }
         }
     }
 }

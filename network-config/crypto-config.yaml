@@ -7,49 +7,89 @@
 # ============================================================================
 # This crypto-config.yaml is kept for reference only.
 # For 2.0, use Hyperledger Bevel or Fabric CA for production identity management.
+#
+# SECURITY ISSUES IN THIS CONFIG:
+# 1. Single peer per org - Production requires 2+ peers for HA
+# 2. Single admin user per org - Production needs role separation
+# 3. Uses cryptogen - Production should use Fabric CA
+# 4. Single orderer node - Production requires Raft with 3+ nodes
 # ============================================================================
 
 # ---------------------------------------------------------------------------
 # "OrdererOrgs" - Definition of organizations managing orderer nodes
 # ---------------------------------------------------------------------------
+# PRODUCTION NOTE: Use Raft consensus with 3 or 5 orderer nodes across
+# different failure domains for Byzantine fault tolerance.
+# ---------------------------------------------------------------------------
 OrdererOrgs:
-  # ---------------------------------------------------------------------------
-  # Orderer
-  # ---------------------------------------------------------------------------
   - Name: Orderer
     Domain: example.com
-    # ---------------------------------------------------------------------------
-    # "Specs" - See PeerOrgs below for complete description
-    # ---------------------------------------------------------------------------
+    # Explicit CA settings for generated certificates
+    CA:
+      Country: US
+      Province: California
+      Locality: San Francisco
+    EnableNodeOUs: true
     Specs:
       - Hostname: orderer
+        # PRODUCTION: Add additional orderer nodes for Raft consensus:
+        # - Hostname: orderer2
+        # - Hostname: orderer3
+
 # ---------------------------------------------------------------------------
 # "PeerOrgs" - Definition of organizations managing peer nodes
 # ---------------------------------------------------------------------------
+# PRODUCTION REQUIREMENTS:
+# - Minimum 2 peers per org for high availability
+# - Multiple admin users with role separation (Admin, Client, Orderer, Peer)
+# - Use Fabric CA instead of cryptogen for certificate lifecycle management
+# ---------------------------------------------------------------------------
 PeerOrgs:
-  # ---------------------------------------------------------------------------
-  # Org1
-  # ---------------------------------------------------------------------------
   - Name: Org1
     Domain: org1.example.com
+    CA:
+      Country: US
+      Province: California
+      Locality: San Francisco
+    EnableNodeOUs: true
     Template:
+      # PRODUCTION: Set Count: 2 or higher for HA
       Count: 1
     Users:
+      # PRODUCTION: Create multiple users with different roles
       Count: 1
+
   - Name: Org2
     Domain: org2.example.com
+    CA:
+      Country: US
+      Province: California
+      Locality: San Francisco
+    EnableNodeOUs: true
     Template:
       Count: 1
     Users:
       Count: 1
+
   - Name: Org3
     Domain: org3.example.com
+    CA:
+      Country: US
+      Province: California
+      Locality: San Francisco
+    EnableNodeOUs: true
     Template:
       Count: 1
     Users:
       Count: 1
+
   - Name: Org4
     Domain: org4.example.com
+    CA:
+      Country: US
+      Province: California
+      Locality: San Francisco
+    EnableNodeOUs: true
     Template:
       Count: 1
     Users:
