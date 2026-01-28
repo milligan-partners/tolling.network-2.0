@@ -60,8 +60,6 @@ Congress mandated nationwide interoperability in 2012 (MAP-21). A decade later, 
 - **Settlement** — Period-based financial netting between two agencies
 - **Acknowledgement** — Protocol-level receipt confirmation
 
-See [plan.md](plan.md) for the full data model, entity definitions, and architecture decisions.
-
 ## Repository Structure
 
 ```
