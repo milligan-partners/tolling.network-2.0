@@ -65,8 +65,9 @@ Congress mandated nationwide interoperability in 2012 (MAP-21). A decade later, 
 ```
 chaincode/          Go smart contracts — NIOP and CTOC protocol validation
   niop/             National interop chaincode
+    models/         Domain entity structs, validation, and tests
   ctoc/             California/Western region chaincode
-  shared/           Shared Go utilities (encryption, lookups)
+  shared/           Shared Go utilities (encryption, lookups, test helpers)
   testdata/         Test fixtures (accounts, tags, charges)
 api/                NestJS REST API (TypeScript)
 infrastructure/
@@ -127,7 +128,7 @@ make docker-down
 
 ## Status
 
-This project is in active planning and early development.
+Active development. Chaincode domain models (Agency, Tag, Charge, Correction, Reconciliation, Acknowledgement, Settlement) are implemented with validation and 99.6% test coverage. Chaincode contract functions, CouchDB indexes, and the NestJS API are next.
 
 ## License
 
