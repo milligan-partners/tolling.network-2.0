@@ -199,4 +199,4 @@ docs/
 
 By contributing, you agree that your contributions will be licensed under the Apache License 2.0.
 
-Copyright 2016-2026 Milligan Partners.
+Copyright 2016-2026 Milligan Partners LLC.

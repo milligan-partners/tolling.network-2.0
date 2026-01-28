@@ -133,4 +133,4 @@ This project is in active planning and early development.
 
 Apache License 2.0 — see [LICENSE](LICENSE).
 
-Copyright 2016-2026 Milligan Partners.
+Copyright 2016-2026 Milligan Partners LLC.
