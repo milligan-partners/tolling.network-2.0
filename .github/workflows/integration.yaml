@@ -1,0 +1,127 @@
+# Integration Tests Workflow
+#
+# Runs integration tests against a local Fabric network.
+# Triggered on PRs to main and pushes to main/develop branches.
+#
+# Copyright 2016-2026 Milligan Partners LLC
+# SPDX-License-Identifier: Apache-2.0
+
+name: Integration Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'chaincode/**'
+      - 'network-config/**'
+      - 'infrastructure/docker/**'
+      - 'scripts/**'
+      - '.github/workflows/integration.yaml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'chaincode/**'
+      - 'network-config/**'
+      - 'infrastructure/docker/**'
+      - 'scripts/**'
+      - '.github/workflows/integration.yaml'
+
+env:
+  GO_VERSION: '1.24'
+  FABRIC_VERSION: '2.5'
+
+jobs:
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: chaincode/*/go.sum
+
+      - name: Install Fabric binaries
+        run: |
+          mkdir -p bin
+          curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh | bash -s -- binary ${{ env.FABRIC_VERSION }}
+          echo "${PWD}/bin" >> $GITHUB_PATH
+
+      - name: Verify Fabric binaries
+        run: |
+          peer version
+          configtxgen --version
+
+      - name: Initialize network (generate crypto)
+        run: make network-init
+
+      - name: Start Fabric network
+        run: |
+          make docker-up
+          # Wait for network to stabilize
+          echo "Waiting for network to start..."
+          sleep 30
+
+      - name: Check container health
+        run: |
+          docker ps --format "table {{.Names}}\t{{.Status}}"
+          # Verify critical containers are running
+          docker ps | grep -q "orderer1.orderer.tolling.network"
+          docker ps | grep -q "peer0.org1.tolling.network"
+          docker ps | grep -q "peer0.org2.tolling.network"
+
+      - name: Create channel
+        run: make channel-create
+
+      - name: Deploy chaincode
+        run: make chaincode-deploy
+
+      - name: Run integration tests
+        run: make integration-test
+
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          mkdir -p logs
+          docker compose -f infrastructure/docker/docker-compose.yaml logs > logs/fabric-all.log
+          docker logs orderer1.orderer.tolling.network > logs/orderer1.log 2>&1 || true
+          docker logs peer0.org1.tolling.network > logs/peer0-org1.log 2>&1 || true
+          docker logs peer0.org2.tolling.network > logs/peer0-org2.log 2>&1 || true
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fabric-logs
+          path: logs/
+          retention-days: 5
+
+      - name: Teardown network
+        if: always()
+        run: make network-down
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: chaincode/*/go.sum
+
+      - name: Run chaincode unit tests
+        run: make chaincode-test
+
+      - name: Run chaincode linter
+        run: make chaincode-lint

@@ -1,7 +1,7 @@
 # Tolling.Network 2.0
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8.svg)](#quick-start)
+[![Go](https://img.shields.io/badge/Go-1.24+-00ADD8.svg)](#quick-start)
 [![Hyperledger Fabric](https://img.shields.io/badge/Hyperledger_Fabric-2.5.x-2F3134.svg)](https://hyperledger-fabric.readthedocs.io/)
 
 A distributed ledger for US toll interoperability, built on Hyperledger Fabric.
@@ -39,13 +39,16 @@ US toll interoperability is coordinated across regional consortiums through a na
 git clone https://github.com/milligan-partners/tolling-network-2.0.git
 cd tolling-network-2.0
 
-make network-init     # Generate crypto material
-make docker-up        # Start Fabric network
-make chaincode-test   # Run tests
-make help             # See all commands
+make network-init       # Generate crypto material
+make docker-up          # Start Fabric network
+make channel-create     # Create channel and join peers
+make chaincode-deploy   # Deploy chaincode
+make chaincode-test     # Run unit tests
+make integration-test   # Run integration tests
+make help               # See all commands
 ```
 
-**Prerequisites:** Docker, Go 1.22+, Node.js 20 LTS
+**Prerequisites:** Docker, Go 1.24+, Node.js 20 LTS
 
 See [Getting Started](docs/onboarding/getting-started.md) for full setup instructions.
 
@@ -54,6 +57,7 @@ See [Getting Started](docs/onboarding/getting-started.md) for full setup instruc
 - [Architecture & Design](docs/architecture/design.md) — Data model, chaincode structure, indexing
 - [Domain Glossary](docs/domain/glossary.md) — Industry terms and concepts
 - [Developer Guide](docs/onboarding/getting-started.md) — Setup, testing, deployment
+- [Testing Guide](docs/onboarding/testing.md) — Unit tests, integration tests, CI/CD
 
 ## Security
 

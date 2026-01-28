@@ -103,6 +103,4 @@ test: chaincode-test api-test ## Run all tests
 lint: chaincode-lint api-lint ## Run all linters
 
 integration-test: ## Run integration tests against running network
-	@echo "Running integration tests..."
-	cd chaincode/ctoc && go test -tags=integration ./...
-	cd chaincode/niop && go test -tags=integration ./...
+	./scripts/integration-test.sh

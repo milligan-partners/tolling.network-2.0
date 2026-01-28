@@ -24,7 +24,31 @@ Test individual functions in isolation. Mock all external dependencies (Fabric s
 
 Test chaincode deployed to a local Fabric network via Docker Compose. These verify endorsement policies, private data collections, and multi-org interactions.
 
-**Run:** `make docker-up && make integration-test`
+Integration tests are located in `chaincode/integration/` and use the Fabric Gateway SDK to connect to the running network as each organization.
+
+**Prerequisites:**
+1. Network running: `make docker-up`
+2. Channel created: `make channel-create`
+3. Chaincode deployed: `make chaincode-deploy`
+
+**Run:** `make integration-test`
+
+**Test Files:**
+| File | Coverage |
+|---|---|
+| `integration_test.go` | TestMain setup, connection health checks |
+| `charge_lifecycle_test.go` | Create, get, update status, query charges |
+| `private_data_test.go` | Collection isolation between agency pairs |
+| `reconciliation_test.go` | Charge-to-reconciliation workflow |
+| `settlement_test.go` | Settlement lifecycle (draft→submitted→accepted→paid) |
+| `rich_query_test.go` | CouchDB index queries |
+
+**Key Features:**
+- Uses `//go:build integration` tag to separate from unit tests
+- Connects as all 4 organizations (Org1-Org4) via Fabric Gateway
+- Verifies private data collection isolation
+- Tests status transition enforcement
+- Validates CouchDB rich queries work with indexes
 
 ### Fixture Tests
 
@@ -36,6 +60,15 @@ Validate that test data files conform to expected schemas. Catch fixture drift e
 
 ```
 chaincode/
+  integration/             # Integration tests (Fabric Gateway SDK)
+    integration_test.go    # TestMain, connection setup
+    fabric_client.go       # Gateway connection helpers
+    config.go              # Network configuration
+    charge_lifecycle_test.go
+    private_data_test.go
+    reconciliation_test.go
+    settlement_test.go
+    rich_query_test.go
   shared/
     testutil/
       mock_stub.go       # MockStub wrappers and state helpers
@@ -363,12 +396,32 @@ Coverage output directories are gitignored.
 
 ## CI/CD Integration
 
-When GitHub Actions workflows are created (`.github/workflows/`), every push and PR must:
+GitHub Actions workflows are defined in `.github/workflows/`:
+
+### `integration.yaml`
+
+Runs on PRs to `main` and pushes to `main`/`develop`:
+
+1. **Unit Tests Job:** Runs `make chaincode-test` and `make chaincode-lint`
+2. **Integration Tests Job:**
+   - Installs Fabric binaries
+   - Initializes network (`make network-init`)
+   - Starts Docker network (`make docker-up`)
+   - Creates channel (`make channel-create`)
+   - Deploys chaincode (`make chaincode-deploy`)
+   - Runs integration tests (`make integration-test`)
+   - Collects logs on failure
+   - Tears down network (`make network-down`)
+
+### Build Requirements
+
+Every push and PR must:
 
 1. Run `make lint`
 2. Run `make test`
-3. Report coverage
-4. Fail the build if coverage drops below targets
+3. Run integration tests (on `main`/`develop`)
+4. Report coverage
+5. Fail the build if coverage drops below targets
 
 ## Adding a New Test
 
