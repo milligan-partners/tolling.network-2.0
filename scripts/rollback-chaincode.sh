@@ -72,7 +72,8 @@ RETRY_DELAY="${RETRY_DELAY:-5}"
 MAX_RETRIES="${MAX_RETRIES:-5}"
 
 # Organization configurations
-declare -a ORG_CONFIGS=(
+# Organization configurations (indexed arrays for bash 3.x compatibility)
+ORG_CONFIGS=(
     "Org1:Org1MSP:peer0.org1.tolling.network:7051"
     "Org2:Org2MSP:peer0.org2.tolling.network:8051"
     "Org3:Org3MSP:peer0.org3.tolling.network:9051"
@@ -84,8 +85,8 @@ CURRENT_VERSION=""
 CURRENT_SEQUENCE=""
 NEW_SEQUENCE=""
 
-# Track package IDs per org
-declare -A PACKAGE_IDS
+# Track package IDs per org (indexed array, matches ORG_CONFIGS order)
+PACKAGE_IDS=()
 
 # Temporary directory for git checkout
 TEMP_SRC_DIR=""
@@ -254,8 +255,9 @@ get_current_chaincode_info() {
         --output json 2>&1) || true
 
     if echo "${result}" | grep -q "\"name\": \"${CC_NAME}\""; then
-        CURRENT_VERSION=$(echo "${result}" | grep -oP '"version": "\K[^"]+' | head -1)
-        CURRENT_SEQUENCE=$(echo "${result}" | grep -oP '"sequence": \K[0-9]+' | head -1)
+        # Use sed for macOS compatibility (no grep -P)
+        CURRENT_VERSION=$(echo "${result}" | sed -n 's/.*"version": "\([^"]*\)".*/\1/p' | head -1)
+        CURRENT_SEQUENCE=$(echo "${result}" | sed -n 's/.*"sequence": \([0-9]*\).*/\1/p' | head -1)
         NEW_SEQUENCE=$((CURRENT_SEQUENCE + 1))
 
         log_success "Found deployed chaincode:"
@@ -452,11 +454,13 @@ package_chaincode() {
 }
 
 # Install chaincode on a peer
+# Args: org_index org_name msp_id peer_host peer_port
 install_chaincode() {
-    local org_name="$1"
-    local msp_id="$2"
-    local peer_host="$3"
-    local peer_port="$4"
+    local org_index="$1"
+    local org_name="$2"
+    local msp_id="$3"
+    local peer_host="$4"
+    local peer_port="$5"
 
     log_info "Installing chaincode on ${peer_host}..."
 
@@ -465,16 +469,17 @@ install_chaincode() {
     local result
     result=$(peer_with_retry lifecycle chaincode install "${CC_PACKAGE}")
 
-    # Extract package ID
+    # Extract package ID (use sed for macOS compatibility)
     local package_id
-    package_id=$(echo "${result}" | grep -oP 'Chaincode code package identifier: \K[^\s]+' || \
-                 echo "${result}" | grep -oP 'Package ID: \K[^\s]+' || \
-                 echo "")
+    package_id=$(echo "${result}" | sed -n 's/.*Chaincode code package identifier: \([^ ]*\).*/\1/p' | head -1)
+    if [[ -z "${package_id}" ]]; then
+        package_id=$(echo "${result}" | sed -n 's/.*Package ID: \([^ ]*\).*/\1/p' | head -1)
+    fi
 
     if [[ -z "${package_id}" ]]; then
         local query_result
         query_result=$(peer lifecycle chaincode queryinstalled 2>&1)
-        package_id=$(echo "${query_result}" | grep "${CC_NAME}_${TARGET_VERSION}" | grep -oP 'Package ID: \K[^,]+' | head -1 || echo "")
+        package_id=$(echo "${query_result}" | grep "${CC_NAME}_${TARGET_VERSION}" | sed -n 's/.*Package ID: \([^,]*\).*/\1/p' | head -1)
     fi
 
     if [[ -z "${package_id}" ]]; then
@@ -482,33 +487,37 @@ install_chaincode() {
         exit 1
     fi
 
-    PACKAGE_IDS["${msp_id}"]="${package_id}"
+    PACKAGE_IDS[${org_index}]="${package_id}"
     log_success "Chaincode installed on ${peer_host}"
 }
 
 install_on_all_peers() {
     log_step "Installing chaincode on all peers..."
 
+    local org_index=0
     for org_config in "${ORG_CONFIGS[@]}"; do
         IFS=':' read -r org_name msp_id peer_host peer_port <<< "${org_config}"
-        install_chaincode "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
+        install_chaincode "${org_index}" "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
+        org_index=$((org_index + 1))
     done
 
     log_success "Chaincode installed on all peers"
 }
 
 # Approve chaincode for an organization
+# Args: org_index org_name msp_id peer_host peer_port
 approve_chaincode() {
-    local org_name="$1"
-    local msp_id="$2"
-    local peer_host="$3"
-    local peer_port="$4"
+    local org_index="$1"
+    local org_name="$2"
+    local msp_id="$3"
+    local peer_host="$4"
+    local peer_port="$5"
 
     log_info "Approving chaincode for ${msp_id}..."
 
     set_org_env "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
 
-    local package_id="${PACKAGE_IDS[${msp_id}]}"
+    local package_id="${PACKAGE_IDS[${org_index}]}"
 
     # Build approve command
     local approve_cmd=(
@@ -536,9 +545,11 @@ approve_chaincode() {
 approve_for_all_orgs() {
     log_step "Approving chaincode for all organizations..."
 
+    local org_index=0
     for org_config in "${ORG_CONFIGS[@]}"; do
         IFS=':' read -r org_name msp_id peer_host peer_port <<< "${org_config}"
-        approve_chaincode "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
+        approve_chaincode "${org_index}" "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
+        org_index=$((org_index + 1))
     done
 
     log_success "Chaincode approved by all organizations"
@@ -640,8 +651,9 @@ verify_rollback() {
         --output json 2>&1)
 
     local new_version new_sequence
-    new_version=$(echo "${result}" | grep -oP '"version": "\K[^"]+' | head -1)
-    new_sequence=$(echo "${result}" | grep -oP '"sequence": \K[0-9]+' | head -1)
+    # Use sed for macOS compatibility (no grep -P)
+    new_version=$(echo "${result}" | sed -n 's/.*"version": "\([^"]*\)".*/\1/p' | head -1)
+    new_sequence=$(echo "${result}" | sed -n 's/.*"sequence": \([0-9]*\).*/\1/p' | head -1)
 
     if [[ "${new_sequence}" == "${NEW_SEQUENCE}" ]] && [[ "${new_version}" == "${TARGET_VERSION}" ]]; then
         log_success "Rollback verified successfully!"
