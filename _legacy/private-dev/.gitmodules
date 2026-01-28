@@ -1,3 +1,0 @@
-[submodule "chaincode"]
-	path = chaincode
-	url = git@github.com:ruuftop/chaincode.git

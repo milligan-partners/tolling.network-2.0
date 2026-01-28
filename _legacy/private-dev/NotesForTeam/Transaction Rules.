@@ -1,8 +1,0 @@
-This file contains the rules that the chaincode should contain:
-
-1. A fee (lets say 5%) will be in action for every transaction. The fee might be different for different channels.
-
-2. Account status or account details for an account can be modified by only the agency that owns the account.
-
-3. Transactions older than a particular time cannot be added to the ledger. 
-    example: transactions older than 30 days cannot be added to the network. 
