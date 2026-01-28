@@ -6,6 +6,8 @@
 
 A distributed ledger for US toll interoperability, built on Hyperledger Fabric.
 
+This is the successor to the original Tolling.Network proof-of-concept, rebuilt from the ground up with production-grade architecture.
+
 Tolling.Network replaces the file-based processing models used by toll agencies today — whether hub-and-spoke or peer-to-peer transfers — with a shared, permissioned blockchain where agencies transact directly in near-real-time.
 
 ## Background
