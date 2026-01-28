@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<!-- v1.10 -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Style Guide Examples — Toll Systems v1.9</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;500&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+           CSS VARIABLES — v1.10
+           ======================================== */
+        :root {
+            /* Breakpoints (for reference) */
+            --breakpoint-sm: 640px;
+            --breakpoint-md: 768px;
+            --breakpoint-lg: 1024px;
+            --breakpoint-xl: 1280px;
+            --breakpoint-2xl: 1536px;
+
+            /* Fluid Typography */
+            --font-display: clamp(1.75rem, 4vw + 1rem, 2.441rem);
+            --font-h1: clamp(1.5rem, 3vw + 0.75rem, 1.953rem);
+            --font-h2: clamp(1.25rem, 2vw + 0.5rem, 1.563rem);
+            --font-h3: clamp(1.1rem, 1.5vw + 0.5rem, 1.25rem);
+            --font-body: clamp(0.938rem, 1vw + 0.5rem, 1rem);
+            --font-small: clamp(0.75rem, 0.8vw + 0.4rem, 0.8rem);
+
+            /* Spacing Scale */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+
+            /* Z-Index Scale */
+            --z-base: 0;
+            --z-raised: 10;
+            --z-dropdown: 100;
+            --z-sticky: 200;
+            --z-overlay: 300;
+            --z-modal: 400;
+            --z-popover: 500;
+            --z-toast: 600;
+            --z-max: 9999;
+
+            /* Colors (for dark mode support) */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+        }
+
+        /* ========================================
+           BASE STYLES
+           ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* === Skip Link (v1.10) === */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            z-index: 1000;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: var(--space-xl);
+            font-size: 16px;
+            overflow-x: hidden;
+            overflow-wrap: break-word;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        /* Flexible media */
+        img, video, svg { max-width: 100%; height: auto; }
+
+        /* Scroll margin for anchor links */
+        [id] { scroll-margin-top: 80px; }
+
+        /* ========================================
+           TYPOGRAPHY
+           ======================================== */
+        .display {
+            font-size: 2.441rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 1.953rem;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.563rem;
+            font-weight: 600;
+            line-height: 1.25;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #475569;
+        }
+
+        h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            max-width: 680px;
+        }
+
+        .body-small {
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        /* Source Serif 4 — Accent */
+        .intro-paragraph {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 1.125rem;
+            font-weight: 400;
+            line-height: 1.6;
+            color: #475569;
+            margin-bottom: 1.5rem;
+            max-width: 680px;
+        }
+
+        .pull-quote {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #334155;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem 1.5rem;
+            margin: 2rem 0;
+            background: #f8fafc;
+        }
+
+        .pull-quote .attribution {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-top: 0.75rem;
+        }
+
+        .epigraph {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 1rem;
+            font-style: italic;
+            color: #64748b;
+            text-align: center;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .epigraph .source {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-style: normal;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        /* Source Code Pro — Monospace */
+        code {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.8rem;
+            background: #f4f4f4;
+            padding: 0.125rem 0.375rem;
+            border-radius: 3px;
+        }
+
+        pre {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.8rem;
+            background: #f8f8f8;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            line-height: 1.5;
+            margin: 1.5rem 0;
+        }
+
+        /* ========================================
+           ICON SYSTEM
+           ======================================== */
+        .material-symbols-rounded {
+            font-family: 'Material Symbols Rounded';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+            vertical-align: middle;
+        }
+
+        .icon-sm { font-size: 18px; }
+        .icon-md { font-size: 28px; }
+        .icon-lg { font-size: 32px; }
+        .icon-xl { font-size: 48px; }
+
+        /* ========================================
+           LAYOUT COMPONENTS
+           ======================================== */
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin: 1.5rem 0;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive grid collapse */
+        @media (max-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+            body { padding: var(--space-md); }
+            :root {
+                --space-lg: 1.25rem;
+                --space-xl: 1.5rem;
+                --space-2xl: 2rem;
+            }
+        }
+
+        /* ========================================
+           ACCESSIBILITY v1.10
+           ======================================== */
+        :focus { outline: none; }
+        :focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* High contrast mode */
+        @media (forced-colors: active) {
+            .card, .section, .cx-header, .tag, .status-badge {
+                border: 1px solid CanvasText;
+            }
+        }
+
+        /* ========================================
+           TOUCH & HOVER
+           ======================================== */
+        @media (hover: hover) and (pointer: fine) {
+            .card:hover, .section:hover {
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            button, a, .tag, .status-badge {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+
+        /* ========================================
+           VISIBILITY UTILITIES
+           ======================================== */
+        @media (max-width: 640px) { .hidden-sm { display: none !important; } }
+        @media (max-width: 768px) { .hidden-md { display: none !important; } }
+        @media (max-width: 1024px) { .hidden-lg { display: none !important; } }
+
+        .visible-sm-only { display: none; }
+        @media (max-width: 640px) { .visible-sm-only { display: block; } }
+
+        /* ========================================
+           LINE CLAMPING
+           ======================================== */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ========================================
+           TABLE WRAPPER
+           ======================================== */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ========================================
+           PRINT STYLES
+           ======================================== */
+        @media print {
+            @page { size: A4; margin: 0.75in; }
+            body { background: white; color: black; font-size: 11pt; padding: 0; }
+            .card, .section { box-shadow: none; border: 1px solid #e2e8f0; break-inside: avoid; }
+            h1, h2, h3, h4 { break-after: avoid; }
+            .cx-header, .tag, .status-badge {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            a[href^="http"]::after {
+                content: " (" attr(href) ")";
+                font-size: 0.8em;
+                color: #64748b;
+            }
+        }
+
+        /* ========================================
+           CX HEADERS
+           ======================================== */
+        .cx-header {
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid transparent;
+        }
+
+        .cx-header h1 {
+            font-size: 1.563rem;
+            font-weight: 700;
+            margin: 0 0 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cx-header h1 .material-symbols-rounded {
+            font-size: 32px;
+        }
+
+        .cx-header .subtitle {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Pastel journey colors with dark text */
+        .cx-header.journey-1a {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .cx-header.journey-1b {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .cx-header.journey-2 {
+            background: #cffafe;
+            color: #0e7490;
+            border: 1px solid #a5f3fc;
+        }
+        .cx-header.journey-3 {
+            background: #ede9fe;
+            color: #5b21b6;
+            border: 1px solid #ddd6fe;
+        }
+        .cx-header.journey-4 {
+            background: #ffe4e6;
+            color: #9f1239;
+            border: 1px solid #fecdd3;
+        }
+
+        /* ========================================
+           LABELS & TAGS
+           ======================================== */
+        .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .segment-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.625rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-right: 0.25rem;
+        }
+
+        .account-tag {
+            font-family: 'Source Code Pro', monospace;
+        }
+
+        .tag-green { background: #d1fae5; color: #065f46; }
+        .tag-blue { background: #dbeafe; color: #1e40af; }
+        .tag-sky { background: #e0f2fe; color: #0369a1; }
+        .tag-amber { background: #fef3c7; color: #92400e; }
+        .tag-purple { background: #ede9fe; color: #5b21b6; }
+        .tag-rose { background: #fce7f3; color: #9d174d; }
+        .tag-gray { background: #f1f5f9; color: #475569; }
+
+        .persona-chip {
+            font-size: 0.65rem;
+            font-weight: 500;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+        }
+
+        /* ========================================
+           STATUS BADGES
+           ======================================== */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-family: 'Source Code Pro', monospace;
+        }
+
+        .status-badge .material-symbols-rounded {
+            font-size: 14px;
+        }
+
+        .status-draft { background: #fef3c7; color: #92400e; }
+        .status-review { background: #dbeafe; color: #1e40af; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-deprecated { background: #e2e8f0; color: #64748b; }
+
+        /* ========================================
+           EMOTIONAL INDICATORS
+           ======================================== */
+        .emotion {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .emotion .material-symbols-rounded {
+            font-size: 16px;
+        }
+
+        .emotion-positive { background: #dcfce7; color: #166534; }
+        .emotion-neutral { background: #f1f5f9; color: #475569; }
+        .emotion-negative { background: #fee2e2; color: #991b1b; }
+        .emotion-mixed { background: #fef3c7; color: #92400e; }
+
+        /* ========================================
+           METRIC CARDS
+           ======================================== */
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .metric-card .icon {
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-card .icon .material-symbols-rounded {
+            font-size: 28px;
+            color: #64748b;
+        }
+
+        .metric-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Source Code Pro', monospace;
+            color: #0f172a;
+        }
+
+        .metric-card .metric-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .metric-card .trend {
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .metric-card .trend .material-symbols-rounded {
+            font-size: 16px;
+        }
+
+        .trend-up { color: #16a34a; }
+        .trend-down { color: #dc2626; }
+
+        .metric-card.dark {
+            background: #1e293b;
+            color: white;
+        }
+
+        .metric-card.dark .value { color: white; }
+        .metric-card.dark .metric-label { color: #94a3b8; }
+        .metric-card.dark .icon .material-symbols-rounded { color: #94a3b8; }
+
+        /* ========================================
+           KPI STATUS
+           ======================================== */
+        .kpi-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .kpi-status .material-symbols-rounded {
+            font-size: 16px;
+        }
+
+        .kpi-status.on-target { background: #dcfce7; color: #166534; }
+        .kpi-status.at-risk { background: #fef3c7; color: #92400e; }
+        .kpi-status.breached { background: #fee2e2; color: #991b1b; }
+
+        /* ========================================
+           SEVERITY BADGES
+           ======================================== */
+        .severity-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .severity-badge .material-symbols-rounded {
+            font-size: 14px;
+        }
+
+        .severity-1 { background: #fee2e2; color: #991b1b; }
+        .severity-2 { background: #ffedd5; color: #9a3412; }
+        .severity-3 { background: #fef3c7; color: #92400e; }
+        .severity-4 { background: #d1fae5; color: #065f46; }
+
+        /* ========================================
+           RACI BADGES
+           ======================================== */
+        .raci-badge {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-align: center;
+            font-family: 'Source Code Pro', monospace;
+        }
+
+        .raci-r { background: #fee2e2; color: #991b1b; }
+        .raci-a { background: #fef3c7; color: #92400e; }
+        .raci-c { background: #dbeafe; color: #1e40af; }
+        .raci-i { background: #d1fae5; color: #065f46; }
+
+        /* ========================================
+           CALLOUTS
+           ======================================== */
+        .moment-of-truth {
+            background: #fffbeb;
+            border-left: 3px solid #fcd34d;
+            padding: 0.75rem 1rem;
+            margin: 1rem 0;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .moment-of-truth .material-symbols-rounded {
+            font-size: 18px;
+            color: #f59e0b;
+        }
+
+        .note {
+            background: #f8fafc;
+            border-left: 3px solid #cbd5e1;
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+            color: #64748b;
+            font-style: italic;
+            margin: 1rem 0;
+        }
+
+        .script-block {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #166534;
+            margin: 1rem 0;
+        }
+
+        .dont-block {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 0.8rem;
+            color: #991b1b;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .dont-block .material-symbols-rounded {
+            font-size: 18px;
+        }
+
+        /* ========================================
+           SERVICE BLUEPRINT
+           ======================================== */
+        .blueprint-layer-label {
+            width: 140px;
+            flex-shrink: 0;
+            padding: 1rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .blueprint-layer-label .material-symbols-rounded {
+            font-size: 20px;
+        }
+
+        .layer-physical { background: #dbeafe; color: #1e40af; }
+        .layer-customer { background: #fef3c7; color: #92400e; }
+        .layer-frontstage { background: #d1fae5; color: #065f46; }
+        .layer-backstage { background: #e0e7ff; color: #3730a3; }
+        .layer-support { background: #fce7f3; color: #9d174d; }
+
+        .blueprint-line {
+            padding: 0.4rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 0.5rem 0;
+        }
+
+        .line-interaction { background: #f59e0b; color: white; }
+        .line-visibility { background: #3b82f6; color: white; }
+        .line-internal { background: #64748b; color: white; }
+
+        /* ========================================
+           PROCESS STEPS
+           ======================================== */
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            font-family: 'Source Code Pro', monospace;
+        }
+
+        .step-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .step-card .icon {
+            width: 40px;
+            height: 40px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+        }
+
+        .step-card .icon .material-symbols-rounded {
+            font-size: 20px;
+            color: white;
+        }
+
+        .step-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #334155;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .step-card p {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .process-flow {
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .process-flow .step-card {
+            flex: 1;
+            position: relative;
+        }
+
+        .process-flow .step-card:not(:last-child)::after {
+            content: 'arrow_forward';
+            font-family: 'Material Symbols Rounded';
+            position: absolute;
+            right: -1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 20px;
+        }
+
+        /* ========================================
+           JOURNEY STAGES
+           ======================================== */
+        .journey-flow {
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+        }
+
+        .stage {
+            flex: 1;
+            min-width: 180px;
+            position: relative;
+        }
+
+        .stage-header {
+            padding: 0.6rem 1rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-align: center;
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .stage:not(:last-child) .stage-header::after {
+            content: 'arrow_forward';
+            font-family: 'Material Symbols Rounded';
+            position: absolute;
+            right: -0.75rem;
+            top: 0.5rem;
+            color: #94a3b8;
+            font-size: 18px;
+            z-index: 1;
+        }
+
+        .stage-content {
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            padding: 1rem;
+            background: #fafbfc;
+            min-height: 150px;
+            font-size: 0.8rem;
+        }
+
+        /* ========================================
+           ROLE & GOVERNANCE CARDS
+           ======================================== */
+        .role-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .role-card .header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .role-card .header .material-symbols-rounded {
+            font-size: 20px;
+        }
+
+        .role-card h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #334155;
+            margin: 0;
+        }
+
+        .role-card .reports-to {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+        }
+
+        .role-card.executive { border-left-color: #8b5cf6; }
+        .role-card.executive .header .material-symbols-rounded { color: #8b5cf6; }
+
+        .role-card.journey { border-left-color: #10b981; }
+        .role-card.journey .header .material-symbols-rounded { color: #10b981; }
+
+        .playbook-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .playbook-header {
+            background: #1e293b;
+            color: white;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .playbook-header .material-symbols-rounded {
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        .playbook-header h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .playbook-header .id {
+            font-size: 0.7rem;
+            font-family: 'Source Code Pro', monospace;
+            opacity: 0.7;
+        }
+
+        .playbook-body {
+            padding: 1.25rem;
+        }
+
+        /* ========================================
+           COLOR SWATCHES
+           ======================================== */
+        .color-swatch {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-swatch .sample {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .color-swatch .info {
+            font-size: 0.75rem;
+        }
+
+        .color-swatch .name {
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .color-swatch .hex {
+            font-family: 'Source Code Pro', monospace;
+            color: #64748b;
+        }
+
+        /* ========================================
+           CHECKLIST
+           ======================================== */
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .checklist-item .material-symbols-rounded {
+            font-size: 18px;
+            color: #94a3b8;
+        }
+
+        .checklist-item.checked .material-symbols-rounded {
+            color: #10b981;
+        }
+
+        /* ========================================
+           EMOTION METER
+           ======================================== */
+        .emotion-meter {
+            display: flex;
+            gap: 2px;
+        }
+
+        .emotion-meter .bar {
+            width: 12px;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+
+        .emotion-meter .bar.active.positive { background: #22c55e; }
+        .emotion-meter .bar.active.negative { background: #ef4444; }
+        .emotion-meter .bar.active.neutral { background: #94a3b8; }
+
+        /* ========================================
+           STATUS DOT
+           ======================================== */
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.4rem;
+        }
+
+        .status-dot.green { background: #22c55e; }
+        .status-dot.yellow { background: #f59e0b; }
+        .status-dot.red { background: #ef4444; }
+
+        /* ========================================
+           TABLES
+           ======================================== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.8rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            font-weight: 600;
+            color: #475569;
+            background: #f8fafc;
+        }
+
+        /* ========================================
+           DIVIDER
+           ======================================== */
+        hr {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 3rem 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <main id="main-content">
+        <div class="container">
+
+            <!-- ========================================
+                 HEADER
+                 ======================================== -->
+            <div class="cx-header">
+                <h1><span class="material-symbols-rounded" aria-hidden="true">design_services</span> Style Guide Examples</h1>
+                <div class="subtitle">Toll Systems Design System v1.9 — January 2026</div>
+            </div>
+
+            <p class="intro-paragraph">
+                This document demonstrates all components from the Toll Systems Style Guide v1.9, featuring Source Sans 3 as the primary typeface, Source Serif 4 for accent text, and Source Code Pro for monospace elements.
+            </p>
+
+            <!-- ========================================
+                 TYPOGRAPHY
+                 ======================================== -->
+            <div class="section">
+                <h2>Typography</h2>
+
+                <h3>Type Scale — Major Third (1.250)</h3>
+                <div class="display">Display (39px / 700)</div>
+                <h1 style="margin-top: 1rem;">H1 Page Title (31px / 600)</h1>
+                <h2 style="margin-top: 1rem;">H2 Section Title (25px / 600)</h2>
+                <h3 style="margin-top: 1rem;">H3 Subsection (20px / 600)</h3>
+                <h4 style="margin-top: 1rem;">H4 Card Title (16px / 600)</h4>
+                <p>Body text at 16px with 400 weight. The quick brown fox jumps over the lazy dog. This demonstrates the primary reading font for documentation and user interfaces.</p>
+                <p class="body-small">Body Small (13px / 400) — Secondary content and supporting text for captions and metadata.</p>
+                <p class="label">Caption / Label (10px / 600)</p>
+
+                <h3>Source Serif 4 — Accent Usage</h3>
+
+                <p class="intro-paragraph">
+                    Introduction paragraphs use Source Serif 4 at 18px to create visual distinction for opening sections of major content areas, executive summaries, and formal documentation.
+                </p>
+
+                <div class="pull-quote">
+                    "The best customer experience is one where the customer doesn't have to think about toll collection at all — it just works seamlessly in the background of their journey."
+                    <div class="attribution">— CX Design Principle</div>
+                </div>
+
+                <div class="epigraph">
+                    To understand the customer is to understand the journey.
+                    <span class="source">Journey Framework Introduction</span>
+                </div>
+
+                <h3>Source Code Pro — Monospace</h3>
+                <p>Inline code example: <code>const tollRate = calculateRate(vehicleClass);</code></p>
+                <pre>// Code block example
+function processTransaction(account, amount) {
+    const balance = account.getBalance();
+    if (balance >= amount) {
+        return account.debit(amount);
+    }
+    return { error: 'Insufficient funds' };
+}</pre>
+                <p>File paths: <code>/api/v2/accounts/{id}/transactions</code></p>
+            </div>
+
+            <!-- ========================================
+                 ICON SYSTEM
+                 ======================================== -->
+            <div class="section">
+                <h2>Icon System</h2>
+                <p>Material Symbols Rounded at various sizes:</p>
+
+                <div class="flex-row" style="margin: 1.5rem 0;">
+                    <div style="text-align: center;">
+                        <span class="material-symbols-rounded icon-sm" aria-hidden="true">settings</span>
+                        <div class="label" style="margin-top: 0.5rem;">18px</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+                        <div class="label" style="margin-top: 0.5rem;">24px</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <span class="material-symbols-rounded icon-md" aria-hidden="true">settings</span>
+                        <div class="label" style="margin-top: 0.5rem;">28px</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <span class="material-symbols-rounded icon-lg" aria-hidden="true">settings</span>
+                        <div class="label" style="margin-top: 0.5rem;">32px</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <span class="material-symbols-rounded icon-xl" aria-hidden="true">settings</span>
+                        <div class="label" style="margin-top: 0.5rem;">48px</div>
+                    </div>
+                </div>
+
+                <h3>Icon Categories</h3>
+                <div class="grid-4">
+                    <div>
+                        <div class="label">Status</div>
+                        <div class="flex-row">
+                            <span class="material-symbols-rounded" aria-hidden="true" style="color: #16a34a;">check_circle</span>
+                            <span class="material-symbols-rounded" aria-hidden="true" style="color: #f59e0b;">warning</span>
+                            <span class="material-symbols-rounded" aria-hidden="true" style="color: #dc2626;">error</span>
+                            <span class="material-symbols-rounded" aria-hidden="true" style="color: #64748b;">info</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="label">Navigation</div>
+                        <div class="flex-row">
+                            <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">chevron_right</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="label">Metrics</div>
+                        <div class="flex-row">
+                            <span class="material-symbols-rounded" aria-hidden="true" style="color: #16a34a;">trending_up</span>
+                            <span class="material-symbols-rounded" aria-hidden="true" style="color: #dc2626;">trending_down</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">analytics</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">speed</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="label">Journey</div>
+                        <div class="flex-row">
+                            <span class="material-symbols-rounded" aria-hidden="true">route</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">flag</span>
+                            <span class="material-symbols-rounded" aria-hidden="true" style="color: #f59e0b;">star</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">emoji_emotions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 COLOR SYSTEM
+                 ======================================== -->
+            <div class="section">
+                <h2>Color System</h2>
+
+                <h3>Semantic Colors</h3>
+                <div class="grid-4">
+                    <div class="color-swatch" style="background: #d1fae5;">
+                        <div class="sample" style="background: #065f46;"></div>
+                        <div class="info">
+                            <div class="name">Green — Reliable</div>
+                            <div class="hex">#065f46 / #d1fae5</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch" style="background: #dbeafe;">
+                        <div class="sample" style="background: #1e40af;"></div>
+                        <div class="info">
+                            <div class="name">Blue — Commercial</div>
+                            <div class="hex">#1e40af / #dbeafe</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch" style="background: #e0f2fe;">
+                        <div class="sample" style="background: #0369a1;"></div>
+                        <div class="info">
+                            <div class="name">Sky — Transactional</div>
+                            <div class="hex">#0369a1 / #e0f2fe</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch" style="background: #fef3c7;">
+                        <div class="sample" style="background: #92400e;"></div>
+                        <div class="info">
+                            <div class="name">Amber — At-Risk</div>
+                            <div class="hex">#92400e / #fef3c7</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch" style="background: #ede9fe;">
+                        <div class="sample" style="background: #5b21b6;"></div>
+                        <div class="info">
+                            <div class="name">Purple — Interop</div>
+                            <div class="hex">#5b21b6 / #ede9fe</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch" style="background: #fce7f3;">
+                        <div class="sample" style="background: #9d174d;"></div>
+                        <div class="info">
+                            <div class="name">Rose — Recovery</div>
+                            <div class="hex">#9d174d / #fce7f3</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch" style="background: #e7e5e4;">
+                        <div class="sample" style="background: #57534e;"></div>
+                        <div class="info">
+                            <div class="name">Stone — Institutional</div>
+                            <div class="hex">#57534e / #e7e5e4</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch" style="background: #f1f5f9;">
+                        <div class="sample" style="background: #475569;"></div>
+                        <div class="info">
+                            <div class="name">Gray — Internal</div>
+                            <div class="hex">#475569 / #f1f5f9</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 TAGS & BADGES
+                 ======================================== -->
+            <div class="section">
+                <h2>Tags & Badges</h2>
+
+                <h3>Account Tags</h3>
+                <div class="flex-row">
+                    <span class="tag account-tag tag-green">COMMERCIAL-A</span>
+                    <span class="tag account-tag tag-blue">MANAGED</span>
+                    <span class="tag account-tag tag-sky">TRANSACTIONAL</span>
+                    <span class="tag account-tag tag-amber">AT-RISK</span>
+                    <span class="tag account-tag tag-purple">INTEROP</span>
+                    <span class="tag account-tag tag-rose">RECOVERY</span>
+                </div>
+
+                <h3>Status Badges</h3>
+                <div class="flex-row">
+                    <span class="status-badge status-draft"><span class="material-symbols-rounded" aria-hidden="true">edit_note</span> DRAFT</span>
+                    <span class="status-badge status-review"><span class="material-symbols-rounded" aria-hidden="true">visibility</span> IN REVIEW</span>
+                    <span class="status-badge status-approved"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span> APPROVED</span>
+                    <span class="status-badge status-deprecated"><span class="material-symbols-rounded" aria-hidden="true">archive</span> DEPRECATED</span>
+                </div>
+
+                <h3>KPI Status</h3>
+                <div class="flex-row">
+                    <span class="kpi-status on-target"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span> On Target</span>
+                    <span class="kpi-status at-risk"><span class="material-symbols-rounded" aria-hidden="true">warning</span> At Risk</span>
+                    <span class="kpi-status breached"><span class="material-symbols-rounded" aria-hidden="true">error</span> Breached</span>
+                </div>
+
+                <h3>Severity Levels</h3>
+                <div class="flex-row">
+                    <span class="severity-badge severity-1"><span class="material-symbols-rounded" aria-hidden="true">error</span> Severity 1</span>
+                    <span class="severity-badge severity-2"><span class="material-symbols-rounded" aria-hidden="true">warning</span> Severity 2</span>
+                    <span class="severity-badge severity-3"><span class="material-symbols-rounded" aria-hidden="true">info</span> Severity 3</span>
+                    <span class="severity-badge severity-4"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span> Severity 4</span>
+                </div>
+
+                <h3>RACI Badges</h3>
+                <div class="flex-row">
+                    <span class="raci-badge raci-r">R</span>
+                    <span class="raci-badge raci-a">A</span>
+                    <span class="raci-badge raci-c">C</span>
+                    <span class="raci-badge raci-i">I</span>
+                </div>
+
+                <h3>Emotional States</h3>
+                <div class="flex-row">
+                    <span class="emotion emotion-positive"><span class="material-symbols-rounded" aria-hidden="true">sentiment_satisfied</span> Satisfied</span>
+                    <span class="emotion emotion-neutral"><span class="material-symbols-rounded" aria-hidden="true">sentiment_neutral</span> Neutral</span>
+                    <span class="emotion emotion-negative"><span class="material-symbols-rounded" aria-hidden="true">sentiment_dissatisfied</span> Frustrated</span>
+                    <span class="emotion emotion-mixed"><span class="material-symbols-rounded" aria-hidden="true">emoji_emotions</span> Mixed</span>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 CX HEADERS
+                 ======================================== -->
+            <div class="section">
+                <h2>CX Headers</h2>
+                <p>Journey-specific headers with archetype colors:</p>
+            </div>
+
+            <div class="cx-header journey-1a">
+                <h1><span class="material-symbols-rounded" aria-hidden="true">route</span> Journey 1A: Self-Service</h1>
+                <div class="subtitle">Low-touch, portal-driven customer experience</div>
+            </div>
+
+            <div class="cx-header journey-1b">
+                <h1><span class="material-symbols-rounded" aria-hidden="true">support_agent</span> Journey 1B: Managed</h1>
+                <div class="subtitle">High-touch, account representative experience</div>
+            </div>
+
+            <div class="cx-header journey-2">
+                <h1><span class="material-symbols-rounded" aria-hidden="true">receipt_long</span> Journey 2: Transactional</h1>
+                <div class="subtitle">Invoice-triggered customer interactions</div>
+            </div>
+
+            <div class="cx-header journey-3">
+                <h1><span class="material-symbols-rounded" aria-hidden="true">gavel</span> Journey 3: Institutional</h1>
+                <div class="subtitle">Agreement-based government and enterprise</div>
+            </div>
+
+            <div class="cx-header journey-4">
+                <h1><span class="material-symbols-rounded" aria-hidden="true">warning</span> Journey 4: Recovery</h1>
+                <div class="subtitle">Collections and enforcement processes</div>
+            </div>
+
+            <!-- ========================================
+                 METRIC CARDS
+                 ======================================== -->
+            <div class="section">
+                <h2>Metric Cards</h2>
+
+                <div class="grid-4">
+                    <div class="metric-card">
+                        <div class="icon"><span class="material-symbols-rounded" aria-hidden="true">payments</span></div>
+                        <div class="value">$2.8M</div>
+                        <div class="metric-label">Monthly Revenue</div>
+                        <div class="trend trend-up"><span class="material-symbols-rounded" aria-hidden="true">trending_up</span> +12.3%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="icon"><span class="material-symbols-rounded" aria-hidden="true">group</span></div>
+                        <div class="value">847K</div>
+                        <div class="metric-label">Active Accounts</div>
+                        <div class="trend trend-up"><span class="material-symbols-rounded" aria-hidden="true">trending_up</span> +3.2%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="icon"><span class="material-symbols-rounded" aria-hidden="true">speed</span></div>
+                        <div class="value">94.2%</div>
+                        <div class="metric-label">SLA Compliance</div>
+                        <div class="trend trend-down"><span class="material-symbols-rounded" aria-hidden="true">trending_down</span> -1.1%</div>
+                    </div>
+                    <div class="metric-card dark">
+                        <div class="icon"><span class="material-symbols-rounded" aria-hidden="true">star</span></div>
+                        <div class="value">4.6</div>
+                        <div class="metric-label">Customer Rating</div>
+                        <div class="trend trend-up"><span class="material-symbols-rounded" aria-hidden="true">trending_up</span> +0.2</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 CALLOUTS
+                 ======================================== -->
+            <div class="section">
+                <h2>Callouts</h2>
+
+                <div class="moment-of-truth">
+                    <span class="material-symbols-rounded" aria-hidden="true">star</span>
+                    <div>
+                        <strong>Moment of Truth:</strong> First invoice experience sets the tone for the entire customer relationship. Clarity and professionalism here directly impact payment behavior.
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Note:</strong> This process applies only to accounts with a balance exceeding $50. Smaller balances follow the automated micro-payment flow.
+                </div>
+
+                <div class="script-block">
+                    <strong>Recommended Script:</strong> "I understand this situation is frustrating. Let me review your account and find the best resolution for you today."
+                </div>
+
+                <div class="dont-block">
+                    <span class="material-symbols-rounded" aria-hidden="true">block</span>
+                    <div>
+                        <strong>Don't:</strong> Never promise a specific timeline for dispute resolution without checking system constraints first.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 SERVICE BLUEPRINT LAYERS
+                 ======================================== -->
+            <div class="section">
+                <h2>Service Blueprint Layers</h2>
+
+                <div class="flex-row" style="margin: 1.5rem 0;">
+                    <div class="blueprint-layer-label layer-physical">
+                        <span class="material-symbols-rounded" aria-hidden="true">storefront</span>
+                        Physical Evidence
+                    </div>
+                    <div class="blueprint-layer-label layer-customer">
+                        <span class="material-symbols-rounded" aria-hidden="true">touch_app</span>
+                        Customer Actions
+                    </div>
+                    <div class="blueprint-layer-label layer-frontstage">
+                        <span class="material-symbols-rounded" aria-hidden="true">support_agent</span>
+                        Frontstage
+                    </div>
+                    <div class="blueprint-layer-label layer-backstage">
+                        <span class="material-symbols-rounded" aria-hidden="true">engineering</span>
+                        Backstage
+                    </div>
+                    <div class="blueprint-layer-label layer-support">
+                        <span class="material-symbols-rounded" aria-hidden="true">dns</span>
+                        Support Systems
+                    </div>
+                </div>
+
+                <div class="blueprint-line line-interaction">Line of Interaction</div>
+                <div class="blueprint-line line-visibility">Line of Visibility</div>
+                <div class="blueprint-line line-internal">Line of Internal Interaction</div>
+            </div>
+
+            <!-- ========================================
+                 PROCESS FLOW
+                 ======================================== -->
+            <div class="section">
+                <h2>Process Flow</h2>
+
+                <div class="process-flow">
+                    <div class="step-card">
+                        <div class="icon"><span class="material-symbols-rounded" aria-hidden="true">search</span></div>
+                        <h4>Identify</h4>
+                        <p>Locate account and verify customer identity</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="icon"><span class="material-symbols-rounded" aria-hidden="true">analytics</span></div>
+                        <h4>Analyze</h4>
+                        <p>Review transaction history and patterns</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="icon"><span class="material-symbols-rounded" aria-hidden="true">rule</span></div>
+                        <h4>Decide</h4>
+                        <p>Determine appropriate resolution path</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="icon"><span class="material-symbols-rounded" aria-hidden="true">task_alt</span></div>
+                        <h4>Resolve</h4>
+                        <p>Execute resolution and confirm with customer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 JOURNEY STAGES
+                 ======================================== -->
+            <div class="section">
+                <h2>Journey Stages</h2>
+
+                <div class="journey-flow">
+                    <div class="stage">
+                        <div class="stage-header">Awareness</div>
+                        <div class="stage-content">
+                            <div class="label">Touchpoints</div>
+                            <p>Highway signage, website, mobile app discovery</p>
+                            <div class="emotion emotion-neutral" style="margin-top: 0.5rem;">
+                                <span class="material-symbols-rounded" aria-hidden="true">sentiment_neutral</span> Curious
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stage">
+                        <div class="stage-header">Enrollment</div>
+                        <div class="stage-content">
+                            <div class="label">Touchpoints</div>
+                            <p>Online registration, retail pickup, mail enrollment</p>
+                            <div class="emotion emotion-mixed" style="margin-top: 0.5rem;">
+                                <span class="material-symbols-rounded" aria-hidden="true">emoji_emotions</span> Anxious
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stage">
+                        <div class="stage-header">First Use</div>
+                        <div class="stage-content">
+                            <div class="label">Touchpoints</div>
+                            <p>First toll, first statement, first app login</p>
+                            <div class="emotion emotion-positive" style="margin-top: 0.5rem;">
+                                <span class="material-symbols-rounded" aria-hidden="true">sentiment_satisfied</span> Relieved
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stage">
+                        <div class="stage-header">Ongoing</div>
+                        <div class="stage-content">
+                            <div class="label">Touchpoints</div>
+                            <p>Regular statements, auto-replenishment, support</p>
+                            <div class="emotion emotion-positive" style="margin-top: 0.5rem;">
+                                <span class="material-symbols-rounded" aria-hidden="true">sentiment_satisfied</span> Satisfied
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 ROLE & PLAYBOOK CARDS
+                 ======================================== -->
+            <div class="section">
+                <h2>Role & Playbook Cards</h2>
+
+                <div class="grid-2">
+                    <div class="role-card executive">
+                        <div class="header">
+                            <span class="material-symbols-rounded" aria-hidden="true">account_circle</span>
+                            <h4>CX Director</h4>
+                        </div>
+                        <div class="reports-to">Reports to: Chief Operating Officer</div>
+                        <p class="body-small">Owns overall customer experience strategy, journey performance metrics, and cross-functional CX initiatives.</p>
+                    </div>
+
+                    <div class="role-card journey">
+                        <div class="header">
+                            <span class="material-symbols-rounded" aria-hidden="true">route</span>
+                            <h4>Journey Owner</h4>
+                        </div>
+                        <div class="reports-to">Reports to: CX Director</div>
+                        <p class="body-small">Responsible for end-to-end journey performance, touchpoint optimization, and customer feedback integration.</p>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div class="playbook-card">
+                        <div class="playbook-header">
+                            <span class="material-symbols-rounded" aria-hidden="true">support</span>
+                            <div>
+                                <h4>Balance Dispute Resolution</h4>
+                                <div class="id">PB-REC-001</div>
+                            </div>
+                        </div>
+                        <div class="playbook-body">
+                            <div class="label">Trigger</div>
+                            <p class="body-small">Customer contacts support claiming incorrect balance or unauthorized transactions.</p>
+                            <div class="label" style="margin-top: 1rem;">Target Resolution</div>
+                            <p class="body-small">72 hours for initial response, 10 business days for full resolution.</p>
+                        </div>
+                    </div>
+
+                    <div class="playbook-card">
+                        <div class="playbook-header">
+                            <span class="material-symbols-rounded" aria-hidden="true">credit_card</span>
+                            <div>
+                                <h4>Payment Failure Recovery</h4>
+                                <div class="id">PB-REC-002</div>
+                            </div>
+                        </div>
+                        <div class="playbook-body">
+                            <div class="label">Trigger</div>
+                            <p class="body-small">Auto-replenishment fails due to expired card or insufficient funds.</p>
+                            <div class="label" style="margin-top: 1rem;">Target Resolution</div>
+                            <p class="body-small">Immediate email + SMS notification, 48-hour grace period before service impact.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 CHECKLIST
+                 ======================================== -->
+            <div class="section">
+                <h2>Quality Checklist</h2>
+
+                <div class="checklist">
+                    <div class="checklist-item checked">
+                        <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                        Customer identity verified
+                    </div>
+                    <div class="checklist-item checked">
+                        <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                        Account history reviewed
+                    </div>
+                    <div class="checklist-item checked">
+                        <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                        Issue categorized correctly
+                    </div>
+                    <div class="checklist-item">
+                        <span class="material-symbols-rounded" aria-hidden="true">radio_button_unchecked</span>
+                        Resolution documented
+                    </div>
+                    <div class="checklist-item">
+                        <span class="material-symbols-rounded" aria-hidden="true">radio_button_unchecked</span>
+                        Follow-up scheduled
+                    </div>
+                    <div class="checklist-item">
+                        <span class="material-symbols-rounded" aria-hidden="true">radio_button_unchecked</span>
+                        Customer satisfaction confirmed
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 EMOTION METER
+                 ======================================== -->
+            <div class="section">
+                <h2>Emotion Intensity Meters</h2>
+
+                <div class="grid-3">
+                    <div>
+                        <div class="label">Positive — High</div>
+                        <div class="emotion-meter">
+                            <div class="bar active positive"></div>
+                            <div class="bar active positive"></div>
+                            <div class="bar active positive"></div>
+                            <div class="bar active positive"></div>
+                            <div class="bar active positive"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="label">Neutral — Medium</div>
+                        <div class="emotion-meter">
+                            <div class="bar active neutral"></div>
+                            <div class="bar active neutral"></div>
+                            <div class="bar active neutral"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="label">Negative — High</div>
+                        <div class="emotion-meter">
+                            <div class="bar active negative"></div>
+                            <div class="bar active negative"></div>
+                            <div class="bar active negative"></div>
+                            <div class="bar active negative"></div>
+                            <div class="bar active negative"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 TABLE EXAMPLE
+                 ======================================== -->
+            <div class="section">
+                <h2>Data Table</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Journey</th>
+                            <th scope="col">Accounts</th>
+                            <th scope="col">Revenue</th>
+                            <th scope="col">CSAT</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="tag tag-green">1A</span> Self-Service</td>
+                            <td><code>412,847</code></td>
+                            <td>$1.2M</td>
+                            <td><span class="status-dot green"></span>4.7</td>
+                            <td><span class="kpi-status on-target"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span> On Target</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-blue">1B</span> Managed</td>
+                            <td><code>2,341</code></td>
+                            <td>$890K</td>
+                            <td><span class="status-dot green"></span>4.8</td>
+                            <td><span class="kpi-status on-target"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span> On Target</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-sky">2</span> Transactional</td>
+                            <td><code>328,192</code></td>
+                            <td>$620K</td>
+                            <td><span class="status-dot yellow"></span>3.9</td>
+                            <td><span class="kpi-status at-risk"><span class="material-symbols-rounded" aria-hidden="true">warning</span> At Risk</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-purple">3</span> Institutional</td>
+                            <td><code>187</code></td>
+                            <td>$340K</td>
+                            <td><span class="status-dot green"></span>4.5</td>
+                            <td><span class="kpi-status on-target"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span> On Target</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-rose">4</span> Recovery</td>
+                            <td><code>18,492</code></td>
+                            <td>$180K</td>
+                            <td><span class="status-dot red"></span>2.8</td>
+                            <td><span class="kpi-status breached"><span class="material-symbols-rounded" aria-hidden="true">error</span> Breached</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ========================================
+                 FOOTER
+                 ======================================== -->
+            <hr>
+
+            <!-- ========================================
+                 RESPONSIVE DEMO
+                 ======================================== -->
+            <h1 id="responsive">Responsive Design</h1>
+            <p class="intro-paragraph">The design system now includes comprehensive responsive support with fluid typography, breakpoint-based layouts, touch optimization, and accessibility features.</p>
+
+            <h2>Breakpoint System</h2>
+            <div class="grid-4">
+                <div class="card" style="padding: 1rem; text-align: center;">
+                    <div class="label">SM</div>
+                    <code>640px</code>
+                    <div class="body-small" style="margin-top: 0.5rem; color: #64748b;">Mobile landscape</div>
+                </div>
+                <div class="card" style="padding: 1rem; text-align: center;">
+                    <div class="label">MD</div>
+                    <code>768px</code>
+                    <div class="body-small" style="margin-top: 0.5rem; color: #64748b;">Tablets</div>
+                </div>
+                <div class="card" style="padding: 1rem; text-align: center;">
+                    <div class="label">LG</div>
+                    <code>1024px</code>
+                    <div class="body-small" style="margin-top: 0.5rem; color: #64748b;">Small laptops</div>
+                </div>
+                <div class="card" style="padding: 1rem; text-align: center;">
+                    <div class="label">XL</div>
+                    <code>1280px</code>
+                    <div class="body-small" style="margin-top: 0.5rem; color: #64748b;">Desktops</div>
+                </div>
+            </div>
+
+            <h2>Fluid Typography</h2>
+            <p>Text scales smoothly between breakpoints using <code>clamp()</code>:</p>
+            <div class="section">
+                <div style="font-size: var(--font-display); font-weight: 700; margin-bottom: 0.5rem;">Display (28px → 39px)</div>
+                <div style="font-size: var(--font-h1); font-weight: 600; margin-bottom: 0.5rem;">H1 (24px → 31px)</div>
+                <div style="font-size: var(--font-h2); font-weight: 600; margin-bottom: 0.5rem;">H2 (20px → 25px)</div>
+                <div style="font-size: var(--font-h3); font-weight: 600; margin-bottom: 0.5rem;">H3 (18px → 20px)</div>
+                <div style="font-size: var(--font-body); margin-bottom: 0.5rem;">Body (15px → 16px)</div>
+                <div style="font-size: var(--font-small);">Small (12px → 13px)</div>
+            </div>
+
+            <h2>Z-Index Scale</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Layer</th>
+                            <th scope="col">Z-Index</th>
+                            <th scope="col">Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Base</td><td><code>0</code></td><td>Default content</td></tr>
+                        <tr><td>Raised</td><td><code>10</code></td><td>Cards with hover</td></tr>
+                        <tr><td>Dropdown</td><td><code>100</code></td><td>Dropdown menus</td></tr>
+                        <tr><td>Sticky</td><td><code>200</code></td><td>Sticky headers</td></tr>
+                        <tr><td>Overlay</td><td><code>300</code></td><td>Modal backdrops</td></tr>
+                        <tr><td>Modal</td><td><code>400</code></td><td>Modal dialogs</td></tr>
+                        <tr><td>Popover</td><td><code>500</code></td><td>Tooltips</td></tr>
+                        <tr><td>Toast</td><td><code>600</code></td><td>Notifications</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2>Visibility Utilities</h2>
+            <div class="grid-3">
+                <div class="card" style="padding: 1rem;">
+                    <code>.hidden-sm</code>
+                    <div class="body-small" style="margin-top: 0.5rem; color: #64748b;">Hide below 640px</div>
+                </div>
+                <div class="card" style="padding: 1rem;">
+                    <code>.hidden-md</code>
+                    <div class="body-small" style="margin-top: 0.5rem; color: #64748b;">Hide below 768px</div>
+                </div>
+                <div class="card" style="padding: 1rem;">
+                    <code>.hidden-lg</code>
+                    <div class="body-small" style="margin-top: 0.5rem; color: #64748b;">Hide below 1024px</div>
+                </div>
+            </div>
+
+            <h2>Accessibility Features</h2>
+            <div class="grid-2">
+                <div class="section">
+                    <h4><span class="material-symbols-rounded icon-sm" aria-hidden="true">visibility</span> Focus States</h4>
+                    <p class="body-small">Visible <code>:focus-visible</code> outlines for keyboard navigation with 2px blue ring.</p>
+                    <button style="padding: 0.5rem 1rem; margin-top: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer;">Tab to me</button>
+                </div>
+                <div class="section">
+                    <h4><span class="material-symbols-rounded icon-sm" aria-hidden="true">slow_motion_video</span> Reduced Motion</h4>
+                    <p class="body-small">Animations and transitions respect <code>prefers-reduced-motion</code> preference.</p>
+                </div>
+                <div class="section">
+                    <h4><span class="material-symbols-rounded icon-sm" aria-hidden="true">contrast</span> High Contrast</h4>
+                    <p class="body-small">Borders remain visible in Windows High Contrast Mode via <code>forced-colors</code>.</p>
+                </div>
+                <div class="section">
+                    <h4><span class="material-symbols-rounded icon-sm" aria-hidden="true">touch_app</span> Touch Targets</h4>
+                    <p class="body-small">Minimum 44×44px touch targets on touch devices via <code>@media (hover: none)</code>.</p>
+                </div>
+            </div>
+
+            <h2>Line Clamping</h2>
+            <div class="grid-2">
+                <div class="card" style="padding: 1rem;">
+                    <div class="label">.line-clamp-2</div>
+                    <p class="line-clamp-2" style="margin: 0;">This is a longer paragraph that demonstrates line clamping. The text will be truncated after two lines with an ellipsis, which is useful for card descriptions and preview text in lists.</p>
+                </div>
+                <div class="card" style="padding: 1rem;">
+                    <div class="label">.line-clamp-3</div>
+                    <p class="line-clamp-3" style="margin: 0;">This is a longer paragraph that demonstrates line clamping at three lines. The text will be truncated after three lines with an ellipsis. This provides slightly more content preview while still keeping the layout consistent.</p>
+                </div>
+            </div>
+
+            <!-- ========================================
+                 FOOTER
+                 ======================================== -->
+            <hr>
+
+            <div style="text-align: center; color: #64748b; font-size: 0.875rem;">
+                <p>Toll Systems Design System v1.9 — January 2026</p>
+                <p>Typography: Source Sans 3 | Source Serif 4 | Source Code Pro</p>
+                <p>Icons: Material Symbols Rounded | Responsive: 5-point breakpoint system</p>
+                <p>Accessibility v1.10: Enhanced focus states, reduced motion, high contrast support</p>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

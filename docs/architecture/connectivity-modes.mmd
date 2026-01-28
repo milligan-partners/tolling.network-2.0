@@ -1,0 +1,43 @@
+---
+title: "Tolling.Network 2.0 — Connectivity Modes"
+---
+flowchart LR
+    subgraph direct["DIRECT MODE"]
+        direction TB
+        dA["Agency A\n(own Fabric peers)"]
+        dLedger[("Shared Ledger\ncharges_A_B")]
+        dB["Agency B\n(own Fabric peers)"]
+
+        dA -->|"writes Charge"| dLedger
+        dLedger -->|"reads Charge"| dB
+        dB -->|"writes Reconciliation"| dLedger
+    end
+
+    subgraph hubrouted["HUB-ROUTED MODE"]
+        direction TB
+        hA["Agency A\n(no Fabric peers)"]
+        hHub["Hub X\n(operates Fabric peers\non behalf of Agency A)"]
+        hLedger[("Shared Ledger\ncharges_hubX_B")]
+        hB["Agency B\n(own Fabric peers)"]
+
+        hA -->|"sends data via API"| hHub
+        hHub -->|"writes Charge"| hLedger
+        hLedger -->|"reads Charge"| hB
+        hB -->|"writes Reconciliation"| hLedger
+    end
+
+    subgraph crossconsortium["CROSS-CONSORTIUM"]
+        direction TB
+        cA["Agency A\n(CUSIOP)"]
+        cInterop[("Interop Channel\ncharges_A_B")]
+        cB["Agency B\n(E-ZPass)"]
+
+        cGovA["CUSIOP\nGovernance Channel"]
+        cGovB["E-ZPass\nGovernance Channel"]
+
+        cA -->|"writes Charge"| cInterop
+        cInterop -->|"reads Charge"| cB
+
+        cA -.->|"member of"| cGovA
+        cB -.->|"member of"| cGovB
+    end

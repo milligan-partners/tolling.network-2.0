@@ -1,0 +1,35 @@
+---
+title: "Tolling.Network 2.0 — Transaction Lifecycle"
+---
+stateDiagram-v2
+    [*] --> TollEvent: Vehicle uses facility
+
+    TollEvent --> TagLookup: Away agency reads tag/plate
+
+    TagLookup --> ChargeCreated: Tag found in TVL
+    TagLookup --> PayByPlate: No tag match
+
+    PayByPlate --> ChargeCreated: Plate lookup succeeds
+
+    ChargeCreated --> Submitted: Written to ledger\n(private collection)
+
+    Submitted --> Acknowledged: Home agency confirms receipt\n(return code 00)
+    Submitted --> Rejected: Validation failure\n(return code 01-13)
+
+    Rejected --> [*]
+
+    Acknowledged --> Posted: Home agency posts\nto customer account
+    Acknowledged --> NotPosted: Cannot post\n(disposition D/I/N/S/T/C/O)
+
+    Posted --> Reconciled: Home agency writes\nReconciliation record\n(disposition P)
+
+    NotPosted --> Reconciled: Home agency writes\nReconciliation record\n(with rejection reason)
+
+    Reconciled --> CorrectionNeeded: Either agency\nsubmits correction
+    Reconciled --> Settled: Included in\nsettlement period
+
+    CorrectionNeeded --> Submitted: Corrected charge\nresubmitted
+
+    Settled --> Paid: Off-chain payment\nstatus updated
+
+    Paid --> [*]

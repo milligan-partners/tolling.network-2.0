@@ -1,0 +1,69 @@
+---
+title: "Tolling.Network 2.0 — Network Topology (Option C)"
+---
+flowchart TB
+    subgraph national["NATIONAL CHANNEL — Agency Registry"]
+        direction LR
+        reg["Agency Registry\nProtocol Versions\nReference Data"]
+    end
+
+    subgraph ezpass["E-ZPASS CHANNEL"]
+        direction TB
+        ez_cc["IAG Inter-CSC Rules"]
+        ez1["PANYNJ"]
+        ez2["NJ Turnpike"]
+        ez3["MA DOT"]
+        ez4["...39 agencies"]
+        ezhub["EZIOP Hub"]
+    end
+
+    subgraph cusiop["CUSIOP CHANNEL"]
+        direction TB
+        cu_cc["CUSIOP Business Rules"]
+        cu1["NTTA"]
+        cu2["HCTRA"]
+        cu3["TxDOT"]
+        cu4["CTRMA"]
+        cuhub["CUSIOP Hub"]
+    end
+
+    subgraph wrto["WRTO / FASTRAK CHANNEL"]
+        direction TB
+        wr_cc["CTOC Tech Spec Rules"]
+        wr1["TCA"]
+        wr2["BATA"]
+        wr3["SANDAG"]
+        wr4["LA Metro"]
+    end
+
+    subgraph seiop["SEIOP CHANNEL"]
+        direction TB
+        se_cc["SEIOP Business Rules"]
+        se1["FL Turnpike"]
+        se2["CFX"]
+        se3["MDX"]
+        sehub["SEIOP Hub"]
+    end
+
+    subgraph interop["INTEROP CHANNEL — Cross-Consortium Transactions"]
+        direction TB
+        int_cc["NIOP ICD Validation\nCharge Lifecycle\nReconciliation\nSettlement"]
+
+        subgraph pdc["Private Data Collections"]
+            direction LR
+            tvl["TVL per Agency"]
+            bilateral["Charges per\nAgency Pair"]
+            hubagg["Hub Aggregates"]
+        end
+    end
+
+    national --- ezpass
+    national --- cusiop
+    national --- wrto
+    national --- seiop
+    national --- interop
+
+    ezpass --- interop
+    cusiop --- interop
+    wrto --- interop
+    seiop --- interop

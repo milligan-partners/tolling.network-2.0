@@ -1,0 +1,123 @@
+---
+title: "Tolling.Network 2.0 — Entity Relationship Diagram"
+---
+erDiagram
+    Agency ||--o{ Account : "manages"
+    Agency ||--o{ Tag : "issues"
+    Agency ||--o{ Charge : "away agency"
+    Agency ||--o{ Charge : "home agency"
+    Account ||--o{ Tag : "has"
+    Account ||--o{ Charge : "charged to"
+    Tag ||--o{ Charge : "referenced by"
+    Charge ||--o{ Correction : "amended by"
+    Charge ||--|| Reconciliation : "reconciled by"
+    Charge }o--|| Settlement : "included in"
+    Charge ||--o{ Acknowledgement : "triggers"
+    Settlement }o--|| Agency : "payor"
+    Settlement }o--|| Agency : "payee"
+
+    Agency {
+        string agencyID PK
+        string name
+        string[] consortium
+        string hubID
+        string role
+        string connectivityMode
+        string status
+        string[] capabilities
+        string[] protocolSupport
+    }
+
+    Account {
+        string accountID PK
+        string homeAgencyID FK
+        string accountStatus
+        boolean fleetIndicator
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    Tag {
+        string tagSerialNumber PK
+        string tagAgencyID FK
+        string homeAgencyID FK
+        string accountID FK
+        string tagStatus
+        string tagType
+        int tagClass
+        string tagProtocol
+        object[] discountPlans
+        object[] plates
+        timestamp updatedAt
+    }
+
+    Charge {
+        string chargeID PK
+        string chargeType
+        string recordType
+        string protocol
+        string awayAgencyID FK
+        string homeAgencyID FK
+        string submittedVia
+        string tagSerialNumber FK
+        string plateCountry
+        string plateState
+        string plateNumber
+        string facilityID
+        string plaza
+        timestamp exitDateTime
+        int vehicleClass
+        decimal amount
+        decimal fee
+        decimal netAmount
+        string status
+        timestamp createdAt
+    }
+
+    Correction {
+        string correctionID PK
+        string originalChargeID FK
+        int correctionSeqNo
+        string correctionReason
+        string resubmitReason
+        string fromAgencyID FK
+        string toAgencyID FK
+        decimal amount
+        timestamp createdAt
+    }
+
+    Reconciliation {
+        string reconciliationID PK
+        string chargeID FK
+        string homeAgencyID FK
+        string postingDisposition
+        decimal postedAmount
+        timestamp postedDateTime
+        int adjustmentCount
+        decimal flatFee
+        decimal percentFee
+    }
+
+    Settlement {
+        string settlementID PK
+        date periodStart
+        date periodEnd
+        string payorAgencyID FK
+        string payeeAgencyID FK
+        decimal grossAmount
+        decimal totalFees
+        decimal netAmount
+        int chargeCount
+        string status
+        timestamp createdAt
+    }
+
+    Acknowledgement {
+        string acknowledgementID PK
+        string submissionType
+        string fromAgencyID FK
+        string toAgencyID FK
+        string returnCode
+        string returnMessage
+        timestamp createdAt
+    }

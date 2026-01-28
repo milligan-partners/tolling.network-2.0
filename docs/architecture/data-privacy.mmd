@@ -1,0 +1,37 @@
+---
+title: "Tolling.Network 2.0 — Data Privacy Model"
+---
+flowchart TB
+    subgraph world["WORLD STATE (Public to Channel)"]
+        direction LR
+        agencies["Agency Registry\nagencyID, name, role\nconsortium, protocols"]
+        acks["Acknowledgements\nsubmissionType\nreturnCode"]
+    end
+
+    subgraph consortium["CONSORTIUM-WIDE (Private Data)"]
+        direction LR
+        tvl["Tag Validation Lists\ntvl_{homeAgency}\nTag status shared with\nall consortium members"]
+    end
+
+    subgraph bilateral["BILATERAL (Private Data — Two Agencies Only)"]
+        direction LR
+        charges["Charges\ncharges_{A}_{B}\nFull transaction details"]
+        corrections["Corrections\nAmendments to charges"]
+        recon["Reconciliation\nPosting disposition"]
+        settle["Settlement\nPeriod aggregates\nNet amounts"]
+    end
+
+    subgraph offchain["OFF-CHAIN (Agency Back-Office Only)"]
+        direction LR
+        pii["Customer PII\nName, address\nPayment method"]
+        payment["Payment Transfer\nBank wire / ACH"]
+    end
+
+    world ---|"visible to all\nchannel members"| consortium
+    consortium ---|"hashes on-chain\ndata to authorized orgs"| bilateral
+    bilateral ---|"never on ledger"| offchain
+
+    style world fill:#e8f5e9
+    style consortium fill:#fff3e0
+    style bilateral fill:#fce4ec
+    style offchain fill:#f3e5f5

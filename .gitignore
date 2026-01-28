@@ -1,3 +1,6 @@
+# Industry specs (proprietary, do not commit)
+industry-specs/
+
 # Dependencies
 node_modules/
 vendor/
