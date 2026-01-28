@@ -10,7 +10,7 @@ Tolling.Network replaces the file-based processing models used by toll agencies 
 
 ## Background
 
-US toll interoperability is coordinated across regional consortiums through a national interoperability effort. Each agency runs its own back-office system. Data exchange happens via batch file transfers. There is no shared source of truth.
+US toll interoperability is coordinated across regional consortiums through a national interoperability effort. Each agency runs its own back-office system. Data exchange happens via file transfers. There is no shared source of truth.
 
 ### Approach
 
