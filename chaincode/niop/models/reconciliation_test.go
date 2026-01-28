@@ -13,7 +13,7 @@ func validReconciliation() Reconciliation {
 	return Reconciliation{
 		ReconciliationID:   "RECON-TEST-001",
 		ChargeID:           "CHG-TEST-001",
-		HomeAgencyID:       "TCA",
+		HomeAgencyID:       "ORG1",
 		PostingDisposition: "P",
 		PostedAmount:       4.75,
 		PostedDateTime:     "2026-01-15T10:00:00Z",

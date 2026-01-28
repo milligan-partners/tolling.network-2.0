@@ -15,8 +15,8 @@ func validAcknowledgement() *models.Acknowledgement {
 	return &models.Acknowledgement{
 		AcknowledgementID: "ACK-TEST-001",
 		SubmissionType:    "STVL",
-		FromAgencyID:      "TCA",
-		ToAgencyID:        "BATA",
+		FromAgencyID:      "ORG1",
+		ToAgencyID:        "ORG2",
 		ReturnCode:        "00",
 		ReturnMessage:     "Success",
 	}

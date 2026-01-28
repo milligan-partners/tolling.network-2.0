@@ -51,21 +51,21 @@ func FixturePath(filename string) string {
 // SampleAgencies returns a standard set of test agency IDs
 // matching the fixtures and docker-compose network.
 var SampleAgencies = struct {
-	TCA    string
-	BATA   string
-	SANDAG string
+	Org1 string
+	Org2 string
+	Org3 string
 }{
-	TCA:    "TCA",
-	BATA:   "BATA",
-	SANDAG: "SANDAG",
+	Org1: "ORG1",
+	Org2: "ORG2",
+	Org3: "ORG3",
 }
 
 // SampleTag returns a minimal valid tag for testing.
 func SampleTag() map[string]interface{} {
 	return map[string]interface{}{
 		"tagSerialNumber": "TEST.000000001",
-		"tagAgencyID":     SampleAgencies.TCA,
-		"homeAgencyID":    SampleAgencies.TCA,
+		"tagAgencyID":     SampleAgencies.Org1,
+		"homeAgencyID":    SampleAgencies.Org1,
 		"accountID":       "A000000001",
 		"tagStatus":       "valid",
 		"tagType":         "single",
@@ -81,11 +81,11 @@ func SampleCharge() map[string]interface{} {
 		"chargeType":      "toll_tag",
 		"recordType":      "TB01",
 		"protocol":        "niop",
-		"awayAgencyID":    SampleAgencies.BATA,
-		"homeAgencyID":    SampleAgencies.TCA,
+		"awayAgencyID":    SampleAgencies.Org2,
+		"homeAgencyID":    SampleAgencies.Org1,
 		"tagSerialNumber": "TEST.000000001",
-		"facilityID":      "SR73",
-		"plaza":           "CATALINA",
+		"facilityID":      "TOLL-01",
+		"plaza":           "MAIN-PLAZA",
 		"exitDateTime":    "2026-01-15T08:30:00Z",
 		"vehicleClass":    2,
 		"amount":          4.75,
@@ -100,7 +100,7 @@ func SampleReconciliation() map[string]interface{} {
 	return map[string]interface{}{
 		"reconciliationID":   "RECON-TEST-001",
 		"chargeID":           "CHG-TEST-001",
-		"homeAgencyID":       SampleAgencies.TCA,
+		"homeAgencyID":       SampleAgencies.Org1,
 		"postingDisposition": "P",
 		"postedAmount":       4.75,
 		"postedDateTime":     "2026-01-15T10:00:00Z",
@@ -117,8 +117,8 @@ func SampleCorrection() map[string]interface{} {
 		"originalChargeID": "CHG-TEST-001",
 		"correctionSeqNo":  1,
 		"correctionReason": "C",
-		"fromAgencyID":     SampleAgencies.BATA,
-		"toAgencyID":       SampleAgencies.TCA,
+		"fromAgencyID":     SampleAgencies.Org2,
+		"toAgencyID":       SampleAgencies.Org1,
 		"recordType":       "TB01A",
 		"amount":           3.50,
 	}
@@ -129,8 +129,8 @@ func SampleAcknowledgement() map[string]interface{} {
 	return map[string]interface{}{
 		"acknowledgementID": "ACK-TEST-001",
 		"submissionType":    "STVL",
-		"fromAgencyID":      SampleAgencies.TCA,
-		"toAgencyID":        SampleAgencies.BATA,
+		"fromAgencyID":      SampleAgencies.Org1,
+		"toAgencyID":        SampleAgencies.Org2,
 		"returnCode":        "00",
 		"returnMessage":     "Success",
 	}
@@ -142,8 +142,8 @@ func SampleSettlement() map[string]interface{} {
 		"settlementID":    "SETTLE-TEST-001",
 		"periodStart":     "2026-01-01",
 		"periodEnd":       "2026-01-31",
-		"payorAgencyID":   SampleAgencies.TCA,
-		"payeeAgencyID":   SampleAgencies.BATA,
+		"payorAgencyID":   SampleAgencies.Org1,
+		"payeeAgencyID":   SampleAgencies.Org2,
 		"grossAmount":     15000.00,
 		"totalFees":       150.00,
 		"netAmount":       14850.00,
@@ -156,15 +156,15 @@ func SampleSettlement() map[string]interface{} {
 // SampleAgency returns a minimal valid agency for testing.
 func SampleAgency() map[string]interface{} {
 	return map[string]interface{}{
-		"agencyID":         SampleAgencies.TCA,
-		"name":             "Transportation Corridor Agencies",
-		"consortium":       []string{"WRTO"},
-		"state":            "CA",
+		"agencyID":         SampleAgencies.Org1,
+		"name":             "Sample Toll Agency",
+		"consortium":       []string{"CONSORTIUM1"},
+		"state":            "XX",
 		"role":             "toll_operator",
 		"connectivityMode": "direct",
 		"status":           "active",
 		"capabilities":     []string{"toll"},
-		"protocolSupport":  []string{"ctoc_rev_a"},
+		"protocolSupport":  []string{"niop"},
 	}
 }
 

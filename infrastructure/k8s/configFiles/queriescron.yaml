@@ -1,3 +1,23 @@
+# ============================================================================
+# WARNING: LEGACY REFERENCE ONLY — DO NOT DEPLOY
+# ============================================================================
+# This CronJob contains critical security issues:
+#
+# 1. HARDCODED EXTERNAL IP (35.202.68.152) — Calls HTTP without authentication
+#    This was a legacy GCP IP that no longer exists
+#
+# 2. HTTP (not HTTPS) — Unencrypted communication
+#
+# 3. No authentication — Anyone who intercepts can modify the response
+#
+# 4. Outdated Alpine image (3.7) — Use current LTS version
+#
+# 5. No resource limits — Container can consume all node resources
+#
+# 6. No security context — Runs as root
+#
+# DO NOT REPLICATE THIS PATTERN IN 2.0 CONFIGS
+# ============================================================================
 ---
 apiVersion: batch/v1beta1
 kind: CronJob
@@ -18,6 +38,7 @@ spec:
             - name: queriescron
               image: alpine:3.7
               imagePullPolicy: Always
+              # SECURITY: Hardcoded IP, HTTP without auth — DO NOT USE
               command: ["sh", "-c", "apk add --no-cache curl; curl -X GET http://35.202.68.152/runScripts" ]
               volumeMounts:
               - mountPath: /public

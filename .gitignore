@@ -50,6 +50,8 @@ yarn-error.log*
 *.tfstate
 *.tfstate.*
 *.tfplan
+*.tfvars
+*.tfvars.json
 crash.log
 override.tf
 override.tf.json
@@ -66,6 +68,8 @@ keys/
 *.key
 *.crt
 *.csr
+*.p12
+*.pkcs12
 
 # Docker
 docker-compose.override.yml
@@ -78,3 +82,8 @@ coverage/
 # Generated data
 *.csv
 chaincode/testdata/*.generated.json
+
+# CouchDB query outputs
+agencyView*.json
+networkView.json
+tools/couchdb-queries/*.json

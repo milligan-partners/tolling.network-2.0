@@ -32,7 +32,7 @@ func newMockContext() *mockTransactionContext {
 
 func validAgency() *models.Agency {
 	return &models.Agency{
-		AgencyID:         "TCA",
+		AgencyID:         "ORG1",
 		Name:             "Transportation Corridor Agencies",
 		Consortium:       []string{"WRTO"},
 		State:            "CA",
@@ -56,14 +56,14 @@ func TestCreateAgency(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify state was written
-		bytes, err := ctx.stub.GetState("AGENCY_TCA")
+		bytes, err := ctx.stub.GetState("AGENCY_ORG1")
 		require.NoError(t, err)
 		require.NotNil(t, bytes)
 
 		var stored models.Agency
 		err = json.Unmarshal(bytes, &stored)
 		require.NoError(t, err)
-		assert.Equal(t, "TCA", stored.AgencyID)
+		assert.Equal(t, "ORG1", stored.AgencyID)
 		assert.Equal(t, "Transportation Corridor Agencies", stored.Name)
 		assert.NotEmpty(t, stored.CreatedAt)
 		assert.NotEmpty(t, stored.UpdatedAt)
@@ -126,10 +126,10 @@ func TestGetAgency(t *testing.T) {
 		agencyJSON, _ := json.Marshal(agency)
 		_ = contract.CreateAgency(ctx, string(agencyJSON))
 
-		result, err := contract.GetAgency(ctx, "TCA")
+		result, err := contract.GetAgency(ctx, "ORG1")
 		require.NoError(t, err)
 		require.NotNil(t, result)
-		assert.Equal(t, "TCA", result.AgencyID)
+		assert.Equal(t, "ORG1", result.AgencyID)
 		assert.Equal(t, "Transportation Corridor Agencies", result.Name)
 	})
 
@@ -152,10 +152,10 @@ func TestUpdateAgencyStatus(t *testing.T) {
 		agencyJSON, _ := json.Marshal(agency)
 		_ = contract.CreateAgency(ctx, string(agencyJSON))
 
-		err := contract.UpdateAgencyStatus(ctx, "TCA", "suspended")
+		err := contract.UpdateAgencyStatus(ctx, "ORG1", "suspended")
 		require.NoError(t, err)
 
-		result, err := contract.GetAgency(ctx, "TCA")
+		result, err := contract.GetAgency(ctx, "ORG1")
 		require.NoError(t, err)
 		assert.Equal(t, "suspended", result.Status)
 	})
@@ -166,7 +166,7 @@ func TestUpdateAgencyStatus(t *testing.T) {
 		agencyJSON, _ := json.Marshal(agency)
 		_ = contract.CreateAgency(ctx, string(agencyJSON))
 
-		err := contract.UpdateAgencyStatus(ctx, "TCA", "invalid_status")
+		err := contract.UpdateAgencyStatus(ctx, "ORG1", "invalid_status")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "invalid status")
 	})
@@ -200,7 +200,7 @@ func TestGetAllAgencies(t *testing.T) {
 		_ = contract.CreateAgency(ctx, string(agency1JSON))
 
 		agency2 := validAgency()
-		agency2.AgencyID = "BATA"
+		agency2.AgencyID = "ORG2"
 		agency2.Name = "Bay Area Toll Authority"
 		agency2JSON, _ := json.Marshal(agency2)
 		_ = contract.CreateAgency(ctx, string(agency2JSON))

@@ -12,8 +12,8 @@ import (
 func validTag() Tag {
 	return Tag{
 		TagSerialNumber: "TEST.000000001",
-		TagAgencyID:     "TCA",
-		HomeAgencyID:    "TCA",
+		TagAgencyID:     "ORG1",
+		HomeAgencyID:    "ORG1",
 		AccountID:       "A000000001",
 		TagStatus:       "valid",
 		TagType:         "single",

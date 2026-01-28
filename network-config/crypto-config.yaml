@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+# ============================================================================
+# WARNING: LEGACY REFERENCE CONFIGURATION — DO NOT USE IN PRODUCTION
+# ============================================================================
+# This crypto-config.yaml is kept for reference only.
+# For 2.0, use Hyperledger Bevel or Fabric CA for production identity management.
+# ============================================================================
 
 # ---------------------------------------------------------------------------
 # "OrdererOrgs" - Definition of organizations managing orderer nodes
@@ -11,7 +17,7 @@ OrdererOrgs:
   # Orderer
   # ---------------------------------------------------------------------------
   - Name: Orderer
-    Domain: ruuftop.com
+    Domain: example.com
     # ---------------------------------------------------------------------------
     # "Specs" - See PeerOrgs below for complete description
     # ---------------------------------------------------------------------------
@@ -24,26 +30,26 @@ PeerOrgs:
   # ---------------------------------------------------------------------------
   # Org1
   # ---------------------------------------------------------------------------
-  - Name: TCA
-    Domain: tca.com
+  - Name: Org1
+    Domain: org1.example.com
     Template:
       Count: 1
     Users:
       Count: 1
-  - Name: BATA
-    Domain: bata.com
+  - Name: Org2
+    Domain: org2.example.com
     Template:
       Count: 1
     Users:
       Count: 1
-  - Name: SANDAG
-    Domain: sandag.com
+  - Name: Org3
+    Domain: org3.example.com
     Template:
       Count: 1
     Users:
       Count: 1
-  - Name: REPORT
-    Domain: report.com
+  - Name: Org4
+    Domain: org4.example.com
     Template:
       Count: 1
     Users:

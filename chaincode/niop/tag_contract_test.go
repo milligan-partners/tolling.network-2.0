@@ -14,8 +14,8 @@ import (
 func validTag() *models.Tag {
 	return &models.Tag{
 		TagSerialNumber: "TEST.000000001",
-		TagAgencyID:     "TCA",
-		HomeAgencyID:    "TCA",
+		TagAgencyID:     "ORG1",
+		HomeAgencyID:    "ORG1",
 		AccountID:       "A000000001",
 		TagStatus:       "valid",
 		TagType:         "single",
@@ -44,7 +44,7 @@ func TestCreateTag(t *testing.T) {
 		err = json.Unmarshal(bytes, &stored)
 		require.NoError(t, err)
 		assert.Equal(t, "TEST.000000001", stored.TagSerialNumber)
-		assert.Equal(t, "TCA", stored.TagAgencyID)
+		assert.Equal(t, "ORG1", stored.TagAgencyID)
 		assert.NotEmpty(t, stored.UpdatedAt)
 	})
 
@@ -72,7 +72,7 @@ func TestCreateTag(t *testing.T) {
 		ctx := newMockContext()
 		tag := &models.Tag{
 			TagSerialNumber: "", // missing
-			TagAgencyID:     "TCA",
+			TagAgencyID:     "ORG1",
 		}
 		tagJSON, _ := json.Marshal(tag)
 
@@ -106,7 +106,7 @@ func TestGetTag(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.Equal(t, "TEST.000000001", result.TagSerialNumber)
-		assert.Equal(t, "TCA", result.TagAgencyID)
+		assert.Equal(t, "ORG1", result.TagAgencyID)
 	})
 
 	t.Run("returns error for nonexistent tag", func(t *testing.T) {
@@ -191,7 +191,7 @@ func TestGetTagsByAgency(t *testing.T) {
 	t.Run("returns empty list when no tags", func(t *testing.T) {
 		ctx := newMockContext()
 
-		result, err := contract.GetTagsByAgency(ctx, "TCA")
+		result, err := contract.GetTagsByAgency(ctx, "ORG1")
 		require.NoError(t, err)
 		assert.Empty(t, result)
 	})
@@ -199,7 +199,7 @@ func TestGetTagsByAgency(t *testing.T) {
 	t.Run("returns tags for specific agency", func(t *testing.T) {
 		ctx := newMockContext()
 
-		// Create tags for TCA
+		// Create tags for ORG1
 		tag1 := validTag()
 		tag1JSON, _ := json.Marshal(tag1)
 		_ = contract.CreateTag(ctx, string(tag1JSON))
@@ -212,12 +212,12 @@ func TestGetTagsByAgency(t *testing.T) {
 		// Create tag for different agency
 		tag3 := validTag()
 		tag3.TagSerialNumber = "TEST.000000003"
-		tag3.TagAgencyID = "BATA"
+		tag3.TagAgencyID = "ORG2"
 		tag3JSON, _ := json.Marshal(tag3)
 		_ = contract.CreateTag(ctx, string(tag3JSON))
 
-		// Should only return TCA tags
-		result, err := contract.GetTagsByAgency(ctx, "TCA")
+		// Should only return ORG1 tags
+		result, err := contract.GetTagsByAgency(ctx, "ORG1")
 		require.NoError(t, err)
 		assert.Len(t, result, 2)
 	})

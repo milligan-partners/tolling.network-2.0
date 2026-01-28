@@ -9,11 +9,11 @@ Tolling.Network 2.0 is a Hyperledger Fabric 2.5 blockchain network for toll inte
 - **Fabric version:** 2.5.x LTS
 - **Consensus:** Raft (evaluate SmartBFT from Fabric 3.0 for multi-agency trust model)
 - **State database:** CouchDB (required for rich queries)
-- **Organizations:** TCA, BATA, SANDAG, REPORT (CTOC); TxDOT, HCTRA, NTTA, THEA (NIOP)
+- **Organizations:** Generic org names (Org1, Org2, Org3, etc.) in sample configs; production deployments use actual agency identifiers
 
 ## Components
 
-- **Chaincode (Go):** Smart contracts implementing CTOC and NIOP interoperability protocols
+- **Chaincode (Go):** Smart contracts implementing interoperability protocols
 - **API (NestJS):** REST API using @hyperledger/fabric-gateway SDK for client interactions
 - **Infrastructure:** GKE cluster provisioned with Terraform, Fabric deployed via Hyperledger Bevel
 

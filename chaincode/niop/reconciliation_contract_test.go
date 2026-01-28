@@ -15,7 +15,7 @@ func validReconciliation() *models.Reconciliation {
 	return &models.Reconciliation{
 		ReconciliationID:   "RECON-TEST-001",
 		ChargeID:           "CHG-TEST-001",
-		HomeAgencyID:       "TCA",
+		HomeAgencyID:       "ORG1",
 		PostingDisposition: "P",
 		PostedAmount:       4.75,
 		PostedDateTime:     "2026-01-15T10:00:00Z",
@@ -128,7 +128,7 @@ func TestGetReconciliationsByAgency(t *testing.T) {
 	t.Run("returns empty list when no reconciliations", func(t *testing.T) {
 		ctx := newMockContext()
 
-		result, err := contract.GetReconciliationsByAgency(ctx, "TCA")
+		result, err := contract.GetReconciliationsByAgency(ctx, "ORG1")
 		require.NoError(t, err)
 		assert.Empty(t, result)
 	})
@@ -149,11 +149,11 @@ func TestGetReconciliationsByAgency(t *testing.T) {
 		recon3 := validReconciliation()
 		recon3.ReconciliationID = "RECON-TEST-003"
 		recon3.ChargeID = "CHG-TEST-003"
-		recon3.HomeAgencyID = "BATA" // different agency
+		recon3.HomeAgencyID = "ORG2" // different agency
 		recon3JSON, _ := json.Marshal(recon3)
 		_ = contract.CreateReconciliation(ctx, string(recon3JSON))
 
-		result, err := contract.GetReconciliationsByAgency(ctx, "TCA")
+		result, err := contract.GetReconciliationsByAgency(ctx, "ORG1")
 		require.NoError(t, err)
 		assert.Len(t, result, 2)
 	})

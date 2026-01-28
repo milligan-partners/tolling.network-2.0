@@ -14,8 +14,8 @@ func validSettlement() Settlement {
 		SettlementID:    "SETTLE-TEST-001",
 		PeriodStart:     "2026-01-01",
 		PeriodEnd:       "2026-01-31",
-		PayorAgencyID:   "TCA",
-		PayeeAgencyID:   "BATA",
+		PayorAgencyID:   "ORG1",
+		PayeeAgencyID:   "ORG2",
 		GrossAmount:     15000.00,
 		TotalFees:       150.00,
 		NetAmount:       14850.00,
@@ -104,8 +104,8 @@ func TestSettlement_Validate_InvalidEnums(t *testing.T) {
 
 func TestSettlement_Validate_SameAgency(t *testing.T) {
 	s := validSettlement()
-	s.PayorAgencyID = "TCA"
-	s.PayeeAgencyID = "TCA"
+	s.PayorAgencyID = "ORG1"
+	s.PayeeAgencyID = "ORG1"
 	err := s.Validate()
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "must be different")
@@ -218,13 +218,13 @@ func TestSettlement_SetCreatedAt(t *testing.T) {
 
 func TestSettlement_CollectionName(t *testing.T) {
 	t.Run("alphabetical order", func(t *testing.T) {
-		s := Settlement{PayorAgencyID: "TCA", PayeeAgencyID: "BATA"}
-		assert.Equal(t, "charges_BATA_TCA", s.CollectionName())
+		s := Settlement{PayorAgencyID: "ORG1", PayeeAgencyID: "ORG2"}
+		assert.Equal(t, "charges_ORG2_ORG1", s.CollectionName())
 	})
 
 	t.Run("reversed order same result", func(t *testing.T) {
-		s := Settlement{PayorAgencyID: "BATA", PayeeAgencyID: "TCA"}
-		assert.Equal(t, "charges_BATA_TCA", s.CollectionName())
+		s := Settlement{PayorAgencyID: "ORG2", PayeeAgencyID: "ORG1"}
+		assert.Equal(t, "charges_ORG2_ORG1", s.CollectionName())
 	})
 }
 

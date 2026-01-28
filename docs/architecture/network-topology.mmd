@@ -7,42 +7,42 @@ flowchart TB
         reg["Agency Registry\nProtocol Versions\nReference Data"]
     end
 
-    subgraph ezpass["E-ZPASS CHANNEL"]
+    subgraph consortium1["CONSORTIUM-A CHANNEL"]
         direction TB
-        ez_cc["IAG Inter-CSC Rules"]
-        ez1["PANYNJ"]
-        ez2["NJ Turnpike"]
-        ez3["MA DOT"]
-        ez4["...39 agencies"]
-        ezhub["EZIOP Hub"]
+        c1_cc["Consortium-A Rules"]
+        c1_1["Agency-A1"]
+        c1_2["Agency-A2"]
+        c1_3["Agency-A3"]
+        c1_4["...more agencies"]
+        c1hub["Consortium-A Hub"]
     end
 
-    subgraph cusiop["CUSIOP CHANNEL"]
+    subgraph consortium2["CONSORTIUM-B CHANNEL"]
         direction TB
-        cu_cc["CUSIOP Business Rules"]
-        cu1["NTTA"]
-        cu2["HCTRA"]
-        cu3["TxDOT"]
-        cu4["CTRMA"]
-        cuhub["CUSIOP Hub"]
+        c2_cc["Consortium-B Rules"]
+        c2_1["Agency-B1"]
+        c2_2["Agency-B2"]
+        c2_3["Agency-B3"]
+        c2_4["Agency-B4"]
+        c2hub["Consortium-B Hub"]
     end
 
-    subgraph wrto["WRTO / FASTRAK CHANNEL"]
+    subgraph consortium3["CONSORTIUM-C CHANNEL"]
         direction TB
-        wr_cc["CTOC Tech Spec Rules"]
-        wr1["TCA"]
-        wr2["BATA"]
-        wr3["SANDAG"]
-        wr4["LA Metro"]
+        c3_cc["Consortium-C Rules"]
+        c3_1["Agency-C1"]
+        c3_2["Agency-C2"]
+        c3_3["Agency-C3"]
+        c3_4["Agency-C4"]
     end
 
-    subgraph seiop["SEIOP CHANNEL"]
+    subgraph consortium4["CONSORTIUM-D CHANNEL"]
         direction TB
-        se_cc["SEIOP Business Rules"]
-        se1["FL Turnpike"]
-        se2["CFX"]
-        se3["MDX"]
-        sehub["SEIOP Hub"]
+        c4_cc["Consortium-D Rules"]
+        c4_1["Agency-D1"]
+        c4_2["Agency-D2"]
+        c4_3["Agency-D3"]
+        c4hub["Consortium-D Hub"]
     end
 
     subgraph interop["INTEROP CHANNEL — Cross-Consortium Transactions"]
@@ -57,13 +57,13 @@ flowchart TB
         end
     end
 
-    national --- ezpass
-    national --- cusiop
-    national --- wrto
-    national --- seiop
+    national --- consortium1
+    national --- consortium2
+    national --- consortium3
+    national --- consortium4
     national --- interop
 
-    ezpass --- interop
-    cusiop --- interop
-    wrto --- interop
-    seiop --- interop
+    consortium1 --- interop
+    consortium2 --- interop
+    consortium3 --- interop
+    consortium4 --- interop

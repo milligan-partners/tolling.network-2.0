@@ -4,13 +4,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+# ============================================================================
+# WARNING: LEGACY REFERENCE SCRIPT — DO NOT USE IN PRODUCTION
+# ============================================================================
+# This script is from 2019-2020 and is kept for reference only.
+# For 2.0 development, use Hyperledger Bevel or Fabric test-network scripts.
+# ============================================================================
+#
 # Exit on first error, print all commands.
 set -ev
 
 # don't rewrite paths for Windows Git Bash users
 export MSYS_NO_PATHCONV=1
-export CHANNEL_NAME=ctocchannel
-export COMPOSE_PROJECT_NAME=ctocproject
+export CHANNEL_NAME=samplechannel
+export COMPOSE_PROJECT_NAME=sampleproject
 #docker-compose -f docker-compose.yml down
 
 cd elk
@@ -26,7 +33,7 @@ function joinChannel() {
   docker exec -e "CORE_PEER_ADDRESS=$1" \
               -e "CORE_PEER_LOCALMSPID=$2" \
               -e "CORE_PEER_MSPCONFIGPATH=$3" \
-              cli peer channel update -o orderer.ruuftop.com:7050 \
+              cli peer channel update -o orderer.example.com:7050 \
               -c $CHANNEL_NAME -f $4
 }
 
@@ -36,20 +43,20 @@ function installCC() {
     -e "CORE_PEER_LOCALMSPID=$2" \
     -e "CORE_PEER_MSPCONFIGPATH=$3" \
     cli peer chaincode install \
-    -n ctoc_cc \
+    -n sample_cc \
     -v 1.0 \
     -l node \
-    -p /opt/gopath/src/github.com/CTOCchaincode/
+    -p /opt/gopath/src/github.com/chaincode/
 }
 
 function queryTest() {
   docker exec -e "CORE_PEER_ADDRESS=$1" \
             -e "CORE_PEER_LOCALMSPID=$2" \
             -e "CORE_PEER_MSPCONFIGPATH=$3" \
-            cli peer chaincode query -C ${CHANNEL_NAME} -n ctoc_cc -c '{"Args":["query","a"]}'
+            cli peer chaincode query -C ${CHANNEL_NAME} -n sample_cc -c '{"Args":["query","a"]}'
 }
 
-docker-compose -f docker-compose.yml up -d 
+docker-compose -f docker-compose.yml up -d
 docker ps -a
 
 # # wait for Hyperledger Fabric to start
@@ -65,49 +72,49 @@ sleep 10
 # # Create the channel
 
 
-docker exec cli peer channel create -o orderer.ruuftop.com:7050 \
+docker exec cli peer channel create -o orderer.example.com:7050 \
             -c ${CHANNEL_NAME} \
             -f /etc/hyperledger/configtx/channel.tx
 
-TCAEnv=("peer0.tca.com:7051" "TCA" \
-  "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/tca.com/users/Admin@tca.com/msp" \
-  "/etc/hyperledger/configtx/TCAanchors.tx")
+Org1Env=("peer0.org1.example.com:7051" "Org1MSP" \
+  "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" \
+  "/etc/hyperledger/configtx/Org1anchors.tx")
 
-BATAEnv=("peer0.bata.com:7051" "BATA" \
-  "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/bata.com/users/Admin@bata.com/msp" \
-  "/etc/hyperledger/configtx/BATAanchors.tx")
+Org2Env=("peer0.org2.example.com:7051" "Org2MSP" \
+  "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp" \
+  "/etc/hyperledger/configtx/Org2anchors.tx")
 
-SANDAGEnv=("peer0.sandag.com:7051" "SANDAG" \
-  "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/sandag.com/users/Admin@sandag.com/msp" \
-  "/etc/hyperledger/configtx/SANDAGanchors.tx")
+Org3Env=("peer0.org3.example.com:7051" "Org3MSP" \
+  "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp" \
+  "/etc/hyperledger/configtx/Org3anchors.tx")
 
-REPORTEnv=("peer0.report.com:7051" "REPORT" \
-  "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/report.com/users/Admin@report.com/msp" \
-  "/etc/hyperledger/configtx/REPORTanchors.tx")
+Org4Env=("peer0.org4.example.com:7051" "Org4MSP" \
+  "/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org4.example.com/users/Admin@org4.example.com/msp" \
+  "/etc/hyperledger/configtx/Org4anchors.tx")
 
-joinChannel "${TCAEnv[@]}"
+joinChannel "${Org1Env[@]}"
 
-joinChannel "${BATAEnv[@]}"
+joinChannel "${Org2Env[@]}"
 
-joinChannel "${SANDAGEnv[@]}"
+joinChannel "${Org3Env[@]}"
 
-joinChannel "${REPORTEnv[@]}"
+joinChannel "${Org4Env[@]}"
 
-installCC "${TCAEnv[@]}"
+installCC "${Org1Env[@]}"
 
-installCC "${BATAEnv[@]}"
+installCC "${Org2Env[@]}"
 
-installCC "${SANDAGEnv[@]}"
+installCC "${Org3Env[@]}"
 
-installCC "${REPORTEnv[@]}"
+installCC "${Org4Env[@]}"
 
 sleep 5
 docker exec cli peer chaincode instantiate \
-  -o orderer.ruuftop.com:7050 -C $CHANNEL_NAME \
-  -n ctoc_cc -l node -v 1.0 -c '{"Args":["init"]}' \
-  -P "AND ('TCA.member', 'BATA.member', 'SANDAG.member')" \
-  --collections-config  /opt/gopath/src/github.com/CTOCchaincode/collections_config.json
-sleep 5 
+  -o orderer.example.com:7050 -C $CHANNEL_NAME \
+  -n sample_cc -l node -v 1.0 -c '{"Args":["init"]}' \
+  -P "AND ('Org1MSP.member', 'Org2MSP.member', 'Org3MSP.member')" \
+  --collections-config  /opt/gopath/src/github.com/chaincode/collections_config.json
+sleep 5
 
 bash data_generation/generate_data.sh
 docker-compose restart elk

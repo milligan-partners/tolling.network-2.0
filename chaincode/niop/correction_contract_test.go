@@ -17,8 +17,8 @@ func validCorrection() *models.Correction {
 		OriginalChargeID: "CHG-TEST-001",
 		CorrectionSeqNo:  1,
 		CorrectionReason: "C",
-		FromAgencyID:     "BATA",
-		ToAgencyID:       "TCA",
+		FromAgencyID:     "ORG2",
+		ToAgencyID:       "ORG1",
 		RecordType:       "TB01A",
 		Amount:           3.50,
 	}
@@ -36,7 +36,7 @@ func TestCreateCorrection(t *testing.T) {
 		require.NoError(t, err)
 
 		// Key format: CORRECTION_{chargeID}_{seqNo}
-		bytes, err := ctx.stub.GetPrivateData("charges_BATA_TCA", "CORRECTION_CHG-TEST-001_001")
+		bytes, err := ctx.stub.GetPrivateData("charges_ORG2_ORG1", "CORRECTION_CHG-TEST-001_001")
 		require.NoError(t, err)
 		require.NotNil(t, bytes)
 
@@ -104,7 +104,7 @@ func TestGetCorrection(t *testing.T) {
 		correctionJSON, _ := json.Marshal(correction)
 		_ = contract.CreateCorrection(ctx, string(correctionJSON))
 
-		result, err := contract.GetCorrection(ctx, "CHG-TEST-001", 1, "BATA", "TCA")
+		result, err := contract.GetCorrection(ctx, "CHG-TEST-001", 1, "ORG2", "ORG1")
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.Equal(t, "CORR-TEST-001", result.CorrectionID)
@@ -113,7 +113,7 @@ func TestGetCorrection(t *testing.T) {
 	t.Run("returns error for nonexistent correction", func(t *testing.T) {
 		ctx := newMockContext()
 
-		result, err := contract.GetCorrection(ctx, "CHG-NONEXISTENT", 1, "BATA", "TCA")
+		result, err := contract.GetCorrection(ctx, "CHG-NONEXISTENT", 1, "ORG2", "ORG1")
 		require.Error(t, err)
 		assert.Nil(t, result)
 		assert.Contains(t, err.Error(), "not found")
@@ -126,7 +126,7 @@ func TestGetCorrectionsForCharge(t *testing.T) {
 	t.Run("returns empty list when no corrections", func(t *testing.T) {
 		ctx := newEnhancedMockContext()
 
-		result, err := contract.GetCorrectionsForCharge(ctx, "CHG-TEST-001", "BATA", "TCA")
+		result, err := contract.GetCorrectionsForCharge(ctx, "CHG-TEST-001", "ORG2", "ORG1")
 		require.NoError(t, err)
 		assert.Empty(t, result)
 	})
@@ -145,7 +145,7 @@ func TestGetCorrectionsForCharge(t *testing.T) {
 		corr2JSON, _ := json.Marshal(corr2)
 		_ = contract.CreateCorrection(ctx, string(corr2JSON))
 
-		result, err := contract.GetCorrectionsForCharge(ctx, "CHG-TEST-001", "BATA", "TCA")
+		result, err := contract.GetCorrectionsForCharge(ctx, "CHG-TEST-001", "ORG2", "ORG1")
 		require.NoError(t, err)
 		assert.Len(t, result, 2)
 	})
@@ -165,7 +165,7 @@ func TestGetCorrectionsForCharge(t *testing.T) {
 		corr2JSON, _ := json.Marshal(corr2)
 		_ = contract.CreateCorrection(ctx, string(corr2JSON))
 
-		result, err := contract.GetCorrectionsForCharge(ctx, "CHG-TEST-001", "BATA", "TCA")
+		result, err := contract.GetCorrectionsForCharge(ctx, "CHG-TEST-001", "ORG2", "ORG1")
 		require.NoError(t, err)
 		assert.Len(t, result, 1)
 		assert.Equal(t, "CHG-TEST-001", result[0].OriginalChargeID)

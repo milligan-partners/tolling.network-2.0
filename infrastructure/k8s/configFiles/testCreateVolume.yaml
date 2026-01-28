@@ -1,3 +1,28 @@
+# ============================================================================
+# WARNING: LEGACY REFERENCE ONLY — DO NOT DEPLOY
+# ============================================================================
+# This PersistentVolume configuration contains critical issues:
+#
+# 1. hostPath: /tmp — EPHEMERAL STORAGE
+#    Data is stored in /tmp which is:
+#    - Cleared on node reboot
+#    - Not replicated across nodes
+#    - Not backed up
+#    Ledger data will be PERMANENTLY LOST on node restart
+#
+# 2. No encryption at rest
+#
+# 3. No access controls
+#
+# For 2.0, use proper PersistentVolumeClaims with:
+# - GCP Persistent Disk or equivalent cloud storage
+# - Encryption at rest enabled
+# - Appropriate storage class for durability
+# - Regular backup strategy
+#
+# Example for GKE:
+#   storageClassName: "premium-rwo"  # SSD-backed, encrypted
+# ============================================================================
 ---
 kind: PersistentVolume
 apiVersion: v1
@@ -12,6 +37,7 @@ spec:
   accessModes:
         - ReadWriteMany
   storageClassName: "networkvolume"
+  # SECURITY: /tmp is ephemeral — data lost on node reboot. DO NOT USE.
   hostPath:
     path: "/tmp"
 

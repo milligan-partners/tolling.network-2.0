@@ -3,14 +3,34 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+# ============================================================================
+# WARNING: LEGACY REFERENCE CONFIGURATION — DO NOT USE IN PRODUCTION
+# ============================================================================
+# This docker-compose file is from 2019-2020 and is kept for reference only.
+# It contains critical security issues that must not be deployed:
+#
+# 1. Empty CouchDB credentials (Admin Party mode) - lines 71-72, 111-112, etc.
+# 2. Docker socket mounted into containers (/var/run/) - enables container escape
+# 3. No TLS enabled on any service
+# 4. CouchDB ports exposed to host (5984, 6984, 7984, 5985)
+# 5. ELK ports exposed without authentication (5601, 9200)
+# 6. Uses Fabric 1.x images (current LTS is 2.5.x)
+#
+# For 2.0 development, use infrastructure/bevel/ or create new configs with:
+# - CouchDB credentials via environment variables
+# - External chaincode launcher (no docker socket)
+# - TLS enabled by default
+# - Fabric 2.5.x images
+# ============================================================================
+#
 version: '2'
 
 networks:
   basic:
 
 services:
-  orderer.ruuftop.com:
-    container_name: orderer.ruuftop.com
+  orderer.example.com:
+    container_name: orderer.example.com
     image: hyperledger/fabric-orderer
     environment:
       - FABRIC_LOGGING_SPEC=INFO
@@ -27,170 +47,175 @@ services:
       - 7050:7050
     volumes:
         - ./config/:/etc/hyperledger/configtx
-        - ./crypto-config/ordererOrganizations/ruuftop.com/orderers/orderer.ruuftop.com/:/etc/hyperledger/msp/orderer
-        - ./crypto-config/peerOrganizations/tca.com/peers/peer0.tca.com/:/etc/hyperledger/msp/peerTCA
-        - ./crypto-config/peerOrganizations/bata.com/peers/peer0.bata.com/:/etc/hyperledger/msp/peerBATA
-        - ./crypto-config/peerOrganizations/sandag.com/peers/peer0.sandag.com/:/etc/hyperledger/msp/peerSANDAG
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/:/etc/hyperledger/msp/orderer
+        - ./crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/:/etc/hyperledger/msp/peerOrg1
+        - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/:/etc/hyperledger/msp/peerOrg2
+        - ./crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/:/etc/hyperledger/msp/peerOrg3
     networks:
       - basic
 
-  peer0.tca.com:
-    container_name: peer0.tca.com
+  peer0.org1.example.com:
+    container_name: peer0.org1.example.com
     extends:
       file: base/peer-base.yaml
       service: peer-base
     environment:
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.tca.com:5984
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.tca.com:7051
-      - CORE_PEER_ADDRESS=peer0.tca.com:7051
-      - CORE_PEER_ID=peer0.tca.com
-      - CORE_PEER_LOCALMSPID=TCA
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.org1.example.com:5984
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051
+      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_PEER_ID=peer0.org1.example.com
+      - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
       - CORE_CHAINCODE_STARTUPTIMEOUT=300s
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.tca.com:7053
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org1.example.com:7053
     volumes:
+        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
         - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/tca.com/peers/peer0.tca.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/tca.com/users:/etc/hyperledger/msp/users
+        - ./crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/org1.example.com/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
     ports:
       - 7051:7051
       - 7053:7053
     depends_on:
-      - orderer.ruuftop.com
-      - db.peer0.tca.com
+      - orderer.example.com
+      - db.peer0.org1.example.com
     networks:
       - basic
 
-  db.peer0.tca.com:
-    container_name: db.peer0.tca.com
+  db.peer0.org1.example.com:
+    container_name: db.peer0.org1.example.com
     image: hyperledger/fabric-couchdb
-    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
-    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    # SECURITY: Set credentials via env vars. Never commit real credentials.
+    # Example: COUCHDB_USER=${COUCHDB_USER:-admin} COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
     environment:
-      - COUCHDB_USER=
-      - COUCHDB_PASSWORD=
+      - COUCHDB_USER=${COUCHDB_USER:-admin}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:?COUCHDB_PASSWORD must be set}
+    # SECURITY: Do not expose CouchDB ports to host in production
     ports:
       - 5984:5984
     networks:
       - basic
-  
-  peer0.sandag.com:
-    container_name: peer0.sandag.com
+
+  peer0.org3.example.com:
+    container_name: peer0.org3.example.com
     extends:
       file: base/peer-base.yaml
       service: peer-base
     environment:
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.sandag.com:5984
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.sandag.com:7051
-      - CORE_PEER_ADDRESS=peer0.sandag.com:7051
-      - CORE_PEER_ID=peer0.sandag.com
-      - CORE_PEER_LOCALMSPID=SANDAG
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.org3.example.com:5984
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.example.com:7051
+      - CORE_PEER_ADDRESS=peer0.org3.example.com:7051
+      - CORE_PEER_ID=peer0.org3.example.com
+      - CORE_PEER_LOCALMSPID=Org3MSP
       - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
       - CORE_CHAINCODE_STARTUPTIMEOUT=300s
     volumes:
+        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
         - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/sandag.com/peers/peer0.sandag.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/sandag.com/users:/etc/hyperledger/msp/users
+        - ./crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/org3.example.com/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
     ports:
       - 8051:7051
       - 8053:7053
     depends_on:
-      - orderer.ruuftop.com
-      - db.peer0.sandag.com
+      - orderer.example.com
+      - db.peer0.org3.example.com
     networks:
       - basic
 
-  db.peer0.sandag.com:
-    container_name: db.peer0.sandag.com
+  db.peer0.org3.example.com:
+    container_name: db.peer0.org3.example.com
     image: hyperledger/fabric-couchdb
-    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
-    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    # SECURITY: Set credentials via env vars. Never commit real credentials.
     environment:
-      - COUCHDB_USER=
-      - COUCHDB_PASSWORD=
+      - COUCHDB_USER=${COUCHDB_USER:-admin}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:?COUCHDB_PASSWORD must be set}
+    # SECURITY: Do not expose CouchDB ports to host in production
     ports:
       - 6984:5984
     networks:
       - basic
 
-  peer0.bata.com:
-    container_name: peer0.bata.com
+  peer0.org2.example.com:
+    container_name: peer0.org2.example.com
     extends:
       file: base/peer-base.yaml
       service: peer-base
     environment:
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.bata.com:5984
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.bata.com:7051
-      - CORE_PEER_ADDRESS=peer0.bata.com:7051
-      - CORE_PEER_ID=peer0.bata.com
-      - CORE_PEER_LOCALMSPID=BATA
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.org2.example.com:5984
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:7051
+      - CORE_PEER_ADDRESS=peer0.org2.example.com:7051
+      - CORE_PEER_ID=peer0.org2.example.com
+      - CORE_PEER_LOCALMSPID=Org2MSP
       - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
       - CORE_CHAINCODE_STARTUPTIMEOUT=300s
     volumes:
+        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
         - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/bata.com/peers/peer0.bata.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/bata.com/users:/etc/hyperledger/msp/users
+        - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/org2.example.com/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
     ports:
       - 9051:7051
       - 9053:7053
     depends_on:
-      - orderer.ruuftop.com
-      - db.peer0.bata.com
+      - orderer.example.com
+      - db.peer0.org2.example.com
     networks:
       - basic
 
-  db.peer0.bata.com:
-    container_name: db.peer0.bata.com
+  db.peer0.org2.example.com:
+    container_name: db.peer0.org2.example.com
     image: hyperledger/fabric-couchdb
-    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
-    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    # SECURITY: Set credentials via env vars. Never commit real credentials.
     environment:
-      - COUCHDB_USER=
-      - COUCHDB_PASSWORD=
+      - COUCHDB_USER=${COUCHDB_USER:-admin}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:?COUCHDB_PASSWORD must be set}
+    # SECURITY: Do not expose CouchDB ports to host in production
     ports:
       - 7984:5984
     networks:
       - basic
 
-  peer0.report.com:
-    container_name: peer0.report.com
+  peer0.org4.example.com:
+    container_name: peer0.org4.example.com
     extends:
       file: base/peer-base.yaml
       service: peer-base
     environment:
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.report.com:5984
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.report.com:7051
-      - CORE_PEER_ADDRESS=peer0.report.com:7051
-      - CORE_PEER_ID=peer0.report.com
-      - CORE_PEER_LOCALMSPID=REPORT
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.org4.example.com:5984
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org4.example.com:7051
+      - CORE_PEER_ADDRESS=peer0.org4.example.com:7051
+      - CORE_PEER_ID=peer0.org4.example.com
+      - CORE_PEER_LOCALMSPID=Org4MSP
       - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
       - CORE_CHAINCODE_STARTUPTIMEOUT=300s
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.report.com:7053
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org4.example.com:7053
     volumes:
+        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
         - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/report.com/peers/peer0.report.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/report.com/users:/etc/hyperledger/msp/users
+        - ./crypto-config/peerOrganizations/org4.example.com/peers/peer0.org4.example.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/org4.example.com/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
     ports:
       - 7151:7051
       - 7153:7053
     depends_on:
-      - orderer.ruuftop.com
-      - db.peer0.report.com
+      - orderer.example.com
+      - db.peer0.org4.example.com
     networks:
       - basic
 
-  db.peer0.report.com:
-    container_name: db.peer0.report.com
+  db.peer0.org4.example.com:
+    container_name: db.peer0.org4.example.com
     image: hyperledger/fabric-couchdb
-    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
-    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    # SECURITY: Set credentials via env vars. Never commit real credentials.
     environment:
-      - COUCHDB_USER=
-      - COUCHDB_PASSWORD=
+      - COUCHDB_USER=${COUCHDB_USER:-admin}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:?COUCHDB_PASSWORD must be set}
+    # SECURITY: Do not expose CouchDB ports to host in production
     ports:
       - 5985:5984
     networks:
@@ -204,17 +229,18 @@ services:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - FABRIC_LOGGING_SPEC=INFO
-      - CORE_PEER_ADDRESS=peer0.tca.com:7051
-      - CORE_PEER_LOCALMSPID=TCA
-      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/tca.com/users/Admin@tca.com/msp
+      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
       - CORE_CHAINCODE_KEEPALIVE=50
       - CHANNEL_NAME=${CHANNEL_NAME}
       - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
       - CORE_CHAINCODE_STARTUPTIMEOUT=300s
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.tca.com:7053
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org1.example.com:7053
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
+        # SECURITY: Docker socket mount enables container escape. Use external chaincode launcher in Fabric 2.x
         - /var/run/:/host/var/run/
         - ./chaincode/:/opt/gopath/src/github.com/
         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
@@ -222,7 +248,7 @@ services:
     networks:
         - basic
     depends_on:
-        - orderer.ruuftop.com
+        - orderer.example.com
   elk:
     container_name: elk
     image: elk
@@ -237,7 +263,7 @@ services:
     image: dremio/dremio-oss
     ports:
       - 9047:9047
-      - 31010:31010 
-      - 45678:45678 
+      - 31010:31010
+      - 45678:45678
     networks:
       - basic

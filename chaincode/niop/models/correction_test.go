@@ -15,8 +15,8 @@ func validCorrection() Correction {
 		OriginalChargeID: "CHG-TEST-001",
 		CorrectionSeqNo:  1,
 		CorrectionReason: "C",
-		FromAgencyID:     "BATA",
-		ToAgencyID:       "TCA",
+		FromAgencyID:     "ORG2",
+		ToAgencyID:       "ORG1",
 		RecordType:       "TB01A",
 		Amount:           3.50,
 	}
@@ -162,8 +162,8 @@ func TestCorrection_Validate_SeqNoRange(t *testing.T) {
 
 func TestCorrection_Validate_SameAgency(t *testing.T) {
 	c := validCorrection()
-	c.FromAgencyID = "TCA"
-	c.ToAgencyID = "TCA"
+	c.FromAgencyID = "ORG1"
+	c.ToAgencyID = "ORG1"
 	err := c.Validate()
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "must be different")
@@ -208,13 +208,13 @@ func TestCorrection_SetCreatedAt(t *testing.T) {
 
 func TestCorrection_CollectionName(t *testing.T) {
 	t.Run("alphabetical order", func(t *testing.T) {
-		c := Correction{FromAgencyID: "TCA", ToAgencyID: "BATA"}
-		assert.Equal(t, "charges_BATA_TCA", c.CollectionName())
+		c := Correction{FromAgencyID: "ORG1", ToAgencyID: "ORG2"}
+		assert.Equal(t, "charges_ORG2_ORG1", c.CollectionName())
 	})
 
 	t.Run("reversed order same result", func(t *testing.T) {
-		c := Correction{FromAgencyID: "BATA", ToAgencyID: "TCA"}
-		assert.Equal(t, "charges_BATA_TCA", c.CollectionName())
+		c := Correction{FromAgencyID: "ORG2", ToAgencyID: "ORG1"}
+		assert.Equal(t, "charges_ORG2_ORG1", c.CollectionName())
 	})
 }
 

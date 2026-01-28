@@ -2,6 +2,26 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+# ============================================================================
+# WARNING: LEGACY REFERENCE CONFIGURATION — DO NOT USE IN PRODUCTION
+# ============================================================================
+# This configtx.yaml is from 2019-2020 and contains critical issues:
+#
+# 1. SOLO orderer (line ~134) — Single point of failure, no fault tolerance
+#    2.0 MUST use Raft ordering with at least 3 orderer nodes
+#
+# 2. V1_x capabilities (lines ~97-107) — Obsolete Fabric 1.x capabilities
+#    2.0 MUST set V2_5 capabilities for Fabric 2.5.x LTS
+#
+# 3. No TLS configuration — All communication is unencrypted
+#    2.0 MUST enable TLS by default
+#
+# For 2.0 development, use Hyperledger Bevel (infrastructure/bevel/) which
+# generates production-ready configtx.yaml with:
+# - Raft ordering service with 3+ nodes
+# - V2_5 capabilities
+# - TLS enabled by default
+# ============================================================================
 
 ---
 ################################################################################
@@ -25,75 +45,83 @@ Organizations:
         ID: OrdererMSP
 
         # MSPDir is the filesystem path which contains the MSP configuration
-        MSPDir: crypto-config/ordererOrganizations/ruuftop.com/msp
+        MSPDir: crypto-config/ordererOrganizations/example.com/msp
 
-    - &TCA
+    - &Org1
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
-        Name: TCA
+        Name: Org1
 
         # ID to load the MSP definition as
-        ID: TCA
+        ID: Org1MSP
 
-        MSPDir: crypto-config/peerOrganizations/tca.com/msp
+        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
 
         AnchorPeers:
             # AnchorPeers defines the location of peers which can be used
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
-            - Host: peer0.tca.com
+            - Host: peer0.org1.example.com
               Port: 7051
 
-    - &SANDAG
+    - &Org2
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
-        Name: SANDAG
+        Name: Org2
 
         # ID to load the MSP definition as
-        ID: SANDAG
+        ID: Org2MSP
 
-        MSPDir: crypto-config/peerOrganizations/sandag.com/msp
+        MSPDir: crypto-config/peerOrganizations/org2.example.com/msp
 
         AnchorPeers:
             # AnchorPeers defines the location of peers which can be used
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
-            - Host: peer0.sandag.com
+            - Host: peer0.org2.example.com
               Port: 7051
 
-    - &BATA
+    - &Org3
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
-        Name: BATA
+        Name: Org3
 
         # ID to load the MSP definition as
-        ID: BATA
+        ID: Org3MSP
 
-        MSPDir: crypto-config/peerOrganizations/bata.com/msp
+        MSPDir: crypto-config/peerOrganizations/org3.example.com/msp
 
         AnchorPeers:
             # AnchorPeers defines the location of peers which can be used
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
-            - Host: peer0.bata.com
+            - Host: peer0.org3.example.com
               Port: 7051
 
-    - &REPORT
+    - &Org4
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
-        Name: REPORT
+        Name: Org4
 
         # ID to load the MSP definition as
-        ID: REPORT
+        ID: Org4MSP
 
-        MSPDir: crypto-config/peerOrganizations/report.com/msp
+        MSPDir: crypto-config/peerOrganizations/org4.example.com/msp
 
         AnchorPeers:
             # AnchorPeers defines the location of peers which can be used
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
-            - Host: peer0.report.com
+            - Host: peer0.org4.example.com
               Port: 7051
+# SECURITY: These V1_x capabilities are obsolete. 2.0 must use V2_5.
+# Example for Fabric 2.5.x:
+#   Channel: &ChannelCapabilities
+#       V2_0: true
+#   Orderer: &OrdererCapabilities
+#       V2_0: true
+#   Application: &ApplicationCapabilities
+#       V2_5: true
 Capabilities:
     Channel: &ChannelCapabilities
         V1_3: true
@@ -130,11 +158,22 @@ Application: &ApplicationDefaults
 Orderer: &OrdererDefaults
 
     # Orderer Type: The orderer implementation to start
-    # Available types are "solo" and "kafka"
+    # SECURITY: SOLO orderer is single point of failure — no fault tolerance.
+    # 2.0 MUST use "etcdraft" with at least 3 orderer nodes.
+    # Example for Fabric 2.5.x:
+    #   OrdererType: etcdraft
+    #   EtcdRaft:
+    #       Consenters:
+    #           - Host: orderer1.example.com
+    #             Port: 7050
+    #             ClientTLSCert: path/to/client.crt
+    #             ServerTLSCert: path/to/server.crt
+    #           - Host: orderer2.example.com
+    #             ...
     OrdererType: solo
 
     Addresses:
-        - orderer.ruuftop.com:7050
+        - orderer.example.com:7050
 
     # Batch Timeout: The amount of time to wait before creating a batch
     BatchTimeout: 2s
@@ -174,7 +213,7 @@ Orderer: &OrdererDefaults
 ################################################################################
 Profiles:
 
-    CTOCOrdererGenesis:
+    SampleOrdererGenesis:
         Orderer:
             <<: *OrdererDefaults
             Organizations:
@@ -182,20 +221,20 @@ Profiles:
             Capabilities:
                 <<: *OrdererCapabilities
         Consortiums:
-            CTOC:
+            SampleConsortium:
                 Organizations:
-                    - *TCA
-                    - *BATA
-                    - *SANDAG
-                    - *REPORT
-    ctocchannel:
-        Consortium: CTOC
+                    - *Org1
+                    - *Org2
+                    - *Org3
+                    - *Org4
+    samplechannel:
+        Consortium: SampleConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:
-                - *TCA
-                - *BATA
-                - *SANDAG
-                - *REPORT
+                - *Org1
+                - *Org2
+                - *Org3
+                - *Org4
             Capabilities:
                 <<: *ApplicationCapabilities

@@ -15,8 +15,8 @@ func validCharge() Charge {
 		ChargeType:      "toll_tag",
 		RecordType:      "TB01",
 		Protocol:        "niop",
-		AwayAgencyID:    "BATA",
-		HomeAgencyID:    "TCA",
+		AwayAgencyID:    "ORG2",
+		HomeAgencyID:    "ORG1",
 		TagSerialNumber: "TEST.000000001",
 		FacilityID:      "SR73",
 		Plaza:           "CATALINA",
@@ -35,8 +35,8 @@ func validVideoCharge() Charge {
 		ChargeType:   "toll_video",
 		RecordType:   "VB01",
 		Protocol:     "niop",
-		AwayAgencyID: "BATA",
-		HomeAgencyID: "TCA",
+		AwayAgencyID: "ORG2",
+		HomeAgencyID: "ORG1",
 		PlateCountry: "US",
 		PlateState:   "CA",
 		PlateNumber:  "7ABC123",
@@ -173,8 +173,8 @@ func TestCharge_Validate_InvalidEnums(t *testing.T) {
 
 func TestCharge_Validate_SameAgency(t *testing.T) {
 	c := validCharge()
-	c.HomeAgencyID = "BATA"
-	c.AwayAgencyID = "BATA"
+	c.HomeAgencyID = "ORG2"
+	c.AwayAgencyID = "ORG2"
 	err := c.Validate()
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "must be different")
@@ -302,18 +302,18 @@ func TestCharge_SetCreatedAt(t *testing.T) {
 
 func TestCharge_CollectionName(t *testing.T) {
 	t.Run("alphabetical order A-B", func(t *testing.T) {
-		c := Charge{AwayAgencyID: "BATA", HomeAgencyID: "TCA"}
-		assert.Equal(t, "charges_BATA_TCA", c.CollectionName())
+		c := Charge{AwayAgencyID: "ORG2", HomeAgencyID: "ORG1"}
+		assert.Equal(t, "charges_ORG2_ORG1", c.CollectionName())
 	})
 
 	t.Run("alphabetical order reversed", func(t *testing.T) {
-		c := Charge{AwayAgencyID: "TCA", HomeAgencyID: "BATA"}
-		assert.Equal(t, "charges_BATA_TCA", c.CollectionName())
+		c := Charge{AwayAgencyID: "ORG1", HomeAgencyID: "ORG2"}
+		assert.Equal(t, "charges_ORG2_ORG1", c.CollectionName())
 	})
 
 	t.Run("same collection regardless of direction", func(t *testing.T) {
-		c1 := Charge{AwayAgencyID: "NTTA", HomeAgencyID: "HCTRA"}
-		c2 := Charge{AwayAgencyID: "HCTRA", HomeAgencyID: "NTTA"}
+		c1 := Charge{AwayAgencyID: "ORG4", HomeAgencyID: "ORG5"}
+		c2 := Charge{AwayAgencyID: "ORG5", HomeAgencyID: "ORG4"}
 		assert.Equal(t, c1.CollectionName(), c2.CollectionName())
 	})
 }

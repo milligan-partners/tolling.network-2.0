@@ -17,8 +17,8 @@ func validCharge() *models.Charge {
 		ChargeType:      "toll_tag",
 		RecordType:      "TB01",
 		Protocol:        "niop",
-		AwayAgencyID:    "BATA",
-		HomeAgencyID:    "TCA",
+		AwayAgencyID:    "ORG2",
+		HomeAgencyID:    "ORG1",
 		TagSerialNumber: "TEST.000000001",
 		FacilityID:      "SR73",
 		Plaza:           "CATALINA",
@@ -42,8 +42,8 @@ func TestCreateCharge(t *testing.T) {
 		err := contract.CreateCharge(ctx, string(chargeJSON))
 		require.NoError(t, err)
 
-		// Verify private data was written (collection is charges_BATA_TCA)
-		bytes, err := ctx.stub.GetPrivateData("charges_BATA_TCA", "CHARGE_CHG-TEST-001")
+		// Verify private data was written (collection is charges_ORG2_ORG1)
+		bytes, err := ctx.stub.GetPrivateData("charges_ORG2_ORG1", "CHARGE_CHG-TEST-001")
 		require.NoError(t, err)
 		require.NotNil(t, bytes)
 
@@ -78,7 +78,7 @@ func TestCreateCharge(t *testing.T) {
 	t.Run("rejects same agency for away and home", func(t *testing.T) {
 		ctx := newMockContext()
 		charge := validCharge()
-		charge.HomeAgencyID = "BATA" // same as away
+		charge.HomeAgencyID = "ORG2" // same as away
 		chargeJSON, _ := json.Marshal(charge)
 
 		err := contract.CreateCharge(ctx, string(chargeJSON))
@@ -120,12 +120,12 @@ func TestGetCharge(t *testing.T) {
 		chargeJSON, _ := json.Marshal(charge)
 		_ = contract.CreateCharge(ctx, string(chargeJSON))
 
-		result, err := contract.GetCharge(ctx, "CHG-TEST-001", "BATA", "TCA")
+		result, err := contract.GetCharge(ctx, "CHG-TEST-001", "ORG2", "ORG1")
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.Equal(t, "CHG-TEST-001", result.ChargeID)
-		assert.Equal(t, "BATA", result.AwayAgencyID)
-		assert.Equal(t, "TCA", result.HomeAgencyID)
+		assert.Equal(t, "ORG2", result.AwayAgencyID)
+		assert.Equal(t, "ORG1", result.HomeAgencyID)
 	})
 
 	t.Run("retrieves charge with reversed agency order", func(t *testing.T) {
@@ -135,7 +135,7 @@ func TestGetCharge(t *testing.T) {
 		_ = contract.CreateCharge(ctx, string(chargeJSON))
 
 		// Pass agencies in reverse order - should still work
-		result, err := contract.GetCharge(ctx, "CHG-TEST-001", "TCA", "BATA")
+		result, err := contract.GetCharge(ctx, "CHG-TEST-001", "ORG1", "ORG2")
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.Equal(t, "CHG-TEST-001", result.ChargeID)
@@ -144,7 +144,7 @@ func TestGetCharge(t *testing.T) {
 	t.Run("returns error for nonexistent charge", func(t *testing.T) {
 		ctx := newMockContext()
 
-		result, err := contract.GetCharge(ctx, "NONEXISTENT", "BATA", "TCA")
+		result, err := contract.GetCharge(ctx, "NONEXISTENT", "ORG2", "ORG1")
 		require.Error(t, err)
 		assert.Nil(t, result)
 		assert.Contains(t, err.Error(), "not found")
@@ -161,10 +161,10 @@ func TestUpdateChargeStatus(t *testing.T) {
 		_ = contract.CreateCharge(ctx, string(chargeJSON))
 
 		// pending -> posted is allowed
-		err := contract.UpdateChargeStatus(ctx, "CHG-TEST-001", "BATA", "TCA", "posted")
+		err := contract.UpdateChargeStatus(ctx, "CHG-TEST-001", "ORG2", "ORG1", "posted")
 		require.NoError(t, err)
 
-		result, err := contract.GetCharge(ctx, "CHG-TEST-001", "BATA", "TCA")
+		result, err := contract.GetCharge(ctx, "CHG-TEST-001", "ORG2", "ORG1")
 		require.NoError(t, err)
 		assert.Equal(t, "posted", result.Status)
 	})
@@ -176,7 +176,7 @@ func TestUpdateChargeStatus(t *testing.T) {
 		_ = contract.CreateCharge(ctx, string(chargeJSON))
 
 		// pending -> settled is NOT allowed (must go through posted)
-		err := contract.UpdateChargeStatus(ctx, "CHG-TEST-001", "BATA", "TCA", "settled")
+		err := contract.UpdateChargeStatus(ctx, "CHG-TEST-001", "ORG2", "ORG1", "settled")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "cannot transition")
 	})
@@ -187,7 +187,7 @@ func TestUpdateChargeStatus(t *testing.T) {
 		chargeJSON, _ := json.Marshal(charge)
 		_ = contract.CreateCharge(ctx, string(chargeJSON))
 
-		err := contract.UpdateChargeStatus(ctx, "CHG-TEST-001", "BATA", "TCA", "bad_status")
+		err := contract.UpdateChargeStatus(ctx, "CHG-TEST-001", "ORG2", "ORG1", "bad_status")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "invalid target status")
 	})
@@ -195,7 +195,7 @@ func TestUpdateChargeStatus(t *testing.T) {
 	t.Run("returns error for nonexistent charge", func(t *testing.T) {
 		ctx := newMockContext()
 
-		err := contract.UpdateChargeStatus(ctx, "NONEXISTENT", "BATA", "TCA", "posted")
+		err := contract.UpdateChargeStatus(ctx, "NONEXISTENT", "ORG2", "ORG1", "posted")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not found")
 	})
@@ -207,7 +207,7 @@ func TestGetChargesByAgencyPair(t *testing.T) {
 	t.Run("returns empty list when no charges", func(t *testing.T) {
 		ctx := newEnhancedMockContext()
 
-		result, err := contract.GetChargesByAgencyPair(ctx, "BATA", "TCA")
+		result, err := contract.GetChargesByAgencyPair(ctx, "ORG2", "ORG1")
 		require.NoError(t, err)
 		assert.Empty(t, result)
 	})
@@ -225,7 +225,7 @@ func TestGetChargesByAgencyPair(t *testing.T) {
 		charge2JSON, _ := json.Marshal(charge2)
 		_ = contract.CreateCharge(ctx, string(charge2JSON))
 
-		result, err := contract.GetChargesByAgencyPair(ctx, "BATA", "TCA")
+		result, err := contract.GetChargesByAgencyPair(ctx, "ORG2", "ORG1")
 		require.NoError(t, err)
 		assert.Len(t, result, 2)
 	})
@@ -238,7 +238,7 @@ func TestGetChargesByAgencyPair(t *testing.T) {
 		_ = contract.CreateCharge(ctx, string(chargeJSON))
 
 		// Query with reversed agency order
-		result, err := contract.GetChargesByAgencyPair(ctx, "TCA", "BATA")
+		result, err := contract.GetChargesByAgencyPair(ctx, "ORG1", "ORG2")
 		require.NoError(t, err)
 		assert.Len(t, result, 1)
 		assert.Equal(t, "CHG-TEST-001", result[0].ChargeID)
@@ -250,15 +250,15 @@ func TestChargeCollectionNameSymmetry(t *testing.T) {
 	// so both agencies can find the same data regardless of who queries
 
 	charge1 := &models.Charge{
-		AwayAgencyID: "BATA",
-		HomeAgencyID: "TCA",
+		AwayAgencyID: "ORG2",
+		HomeAgencyID: "ORG1",
 	}
 
 	charge2 := &models.Charge{
-		AwayAgencyID: "TCA",
-		HomeAgencyID: "BATA",
+		AwayAgencyID: "ORG1",
+		HomeAgencyID: "ORG2",
 	}
 
 	assert.Equal(t, charge1.CollectionName(), charge2.CollectionName())
-	assert.Equal(t, "charges_BATA_TCA", charge1.CollectionName())
+	assert.Equal(t, "charges_ORG2_ORG1", charge1.CollectionName())
 }

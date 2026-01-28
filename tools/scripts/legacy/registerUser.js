@@ -1,5 +1,21 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * ============================================================================
+ * WARNING: LEGACY REFERENCE CODE — DO NOT USE IN PRODUCTION
+ * ============================================================================
+ * This script is from the Fabric SDK v1.x era (2019) and is kept for reference
+ * only. It contains hardcoded credentials and uses deprecated APIs.
+ *
+ * Security issues:
+ * - Hardcoded user password ('userpw') on line 49
+ * - No TLS configuration
+ * - Deprecated fabric-network APIs (FileSystemWallet, X509WalletMixin)
+ * - Empty catch block silently swallows registration errors
+ *
+ * For Fabric 2.5.x, use the fabric-gateway SDK instead.
+ * See: https://hyperledger.github.io/fabric-gateway/
+ * ============================================================================
  */
 
 'use strict';

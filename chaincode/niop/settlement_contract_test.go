@@ -16,8 +16,8 @@ func validSettlement() *models.Settlement {
 		SettlementID:    "SETTLE-TEST-001",
 		PeriodStart:     "2026-01-01",
 		PeriodEnd:       "2026-01-31",
-		PayorAgencyID:   "TCA",
-		PayeeAgencyID:   "BATA",
+		PayorAgencyID:   "ORG1",
+		PayeeAgencyID:   "ORG2",
 		GrossAmount:     15000.00,
 		TotalFees:       150.00,
 		NetAmount:       14850.00,
@@ -38,7 +38,7 @@ func TestCreateSettlement(t *testing.T) {
 		err := contract.CreateSettlement(ctx, string(settlementJSON))
 		require.NoError(t, err)
 
-		bytes, err := ctx.stub.GetPrivateData("charges_BATA_TCA", "SETTLEMENT_SETTLE-TEST-001")
+		bytes, err := ctx.stub.GetPrivateData("charges_ORG2_ORG1", "SETTLEMENT_SETTLE-TEST-001")
 		require.NoError(t, err)
 		require.NotNil(t, bytes)
 
@@ -77,7 +77,7 @@ func TestCreateSettlement(t *testing.T) {
 	t.Run("rejects same payor and payee", func(t *testing.T) {
 		ctx := newMockContext()
 		settlement := validSettlement()
-		settlement.PayeeAgencyID = "TCA" // same as payor
+		settlement.PayeeAgencyID = "ORG1" // same as payor
 		settlementJSON, _ := json.Marshal(settlement)
 
 		err := contract.CreateSettlement(ctx, string(settlementJSON))
@@ -106,7 +106,7 @@ func TestGetSettlement(t *testing.T) {
 		settlementJSON, _ := json.Marshal(settlement)
 		_ = contract.CreateSettlement(ctx, string(settlementJSON))
 
-		result, err := contract.GetSettlement(ctx, "SETTLE-TEST-001", "TCA", "BATA")
+		result, err := contract.GetSettlement(ctx, "SETTLE-TEST-001", "ORG1", "ORG2")
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.Equal(t, "SETTLE-TEST-001", result.SettlementID)
@@ -119,7 +119,7 @@ func TestGetSettlement(t *testing.T) {
 		_ = contract.CreateSettlement(ctx, string(settlementJSON))
 
 		// Pass agencies in reverse order - should still work
-		result, err := contract.GetSettlement(ctx, "SETTLE-TEST-001", "BATA", "TCA")
+		result, err := contract.GetSettlement(ctx, "SETTLE-TEST-001", "ORG2", "ORG1")
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.Equal(t, "SETTLE-TEST-001", result.SettlementID)
@@ -128,7 +128,7 @@ func TestGetSettlement(t *testing.T) {
 	t.Run("returns error for nonexistent settlement", func(t *testing.T) {
 		ctx := newMockContext()
 
-		result, err := contract.GetSettlement(ctx, "SETTLE-NONEXISTENT", "TCA", "BATA")
+		result, err := contract.GetSettlement(ctx, "SETTLE-NONEXISTENT", "ORG1", "ORG2")
 		require.Error(t, err)
 		assert.Nil(t, result)
 		assert.Contains(t, err.Error(), "not found")
@@ -145,10 +145,10 @@ func TestUpdateSettlementStatus(t *testing.T) {
 		_ = contract.CreateSettlement(ctx, string(settlementJSON))
 
 		// draft -> submitted is allowed
-		err := contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "TCA", "BATA", "submitted")
+		err := contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "ORG1", "ORG2", "submitted")
 		require.NoError(t, err)
 
-		result, err := contract.GetSettlement(ctx, "SETTLE-TEST-001", "TCA", "BATA")
+		result, err := contract.GetSettlement(ctx, "SETTLE-TEST-001", "ORG1", "ORG2")
 		require.NoError(t, err)
 		assert.Equal(t, "submitted", result.Status)
 	})
@@ -160,7 +160,7 @@ func TestUpdateSettlementStatus(t *testing.T) {
 		_ = contract.CreateSettlement(ctx, string(settlementJSON))
 
 		// draft -> paid is NOT allowed (must go through submitted, accepted)
-		err := contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "TCA", "BATA", "paid")
+		err := contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "ORG1", "ORG2", "paid")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "cannot transition")
 	})
@@ -171,16 +171,16 @@ func TestUpdateSettlementStatus(t *testing.T) {
 		settlementJSON, _ := json.Marshal(settlement)
 		_ = contract.CreateSettlement(ctx, string(settlementJSON))
 
-		err := contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "TCA", "BATA", "submitted")
+		err := contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "ORG1", "ORG2", "submitted")
 		require.NoError(t, err)
 
-		err = contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "TCA", "BATA", "accepted")
+		err = contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "ORG1", "ORG2", "accepted")
 		require.NoError(t, err)
 
-		err = contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "TCA", "BATA", "paid")
+		err = contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-001", "ORG1", "ORG2", "paid")
 		require.NoError(t, err)
 
-		result, err := contract.GetSettlement(ctx, "SETTLE-TEST-001", "TCA", "BATA")
+		result, err := contract.GetSettlement(ctx, "SETTLE-TEST-001", "ORG1", "ORG2")
 		require.NoError(t, err)
 		assert.Equal(t, "paid", result.Status)
 	})
@@ -192,7 +192,7 @@ func TestGetSettlementsByAgencyPair(t *testing.T) {
 	t.Run("returns empty list when no settlements", func(t *testing.T) {
 		ctx := newEnhancedMockContext()
 
-		result, err := contract.GetSettlementsByAgencyPair(ctx, "TCA", "BATA")
+		result, err := contract.GetSettlementsByAgencyPair(ctx, "ORG1", "ORG2")
 		require.NoError(t, err)
 		assert.Empty(t, result)
 	})
@@ -210,7 +210,7 @@ func TestGetSettlementsByAgencyPair(t *testing.T) {
 		settlement2JSON, _ := json.Marshal(settlement2)
 		_ = contract.CreateSettlement(ctx, string(settlement2JSON))
 
-		result, err := contract.GetSettlementsByAgencyPair(ctx, "TCA", "BATA")
+		result, err := contract.GetSettlementsByAgencyPair(ctx, "ORG1", "ORG2")
 		require.NoError(t, err)
 		assert.Len(t, result, 2)
 	})
@@ -223,7 +223,7 @@ func TestGetSettlementsByAgencyPair(t *testing.T) {
 		_ = contract.CreateSettlement(ctx, string(settlementJSON))
 
 		// Query with reversed agency order
-		result, err := contract.GetSettlementsByAgencyPair(ctx, "BATA", "TCA")
+		result, err := contract.GetSettlementsByAgencyPair(ctx, "ORG2", "ORG1")
 		require.NoError(t, err)
 		assert.Len(t, result, 1)
 		assert.Equal(t, "SETTLE-TEST-001", result[0].SettlementID)
@@ -242,7 +242,7 @@ func TestGetSettlementsByStatus(t *testing.T) {
 		_ = contract.CreateSettlement(ctx, string(settlementJSON))
 
 		// Query for submitted status (none exist)
-		result, err := contract.GetSettlementsByStatus(ctx, "TCA", "BATA", "submitted")
+		result, err := contract.GetSettlementsByStatus(ctx, "ORG1", "ORG2", "submitted")
 		require.NoError(t, err)
 		assert.Empty(t, result)
 	})
@@ -260,16 +260,16 @@ func TestGetSettlementsByStatus(t *testing.T) {
 		settlement2.SettlementID = "SETTLE-TEST-002"
 		settlement2JSON, _ := json.Marshal(settlement2)
 		_ = contract.CreateSettlement(ctx, string(settlement2JSON))
-		_ = contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-002", "TCA", "BATA", "submitted")
+		_ = contract.UpdateSettlementStatus(ctx, "SETTLE-TEST-002", "ORG1", "ORG2", "submitted")
 
 		// Query for draft status
-		draftResult, err := contract.GetSettlementsByStatus(ctx, "TCA", "BATA", "draft")
+		draftResult, err := contract.GetSettlementsByStatus(ctx, "ORG1", "ORG2", "draft")
 		require.NoError(t, err)
 		assert.Len(t, draftResult, 1)
 		assert.Equal(t, "SETTLE-TEST-001", draftResult[0].SettlementID)
 
 		// Query for submitted status
-		submittedResult, err := contract.GetSettlementsByStatus(ctx, "TCA", "BATA", "submitted")
+		submittedResult, err := contract.GetSettlementsByStatus(ctx, "ORG1", "ORG2", "submitted")
 		require.NoError(t, err)
 		assert.Len(t, submittedResult, 1)
 		assert.Equal(t, "SETTLE-TEST-002", submittedResult[0].SettlementID)
@@ -279,15 +279,15 @@ func TestGetSettlementsByStatus(t *testing.T) {
 func TestSettlementCollectionNameSymmetry(t *testing.T) {
 	// Settlement collection names must be symmetric like charges
 	s1 := &models.Settlement{
-		PayorAgencyID: "TCA",
-		PayeeAgencyID: "BATA",
+		PayorAgencyID: "ORG1",
+		PayeeAgencyID: "ORG2",
 	}
 
 	s2 := &models.Settlement{
-		PayorAgencyID: "BATA",
-		PayeeAgencyID: "TCA",
+		PayorAgencyID: "ORG2",
+		PayeeAgencyID: "ORG1",
 	}
 
 	assert.Equal(t, s1.CollectionName(), s2.CollectionName())
-	assert.Equal(t, "charges_BATA_TCA", s1.CollectionName())
+	assert.Equal(t, "charges_ORG2_ORG1", s1.CollectionName())
 }

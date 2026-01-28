@@ -13,7 +13,7 @@ import (
 // Tests modify specific fields to trigger validation failures.
 func validAgency() Agency {
 	return Agency{
-		AgencyID:         "TCA",
+		AgencyID:         "ORG1",
 		Name:             "Transportation Corridor Agencies",
 		Consortium:       []string{"WRTO"},
 		State:            "CA",
@@ -188,8 +188,8 @@ func TestAgency_Validate_HubRouted_RequiresHubID(t *testing.T) {
 }
 
 func TestAgency_Key(t *testing.T) {
-	a := Agency{AgencyID: "NTTA"}
-	assert.Equal(t, "AGENCY_NTTA", a.Key())
+	a := Agency{AgencyID: "ORG4"}
+	assert.Equal(t, "AGENCY_ORG4", a.Key())
 }
 
 func TestAgency_SetTimestamps(t *testing.T) {
