@@ -1,5 +1,18 @@
 # Contributing to Tolling.Network
 
+Thank you for your interest in contributing to Tolling.Network. This project aims to modernize US toll interoperability through a shared blockchain ledger, and we welcome contributions from the community.
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Development Workflow](#development-workflow)
+- [Code Standards](#code-standards)
+- [Testing](#testing)
+- [Pull Requests](#pull-requests)
+- [Security](#security)
+- [Getting Help](#getting-help)
+
 ## Prerequisites
 
 - Docker and Docker Compose
@@ -111,11 +124,15 @@ make api-lint
 - Every file ends with a newline
 - Indentation by file type: tabs for Go and Makefiles, 2 spaces for TypeScript/JSON/YAML/Terraform
 
-## Security Requirements
+## Security
 
 This project handles toll interoperability data for government agencies. Security is not optional.
 
-### Never commit
+**To report a security vulnerability**, see [SECURITY.md](SECURITY.md). Do not open public issues for security concerns.
+
+### Security Requirements
+
+Never commit:
 
 - Credentials, passwords, API keys, or tokens (use environment variables)
 - Private keys, certificates, or wallet files (covered by `.gitignore`)
@@ -123,7 +140,9 @@ This project handles toll interoperability data for government agencies. Securit
 - Terraform variable files containing secrets (`*.tfvars`)
 - Industry specification documents (proprietary, covered by `.gitignore`)
 
-### Code security checklist
+### Code Security Checklist
+
+Before submitting a PR, verify:
 
 - [ ] No hardcoded credentials — use environment variables or GCP Secret Manager
 - [ ] TLS enabled for all network communication (mutual TLS preferred)
@@ -134,10 +153,7 @@ This project handles toll interoperability data for government agencies. Securit
 - [ ] Shell scripts use `set -euo pipefail` and quote all variables
 - [ ] CouchDB queries use authenticated connections, never plaintext HTTP
 - [ ] Log levels set to INFO or above (no DEBUG in staging/production)
-
-### Encryption
-
-All sensitive data on the ledger must be encrypted using real encryption (`chaincode/shared/encryption.go`). Base64 encoding is **not** encryption. The legacy codebase had no-op encryption stubs throughout — do not repeat this pattern.
+- [ ] Sensitive ledger data uses real encryption (`chaincode/shared/encryption.go`), not Base64
 
 ## Testing
 
@@ -162,29 +178,6 @@ make chaincode-test
 make api-test
 ```
 
-## Project Structure
-
-```
-chaincode/          Go smart contracts
-  niop/             National interop chaincode
-  ctoc/             California/Western region chaincode
-  shared/           Shared Go utilities (encryption, lookups)
-  testdata/         Test fixtures
-api/                NestJS REST API (TypeScript)
-infrastructure/
-  docker/           Local dev environment (docker-compose)
-  terraform/        GKE cluster provisioning
-  bevel/            Hyperledger Bevel configuration
-  k8s/              Kubernetes manifests
-network-config/     Fabric configtx, crypto-config, collection configs
-tools/              Data generation, CouchDB queries, admin scripts
-docs/
-  architecture/     Mermaid diagrams (.mmd)
-  onboarding/       Developer setup guides
-  protocols/        NIOP/CTOC reference
-  api/              Contract schema
-```
-
 ## Pull Requests
 
 - One logical change per PR
@@ -195,8 +188,13 @@ docs/
 - At least one reviewer approval before merging
 - Squash-merge to keep `main` history clean
 
+## Getting Help
+
+- **Documentation**: See [docs/onboarding/](docs/onboarding/) for detailed guides
+- **Questions**: Open a [GitHub Discussion](https://github.com/milligan-partners/tolling.network-2.0/discussions)
+- **Bugs**: Open an [issue](https://github.com/milligan-partners/tolling.network-2.0/issues)
+- **Security**: See [SECURITY.md](SECURITY.md)
+
 ## License
 
-By contributing, you agree that your contributions will be licensed under the Apache License 2.0.
-
-Copyright 2016-2026 Milligan Partners LLC.
+By contributing, you agree that your contributions will be licensed under the [Apache License 2.0](LICENSE).

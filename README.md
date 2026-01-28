@@ -155,9 +155,9 @@ All 7 domain entities implemented: Agency, Tag, Charge, Correction, Reconciliati
 
 ## Security
 
-This project handles toll interoperability data for government transportation agencies. Security requirements are documented in [CONTRIBUTING.md](CONTRIBUTING.md#security-requirements).
+This project handles toll interoperability data for government transportation agencies. See [SECURITY.md](SECURITY.md) for our security policy and how to report vulnerabilities.
 
-To report a security vulnerability, please email security@milliganpartners.com rather than opening a public issue.
+To report a vulnerability, use [GitHub's private vulnerability reporting](https://github.com/milligan-partners/tolling.network-2.0/security/advisories/new) rather than opening a public issue.
 
 ## Contributing
 
