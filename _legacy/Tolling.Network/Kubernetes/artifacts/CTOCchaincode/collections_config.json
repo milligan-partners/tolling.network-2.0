@@ -1,0 +1,228 @@
+[
+  {
+    "name": "license_plate_status",
+    "policy": "OR('TCA.member', 'BATA.member', 'SANDAG.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 3,
+    "blockToLive":0,
+    "memberOnlyRead": true
+ },
+ {
+   "name": "tag_status",
+   "policy": "OR('TCA.member', 'BATA.member', 'SANDAG.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "tca_toll_charges_source",
+   "policy": "OR('TCA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "tca_toll_charges_destination",
+   "policy": "OR('TCA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "tca_recon_source",
+   "policy": "OR('TCA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "tca_recon_destination",
+   "policy": "OR('TCA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "tca_pay_by_plate_source",
+   "policy": "OR('TCA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "tca_pay_by_plate_destination",
+   "policy": "OR('TCA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "tca_recon_pay_by_plate_source",
+   "policy": "OR('TCA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "tca_recon_pay_by_plate_destination",
+   "policy": "OR('TCA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "bata_toll_charges_source",
+   "policy": "OR('BATA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "bata_toll_charges_destination",
+   "policy": "OR('BATA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "bata_recon_source",
+   "policy": "OR('BATA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "bata_recon_destination",
+   "policy": "OR('BATA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "bata_pay_by_plate_source",
+   "policy": "OR('BATA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "bata_pay_by_plate_destination",
+   "policy": "OR('BATA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "bata_recon_pay_by_plate_source",
+   "policy": "OR('BATA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "bata_recon_pay_by_plate_destination",
+   "policy": "OR('BATA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "sandag_toll_charges_source",
+   "policy": "OR('SANDAG.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "sandag_toll_charges_destination",
+   "policy": "OR('SANDAG.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "sandag_recon_source",
+   "policy": "OR('SANDAG.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "sandag_recon_destination",
+   "policy": "OR('SANDAG.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "sandag_pay_by_plate_source",
+   "policy": "OR('SANDAG.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "sandag_pay_by_plate_destination",
+   "policy": "OR('SANDAG.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "sandag_recon_pay_by_plate_source",
+   "policy": "OR('SANDAG.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "sandag_recon_pay_by_plate_destination",
+   "policy": "OR('SANDAG.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "report_tag_status",
+   "policy": "OR('REPORT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "report_transaction",
+   "policy": "OR('REPORT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ }
+ ]
+ 
+ 

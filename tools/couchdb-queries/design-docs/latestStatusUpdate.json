@@ -1,0 +1,20 @@
+{"_id": "_design/latestStatusUpdate_DD",
+ "language": "javascript",
+ "views":{
+   "all":{
+      "map":"function(doc){if (doc.docType=='account'){emit(doc.accountID,1);}}"
+   },
+   "agency":{
+      "map":"function(doc){if (doc.docType=='account'){emit(doc.parentAgency, doc.accountID);}}"
+   },
+   "agency_date":{
+      "map":"function(doc){var record_date = doc.date_;var record_date = record_date.substring(0,10);if (doc.docType=='account'){emit([doc.parentAgency,record_date], doc.accountID);}}"
+   },
+   "date":{
+      "map":"function(doc){var record_date = doc.date_;var record_date = record_date.substring(0,10);if (doc.docType=='account'){emit(record_date, doc.accountID);}}"
+   },
+   "accounts_list":{
+     "map":"function(doc){var record_date = doc.date_;var record_date = record_date.substring(0,10);if (doc.docType=='account'){emit(doc.parentAgency, [doc.accountID,doc.date_,doc.parentAgency,doc.lpJurisdiction,doc.lpNumber,doc.macAddress,doc.tagID,doc.accountStatus]);}}"
+   }
+  }
+}

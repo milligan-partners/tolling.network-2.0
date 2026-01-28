@@ -1,0 +1,226 @@
+[
+  {
+    "name": "license_plate_status",
+    "policy": "OR('TxDOT.member', 'HCTRA.member', 'NTTA.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 3,
+    "blockToLive":0,
+    "memberOnlyRead": true
+ },
+ {
+   "name": "tag_status",
+   "policy": "OR('TxDOT.member', 'HCTRA.member', 'NTTA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "txdot_transaction_source",
+   "policy": "OR('TxDOT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "txdot_transaction_destination",
+   "policy": "OR('TxDOT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "txdot_recon_source",
+   "policy": "OR('TxDOT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "txdot_recon_destination",
+   "policy": "OR('TxDOT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "txdot_adjustment_source",
+   "policy": "OR('TxDOT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "txdot_adjustment_destination",
+   "policy": "OR('TxDOT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "txdot_acknowledgement_source",
+   "policy": "OR('TxDOT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "txdot_acknowledgement_destination",
+   "policy": "OR('TxDOT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "hctra_transaction_source",
+   "policy": "OR('HCTRA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "hctra_transaction_destination",
+   "policy": "OR('HCTRA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "hctra_recon_source",
+   "policy": "OR('HCTRA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "hctra_recon_destination",
+   "policy": "OR('HCTRA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "hctra_adjustment_source",
+   "policy": "OR('HCTRA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "hctra_adjustment_destination",
+   "policy": "OR('HCTRA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "hctra_acknowledgement_source",
+   "policy": "OR('HCTRA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "hctra_acknowledgement_destination",
+   "policy": "OR('HCTRA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "ntta_transaction_source",
+   "policy": "OR('NTTA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "ntta_transaction_destination",
+   "policy": "OR('NTTA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "ntta_recon_source",
+   "policy": "OR('NTTA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "ntta_recon_destination",
+   "policy": "OR('NTTA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "ntta_adjustment_source",
+   "policy": "OR('NTTA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "ntta_adjustment_destination",
+   "policy": "OR('NTTA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "ntta_acknowledgement_source",
+   "policy": "OR('NTTA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "ntta_acknowledgement_destination",
+   "policy": "OR('NTTA.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "report_tag_status",
+   "policy": "OR('REPORT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ },
+ {
+   "name": "report_transaction",
+   "policy": "OR('REPORT.member')",
+   "requiredPeerCount": 0,
+   "maxPeerCount": 3,
+   "blockToLive":0,
+   "memberOnlyRead": true
+ }
+ ]

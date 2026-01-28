@@ -1,0 +1,24 @@
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: queriescron
+spec:
+  schedule: "10 13 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: "Never"
+          volumes:
+          - name: testvolume
+            persistentVolumeClaim:
+              claimName: pvc
+          containers:
+            - name: queriescron
+              image: alpine:3.7
+              imagePullPolicy: Always
+              command: ["sh", "-c", "apk add --no-cache curl; curl -X GET http://35.202.68.152/runScripts" ]
+              volumeMounts:
+              - mountPath: /public
+                name: testvolume

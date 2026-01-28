@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Acknowledgement">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="SubmissionType">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="ACK"></xs:enumeration>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="OrigSubmissionType">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="STVL"></xs:enumeration>
+              <xs:enumeration value="STRAN"></xs:enumeration>
+              <xs:enumeration value="SCORR"></xs:enumeration>
+              <xs:enumeration value="SRECON"></xs:enumeration>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element type="xs:dateTime" name="OrigSubmissionDateTime" />
+        <xs:element type="xs:string" name="SSIOPHubID" />
+        <xs:element type="xs:string" name="FromAgencyID">
+          <!--Either the Home Agency ID or the Away Agency ID, depending on which Agency sent the original submission.-->
+        </xs:element>
+        <xs:element type="xs:string" name="ToAgencyID">
+          <!--Either the Home Agency ID or the Away Agency ID, depending on which Agency received the original submission.-->
+        </xs:element>
+        <xs:element type="xs:dateTime" name="AckDateTime" />
+        <xs:element name="AckReturnCode">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="00"></xs:enumeration>
+              <xs:enumeration value="01"></xs:enumeration>
+              <xs:enumeration value="02"></xs:enumeration>
+              <xs:enumeration value="03"></xs:enumeration>
+              <xs:enumeration value="04"></xs:enumeration>
+              <xs:enumeration value="05"></xs:enumeration>
+              <xs:enumeration value="06"></xs:enumeration>
+              <xs:enumeration value="07"></xs:enumeration>
+	      <xs:enumeration value="10"></xs:enumeration>
+              <xs:enumeration value="11"></xs:enumeration>
+              <xs:enumeration value="12"></xs:enumeration>
+              <xs:enumeration value="13" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

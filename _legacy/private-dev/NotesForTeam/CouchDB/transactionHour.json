@@ -1,0 +1,9 @@
+{"_id": "_design/Transactions_Hour_DD",
+ "language": "javascript",
+ "views":{
+   "all":{
+      "map":"function(doc){var T = doc.time_.split(':'); T = T[0]; if (doc.docType=='Transaction'){emit([doc.date_,T[0]],1);}}",
+      "reduce": "_count"
+   }
+ }
+}

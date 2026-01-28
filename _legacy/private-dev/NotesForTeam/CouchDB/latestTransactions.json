@@ -1,0 +1,14 @@
+{"_id": "_design/latestTransactions_DD",
+ "language": "javascript",
+ "views":{
+   "all":{
+      "map":"function(doc){if (doc.docType=='Transaction'){emit(doc.accountID,doc);}}"
+   },
+   "transaction_list":{
+      "map": "function(doc){if (doc.docType=='Transaction'){emit(doc.hostAgency,[doc.accountID,doc.parentAgency,doc.hostAgency,doc.amount,\"0.16\",\"1.84\",doc.transactionStatus]);}}"
+   },
+   "transaction_detail":{
+      "map": "function(doc){if (doc.docType=='Transaction'){emit([doc.hostAgency,doc.transactionID],[doc.accountID,doc.parentAgency,doc.hostAgency,doc.date_,doc.amount,\"0.16\",\"1.84\",doc.transactionStatus]);}}"
+   }
+  }
+}

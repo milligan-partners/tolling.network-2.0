@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="TagValidationList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="TVLHeader">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="SubmissionType">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="STVL"></xs:enumeration>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:dateTime" name="SubmissionDateTime" />
+              <xs:element type="xs:string" name="SSIOPHubID" />
+              <xs:element type="xs:string" name="HomeAgencyID" />
+              <xs:element name="BulkIndicator">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="B" />
+                    <xs:enumeration value="D" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element type="xs:long" name="BulkIdentifier" />
+              <xs:element type="xs:long" name="RecordCount" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TVLDetail">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="TVLTagDetails" maxOccurs="unbounded" minOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="HomeAgencyID" />
+                    <xs:element type="xs:string" name="TagAgencyID" />
+                    <xs:element type="xs:string" name="TagSerialNumber" />
+                    <xs:element name="TagStatus">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:enumeration value="V" />
+                          <xs:enumeration value="I" />
+                          <xs:enumeration value="Z" />
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+                    <xs:element name="DiscountPlans" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="DiscountPlanType" />
+                          <xs:element type="xs:dateTime" name="DiscountPlanStart" />
+                          <xs:element type="xs:dateTime" name="DiscountPlanEnd" />
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="TagType" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:enumeration value="S" />
+                          <xs:enumeration value="L" />
+                          <xs:enumeration value="F" />
+                          <xs:enumeration value="G" />
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+                    <xs:element type="xs:short" name="TagClass" />
+                    <xs:element name="TVLPlateDetails" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="PlateCountry">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:enumeration value="US" />
+                                <xs:enumeration value="CA" />
+                                <xs:enumeration value="MX" />
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element type="xs:string" name="PlateState" />
+                          <xs:element type="xs:string" name="PlateNumber" />
+                          <xs:element type="xs:string" name="PlateType" minOccurs="0" />
+                          <xs:element type="xs:dateTime" name="PlateEffectiveFrom" minOccurs="0" />
+                          <xs:element type="xs:dateTime" name="PlateEffectiveTo" minOccurs="0" />
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="TVLAccountDetails" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="AccountNumber"></xs:element>
+                          <xs:element name="FleetIndicator">
+                            <xs:simpleType>
+                             <xs:restriction base="xs:string">
+                              <xs:enumeration value="Y"></xs:enumeration>
+                              <xs:enumeration value="N"></xs:enumeration>
+                             </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

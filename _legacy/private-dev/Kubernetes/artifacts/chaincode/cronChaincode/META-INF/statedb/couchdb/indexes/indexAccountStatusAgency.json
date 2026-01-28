@@ -1,0 +1,1 @@
+{"index":{"fields":["docType","parentAgency", "accountStatus"]},"ddoc":"indexAccountStatusAgencyDoc", "name":"indexAccountStatusAgency","type":"json"}

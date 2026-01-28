@@ -1,0 +1,8 @@
+{"_id": "_design/latestTransactionsList",
+ "language": "javascript",
+ "views":{
+   "transaction_list":{
+      "map": "function(doc){if (doc.docType=='Transaction'){emit([doc.hostAgency,Date.parse(doc.date_).getTime()],[doc.accountID,doc.parentAgency,doc.hostAgency,doc.amount,\"0.16\",\"1.84\",doc.transactionStatus]);}}"
+   }
+  }
+}

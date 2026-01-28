@@ -1,0 +1,14 @@
+{"_id": "_design/latestTransactionsAgency",
+ "language": "javascript",
+ "views":{
+   "transaction_detail_A":{
+      "map": "function(doc){if (doc.docType=='Transaction' && doc.hostAgency =='A' ){emit(doc.transactionID,[doc.accountID,doc.parentAgency,doc.hostAgency,doc.date_,doc.amount,\"0.16\",\"1.84\",doc.transactionStatus]);}}"
+   },
+   "transaction_detail_B":{
+      "map": "function(doc){if (doc.docType=='Transaction' && doc.hostAgency =='B' ){emit(doc.transactionID,[doc.accountID,doc.parentAgency,doc.hostAgency,doc.date_,doc.amount,\"0.16\",\"1.84\",doc.transactionStatus]);}}"
+   },
+   "transaction_detail_C":{
+      "map": "function(doc){if (doc.docType=='Transaction' && doc.hostAgency =='C' ){emit(doc.transactionID,[doc.accountID,doc.parentAgency,doc.hostAgency,doc.date_,doc.amount,\"0.16\",\"1.84\",doc.transactionStatus]);}}"
+   }
+  }
+}

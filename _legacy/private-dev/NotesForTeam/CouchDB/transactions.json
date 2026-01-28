@@ -1,0 +1,45 @@
+{"_id": "_design/Transactions_DD3",
+ "language": "javascript",
+ "views":{
+   "all":{
+      "map":"function(doc){if (doc.docType=='Transaction'){emit(null,1);}}",
+      "reduce": "_count"
+   },
+   "all_date":{
+      "map":"function(doc){if (doc.docType=='Transaction'){emit(doc.date_,1);}}",
+      "reduce": "_count"
+   },
+   "sent_agency":{
+     "map":"function(doc){if (doc.docType=='Transaction'){emit(doc.hostAgency,1);}}",
+     "reduce": "_count"
+   },
+   "received_agency":{
+     "map":"function(doc){if (doc.docType=='Transaction'){emit(doc.parentAgency,1);}}",
+     "reduce": "_count"
+   },
+   "sent_agency_date":{
+     "map":"function(doc){if (doc.docType=='Transaction'){emit([doc.hostAgency,doc.date_],1);}}",
+     "reduce": "_count"
+   },
+   "received_agency_date":{
+     "map":"function(doc){if (doc.docType=='Transaction'){emit([doc.parentAgency,doc.date_],1);}}",
+     "reduce": "_count"
+   },
+   "sent_agency_date_paid":{
+     "map":"function(doc){if (doc.docType=='Transaction'){emit([doc.hostAgency,doc.date_,doc.transactionStatus],1);}}",
+     "reduce": "_count"
+   },
+   "received_agency_date_paid":{
+     "map":"function(doc){if (doc.docType=='Transaction'){emit([doc.parentAgency,doc.date_,doc.transactionStatus],1);}}",
+     "reduce": "_count"
+   },
+   "sent_agency_received_agency":{
+     "map":"function(doc){if (doc.docType=='Transaction'){emit([doc.hostAgency,doc.parentAgency],1);}}",
+     "reduce": "_count"
+   },
+   "transactions_agency_date_hour":{
+      "map":"function(doc){if (doc.docType=='Transaction'){emit([doc.hostAgency,doc.date_,doc.time_],1);}}",
+      "reduce": "_count"
+   }
+ }
+}

@@ -1,0 +1,243 @@
+#
+# Copyright IBM Corp All Rights Reserved
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+networks:
+  basic:
+
+services:
+  orderer.ruuftop.com:
+    container_name: orderer.ruuftop.com
+    image: hyperledger/fabric-orderer
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/msp/orderer/msp
+      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
+      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
+    command: orderer
+    ports:
+      - 7050:7050
+    volumes:
+        - ./config/:/etc/hyperledger/configtx
+        - ./crypto-config/ordererOrganizations/ruuftop.com/orderers/orderer.ruuftop.com/:/etc/hyperledger/msp/orderer
+        - ./crypto-config/peerOrganizations/tca.com/peers/peer0.tca.com/:/etc/hyperledger/msp/peerTCA
+        - ./crypto-config/peerOrganizations/bata.com/peers/peer0.bata.com/:/etc/hyperledger/msp/peerBATA
+        - ./crypto-config/peerOrganizations/sandag.com/peers/peer0.sandag.com/:/etc/hyperledger/msp/peerSANDAG
+    networks:
+      - basic
+
+  peer0.tca.com:
+    container_name: peer0.tca.com
+    extends:
+      file: base/peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.tca.com:5984
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.tca.com:7051
+      - CORE_PEER_ADDRESS=peer0.tca.com:7051
+      - CORE_PEER_ID=peer0.tca.com
+      - CORE_PEER_LOCALMSPID=TCA
+      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
+      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.tca.com:7053
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/tca.com/peers/peer0.tca.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/tca.com/users:/etc/hyperledger/msp/users
+        - ./config:/etc/hyperledger/configtx
+    ports:
+      - 7051:7051
+      - 7053:7053
+    depends_on:
+      - orderer.ruuftop.com
+      - db.peer0.tca.com
+    networks:
+      - basic
+
+  db.peer0.tca.com:
+    container_name: db.peer0.tca.com
+    image: hyperledger/fabric-couchdb
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    ports:
+      - 5984:5984
+    networks:
+      - basic
+  
+  peer0.sandag.com:
+    container_name: peer0.sandag.com
+    extends:
+      file: base/peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.sandag.com:5984
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.sandag.com:7051
+      - CORE_PEER_ADDRESS=peer0.sandag.com:7051
+      - CORE_PEER_ID=peer0.sandag.com
+      - CORE_PEER_LOCALMSPID=SANDAG
+      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
+      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/sandag.com/peers/peer0.sandag.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/sandag.com/users:/etc/hyperledger/msp/users
+        - ./config:/etc/hyperledger/configtx
+    ports:
+      - 8051:7051
+      - 8053:7053
+    depends_on:
+      - orderer.ruuftop.com
+      - db.peer0.sandag.com
+    networks:
+      - basic
+
+  db.peer0.sandag.com:
+    container_name: db.peer0.sandag.com
+    image: hyperledger/fabric-couchdb
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    ports:
+      - 6984:5984
+    networks:
+      - basic
+
+  peer0.bata.com:
+    container_name: peer0.bata.com
+    extends:
+      file: base/peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.bata.com:5984
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.bata.com:7051
+      - CORE_PEER_ADDRESS=peer0.bata.com:7051
+      - CORE_PEER_ID=peer0.bata.com
+      - CORE_PEER_LOCALMSPID=BATA
+      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
+      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/bata.com/peers/peer0.bata.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/bata.com/users:/etc/hyperledger/msp/users
+        - ./config:/etc/hyperledger/configtx
+    ports:
+      - 9051:7051
+      - 9053:7053
+    depends_on:
+      - orderer.ruuftop.com
+      - db.peer0.bata.com
+    networks:
+      - basic
+
+  db.peer0.bata.com:
+    container_name: db.peer0.bata.com
+    image: hyperledger/fabric-couchdb
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    ports:
+      - 7984:5984
+    networks:
+      - basic
+
+  peer0.report.com:
+    container_name: peer0.report.com
+    extends:
+      file: base/peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=db.peer0.report.com:5984
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.report.com:7051
+      - CORE_PEER_ADDRESS=peer0.report.com:7051
+      - CORE_PEER_ID=peer0.report.com
+      - CORE_PEER_LOCALMSPID=REPORT
+      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
+      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.report.com:7053
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/report.com/peers/peer0.report.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/report.com/users:/etc/hyperledger/msp/users
+        - ./config:/etc/hyperledger/configtx
+    ports:
+      - 7151:7051
+      - 7153:7053
+    depends_on:
+      - orderer.ruuftop.com
+      - db.peer0.report.com
+    networks:
+      - basic
+
+  db.peer0.report.com:
+    container_name: db.peer0.report.com
+    image: hyperledger/fabric-couchdb
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    ports:
+      - 5985:5984
+    networks:
+      - basic
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ADDRESS=peer0.tca.com:7051
+      - CORE_PEER_LOCALMSPID=TCA
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/tca.com/users/Admin@tca.com/msp
+      - CORE_CHAINCODE_KEEPALIVE=50
+      - CHANNEL_NAME=${CHANNEL_NAME}
+      - CORE_CHAINCODE_DEPLOYTIMEOUT=300s
+      - CORE_CHAINCODE_STARTUPTIMEOUT=300s
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.tca.com:7053
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./chaincode/:/opt/gopath/src/github.com/
+        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        - ./config/:/etc/hyperledger/configtx
+    networks:
+        - basic
+    depends_on:
+        - orderer.ruuftop.com
+  elk:
+    container_name: elk
+    image: elk
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"
+    networks:
+      - basic
+  dremio:
+    container_name: dremio
+    image: dremio/dremio-oss
+    ports:
+      - 9047:9047
+      - 31010:31010 
+      - 45678:45678 
+    networks:
+      - basic

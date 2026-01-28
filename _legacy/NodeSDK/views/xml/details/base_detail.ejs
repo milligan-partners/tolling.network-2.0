@@ -1,0 +1,5 @@
+<<%- title -%>>
+  <% for (var i = 0; i < records.length; i++) { -%>
+  	<%- include('base_record', {record:records[i], title:recordTitle})   -%>
+  <% } -%>
+</<%- title -%>>
