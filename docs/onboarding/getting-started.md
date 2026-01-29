@@ -69,6 +69,9 @@ We follow a **Research → Plan → Implement → Test → Document** workflow. 
 | `make chaincode-test` | Run Go chaincode tests |
 | `make chaincode-lint` | Lint Go chaincode |
 | `make integration-test` | Run integration tests (requires running network) |
+| `make chaincode-upgrade VERSION=x.y` | Upgrade chaincode to new version |
+| `make chaincode-rollback VERSION=x.y TAG=v1.0.0` | Rollback chaincode to previous version |
+| `make validate` | Run all pre-commit validation checks |
 | `make network-down` | Full teardown |
 
 ## Chaincode as a Service (ccaas)
