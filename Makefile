@@ -5,7 +5,7 @@
        ccaas-build ccaas-deploy ccaas-logs ccaas-stop \
        api-install api-dev api-test api-lint \
        generate-data test lint integration-test \
-       validate validate-docker
+       validate validate-docker validate-scripts
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -170,8 +170,11 @@ integration-test: ## Run integration tests against running network
 # Validation (pre-commit checks)
 # =============================================================================
 
-validate: validate-docker chaincode-lint ## Run all validation checks
+validate: validate-docker validate-scripts chaincode-lint ## Run all validation checks
 	@echo "All validations passed!"
 
 validate-docker: ## Validate docker-compose.yaml for CI compatibility
 	./scripts/validate-docker-compose.sh
+
+validate-scripts: ## Validate shell scripts for path and config errors
+	./scripts/validate-scripts.sh

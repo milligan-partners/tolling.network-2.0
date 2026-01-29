@@ -569,7 +569,9 @@ verify_deployment() {
 
     log_verbose "Query result: ${result}"
 
-    if echo "${result}" | grep -q "\"name\": \"${CC_NAME}\""; then
+    # When querying a specific chaincode by name, the response contains
+    # "sequence" and "version" but not "name" (since we specified it in the query)
+    if echo "${result}" | grep -q '"sequence":' && echo "${result}" | grep -q '"version":'; then
         log_success "Chaincode '${CC_NAME}' is committed on channel '${CHANNEL_NAME}'"
 
         local version sequence
