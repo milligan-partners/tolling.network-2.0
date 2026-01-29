@@ -44,9 +44,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CHAINCODE_DIR="${PROJECT_ROOT}/chaincode/niop"
 CCAAS_DIR="${CHAINCODE_DIR}/ccaas"
-NETWORK_CONFIG_DIR="${PROJECT_ROOT}/infrastructure/network-config"
+NETWORK_CONFIG_DIR="${PROJECT_ROOT}/network-config"
 CRYPTO_DIR="${NETWORK_CONFIG_DIR}/crypto-config"
-COLLECTIONS_CONFIG="${PROJECT_ROOT}/network-config/collections/collections_config.json"
+COLLECTIONS_CONFIG="${NETWORK_CONFIG_DIR}/collections/collections_config.json"
 DOCKER_COMPOSE_DIR="${PROJECT_ROOT}/infrastructure/docker"
 
 # Default values
