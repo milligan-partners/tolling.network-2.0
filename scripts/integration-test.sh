@@ -182,7 +182,9 @@ check_chaincode() {
         --name "${CHAINCODE_NAME}" \
         --output json 2>&1) || true
 
-    if echo "${result}" | grep -q "\"name\": \"${CHAINCODE_NAME}\""; then
+    # When querying a specific chaincode by name, the response contains
+    # "sequence" and "version" but not "name" (since we specified it in the query)
+    if echo "${result}" | grep -q '"sequence":' && echo "${result}" | grep -q '"version":'; then
         log_success "Chaincode '${CHAINCODE_NAME}' is deployed on channel '${CHANNEL_NAME}'"
     else
         log_error "Chaincode '${CHAINCODE_NAME}' is not deployed"
