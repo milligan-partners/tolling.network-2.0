@@ -290,8 +290,8 @@ services:
       - 7052:7052
       - 9444:9444
     volumes:
-      - ../../config:/etc/hyperledger/fabric:ro
-      - ../../network-config/crypto-config/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/msp:/etc/hyperledger/fabric/msp
+      - ../../config:/etc/hyperledger/fabric
+      - ../../network-config/crypto-config/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
       - ../../network-config/crypto-config/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
       - peer0.org1.tolling.network:/var/hyperledger/production
     depends_on:
@@ -344,8 +344,8 @@ services:
       - 8052:8052
       - 9544:9444
     volumes:
-      - ../../config:/etc/hyperledger/fabric:ro
-      - ../../network-config/crypto-config/peerOrganizations/org2.tolling.network/peers/peer0.org2.tolling.network/msp:/etc/hyperledger/fabric/msp
+      - ../../config:/etc/hyperledger/fabric
+      - ../../network-config/crypto-config/peerOrganizations/org2.tolling.network/peers/peer0.org2.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
       - ../../network-config/crypto-config/peerOrganizations/org2.tolling.network/peers/peer0.org2.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
       - peer0.org2.tolling.network:/var/hyperledger/production
     depends_on:
@@ -398,8 +398,8 @@ services:
       - 9052:9052
       - 9644:9444
     volumes:
-      - ../../config:/etc/hyperledger/fabric:ro
-      - ../../network-config/crypto-config/peerOrganizations/org3.tolling.network/peers/peer0.org3.tolling.network/msp:/etc/hyperledger/fabric/msp
+      - ../../config:/etc/hyperledger/fabric
+      - ../../network-config/crypto-config/peerOrganizations/org3.tolling.network/peers/peer0.org3.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
       - ../../network-config/crypto-config/peerOrganizations/org3.tolling.network/peers/peer0.org3.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
       - peer0.org3.tolling.network:/var/hyperledger/production
     depends_on:
@@ -452,8 +452,8 @@ services:
       - 10052:10052
       - 9744:9444
     volumes:
-      - ../../config:/etc/hyperledger/fabric:ro
-      - ../../network-config/crypto-config/peerOrganizations/org4.tolling.network/peers/peer0.org4.tolling.network/msp:/etc/hyperledger/fabric/msp
+      - ../../config:/etc/hyperledger/fabric
+      - ../../network-config/crypto-config/peerOrganizations/org4.tolling.network/peers/peer0.org4.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
       - ../../network-config/crypto-config/peerOrganizations/org4.tolling.network/peers/peer0.org4.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
       - peer0.org4.tolling.network:/var/hyperledger/production
     depends_on:
