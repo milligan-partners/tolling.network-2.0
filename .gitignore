@@ -65,6 +65,9 @@ terraform.rc
 
 # Hyperledger Fabric
 crypto-config/
+network-config/crypto-config/
+network-config/channel-artifacts/
+infrastructure/network-config
 wallet/
 keys/
 *.pem
@@ -73,6 +76,9 @@ keys/
 *.csr
 *.p12
 *.pkcs12
+
+# Chaincode packages (generated artifacts)
+chaincode/packages/
 
 # Docker
 docker-compose.override.yml

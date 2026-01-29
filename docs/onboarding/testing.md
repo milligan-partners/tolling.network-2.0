@@ -29,9 +29,13 @@ Integration tests are located in `chaincode/integration/` and use the Fabric Gat
 **Prerequisites:**
 1. Network running: `make docker-up`
 2. Channel created: `make channel-create`
-3. Chaincode deployed: `make chaincode-deploy`
+3. Chaincode deployed: `make ccaas-deploy` (recommended) or `make chaincode-deploy`
 
 **Run:** `make integration-test`
+
+**Note on Endorsement Policy:** The default channel endorsement policy requires a majority of organizations (3 of 4). Integration tests using the Fabric Gateway SDK from a single organization may fail endorsement policy checks. For local testing, you can either:
+- Test with CLI using `--peerAddresses` for multiple peers (as done in manual testing)
+- Modify the chaincode endorsement policy during deployment
 
 **Test Files:**
 | File | Coverage |
@@ -49,6 +53,7 @@ Integration tests are located in `chaincode/integration/` and use the Fabric Gat
 - Verifies private data collection isolation
 - Tests status transition enforcement
 - Validates CouchDB rich queries work with indexes
+- Auto-prefixes function names with contract names (e.g., `CreateCharge` → `ChargeContract:CreateCharge`)
 
 ### Fixture Tests
 
@@ -408,7 +413,7 @@ Runs on PRs to `main` and pushes to `main`/`develop`:
    - Initializes network (`make network-init`)
    - Starts Docker network (`make docker-up`)
    - Creates channel (`make channel-create`)
-   - Deploys chaincode (`make chaincode-deploy`)
+   - Deploys chaincode via ccaas (`make ccaas-deploy`)
    - Runs integration tests (`make integration-test`)
    - Collects logs on failure
    - Tears down network (`make network-down`)

@@ -52,10 +52,11 @@ Organizations:
                 Rule: "OR('OrdererMSP.admin')"
 
         # OrdererEndpoints for service discovery
+        # NOTE: Using internal Docker ports (7050) for all orderers
         OrdererEndpoints:
             - orderer1.orderer.tolling.network:7050
-            - orderer2.orderer.tolling.network:7150
-            - orderer3.orderer.tolling.network:7250
+            - orderer2.orderer.tolling.network:7050
+            - orderer3.orderer.tolling.network:7050
 
     # ---------------------------------------------------------------------------
     # Peer Organizations
@@ -223,6 +224,7 @@ Orderer: &OrdererDefaults
     OrdererType: etcdraft
 
     # Raft consensus configuration
+    # NOTE: Using internal Docker port (7050) for all orderers
     EtcdRaft:
         Consenters:
             - Host: orderer1.orderer.tolling.network
@@ -230,11 +232,11 @@ Orderer: &OrdererDefaults
               ClientTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/tls/server.crt
               ServerTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/tls/server.crt
             - Host: orderer2.orderer.tolling.network
-              Port: 7150
+              Port: 7050
               ClientTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/tls/server.crt
               ServerTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/tls/server.crt
             - Host: orderer3.orderer.tolling.network
-              Port: 7250
+              Port: 7050
               ClientTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/tls/server.crt
               ServerTLSCert: crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/tls/server.crt
 
@@ -253,11 +255,11 @@ Orderer: &OrdererDefaults
         AbsoluteMaxBytes: 99 MB
         PreferredMaxBytes: 512 KB
 
-    # Orderer addresses (for client connections)
+    # Orderer addresses (for client connections within Docker network)
     Addresses:
         - orderer1.orderer.tolling.network:7050
-        - orderer2.orderer.tolling.network:7150
-        - orderer3.orderer.tolling.network:7250
+        - orderer2.orderer.tolling.network:7050
+        - orderer3.orderer.tolling.network:7050
 
     Organizations:
 

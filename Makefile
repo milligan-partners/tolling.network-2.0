@@ -2,6 +2,7 @@
        network-init network-down channel-create chaincode-deploy \
        chaincode-upgrade chaincode-rollback chaincode-status \
        chaincode-test chaincode-lint chaincode-package \
+       ccaas-build ccaas-deploy ccaas-logs ccaas-stop \
        api-install api-dev api-test api-lint \
        generate-data test lint integration-test
 
@@ -71,7 +72,7 @@ chaincode-package: ## Package chaincode for deployment
 	cd chaincode/niop && go mod vendor
 	@echo "Chaincode packages ready for deployment"
 
-chaincode-deploy: ## Deploy chaincode to the network
+chaincode-deploy: ## Deploy chaincode to the network (traditional mode)
 	./scripts/deploy-chaincode.sh
 
 chaincode-upgrade: ## Upgrade chaincode (use VERSION=x.y and optionally PATH=...)
@@ -97,6 +98,38 @@ chaincode-status: ## Show current chaincode status on the network
 	@echo "Querying committed chaincode..."
 	@docker exec peer0.org1.tolling.network peer lifecycle chaincode querycommitted \
 		--channelID tolling --name niop 2>/dev/null || echo "Chaincode not deployed or network not running"
+
+# =============================================================================
+# Chaincode as a Service (ccaas) Operations
+# =============================================================================
+
+ccaas-build: ## Build chaincode Docker image for ccaas
+	@echo "Building NIOP chaincode Docker image..."
+	docker build -t niop-chaincode:$(or $(VERSION),1.0) \
+		-f chaincode/niop/ccaas/Dockerfile .
+	@echo "Chaincode image built: niop-chaincode:$(or $(VERSION),1.0)"
+
+ccaas-deploy: ## Deploy chaincode using ccaas (chaincode as a service)
+	./scripts/deploy-ccaas.sh $(if $(VERSION),-v $(VERSION)) $(if $(SEQUENCE),-s $(SEQUENCE))
+
+ccaas-logs: ## Tail logs from chaincode container
+	docker logs -f niop-chaincode
+
+ccaas-stop: ## Stop the chaincode container
+	docker stop niop-chaincode 2>/dev/null || true
+	docker rm niop-chaincode 2>/dev/null || true
+
+ccaas-restart: ## Restart the chaincode container (preserves package ID)
+	@if [ -z "$(CHAINCODE_ID)" ]; then \
+		echo "Usage: make ccaas-restart CHAINCODE_ID=<package_id>"; \
+		echo "Get the package ID from: docker exec cli peer lifecycle chaincode queryinstalled"; \
+		exit 1; \
+	fi
+	docker stop niop-chaincode 2>/dev/null || true
+	docker rm niop-chaincode 2>/dev/null || true
+	CHAINCODE_ID=$(CHAINCODE_ID) CC_VERSION=$(or $(VERSION),1.0) \
+		docker compose -f infrastructure/docker/docker-compose.yaml \
+		--profile chaincode up -d niop-chaincode
 
 # =============================================================================
 # API Operations

@@ -122,16 +122,66 @@ func (fc *FabricClient) Close() {
 	}
 }
 
+// contractForFunction maps function names to their contract names.
+// Since the chaincode uses multiple contracts, we need to prefix function
+// names with the contract name in the format "ContractName:FunctionName".
+func contractForFunction(fn string) string {
+	// Map of function names to contract names
+	functionToContract := map[string]string{
+		// AgencyContract
+		"CreateAgency":       "AgencyContract",
+		"GetAgency":          "AgencyContract",
+		"UpdateAgencyStatus": "AgencyContract",
+		"GetAllAgencies":     "AgencyContract",
+		// TagContract
+		"CreateTag":       "TagContract",
+		"GetTag":          "TagContract",
+		"UpdateTagStatus": "TagContract",
+		"GetTagsByAgency": "TagContract",
+		// ChargeContract
+		"CreateCharge":           "ChargeContract",
+		"GetCharge":              "ChargeContract",
+		"UpdateChargeStatus":     "ChargeContract",
+		"GetChargesByAgencyPair": "ChargeContract",
+		// CorrectionContract
+		"CreateCorrection":       "CorrectionContract",
+		"GetCorrection":          "CorrectionContract",
+		"GetCorrectionsForCharge": "CorrectionContract",
+		// ReconciliationContract
+		"CreateReconciliation":            "ReconciliationContract",
+		"GetReconciliation":               "ReconciliationContract",
+		"GetReconciliationsByAgency":      "ReconciliationContract",
+		"GetReconciliationsByDisposition": "ReconciliationContract",
+		// AcknowledgementContract
+		"CreateAcknowledgement":              "AcknowledgementContract",
+		"GetAcknowledgement":                 "AcknowledgementContract",
+		"GetAcknowledgementsBySubmissionType": "AcknowledgementContract",
+		"GetAcknowledgementsByReturnCode":    "AcknowledgementContract",
+		// SettlementContract
+		"CreateSettlement":           "SettlementContract",
+		"GetSettlement":              "SettlementContract",
+		"UpdateSettlementStatus":     "SettlementContract",
+		"GetSettlementsByAgencyPair": "SettlementContract",
+		"GetSettlementsByStatus":     "SettlementContract",
+	}
+
+	if contract, ok := functionToContract[fn]; ok {
+		return contract + ":" + fn
+	}
+	// Return as-is if not found (may already include contract prefix)
+	return fn
+}
+
 // SubmitTransaction submits a transaction and waits for commit.
 // Use this for operations that modify the ledger (create, update, delete).
 func (fc *FabricClient) SubmitTransaction(fn string, args ...string) ([]byte, error) {
-	return fc.Contract.SubmitTransaction(fn, args...)
+	return fc.Contract.SubmitTransaction(contractForFunction(fn), args...)
 }
 
 // EvaluateTransaction queries the ledger without submitting a transaction.
 // Use this for read-only operations (get, query).
 func (fc *FabricClient) EvaluateTransaction(fn string, args ...string) ([]byte, error) {
-	return fc.Contract.EvaluateTransaction(fn, args...)
+	return fc.Contract.EvaluateTransaction(contractForFunction(fn), args...)
 }
 
 // loadPrivateKey finds and loads the first .pem or _sk file from the keystore directory.
