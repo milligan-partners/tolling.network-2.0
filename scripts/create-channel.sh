@@ -36,6 +36,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 NETWORK_CONFIG_DIR="${PROJECT_ROOT}/network-config"
+FABRIC_CONFIG_DIR="${PROJECT_ROOT}/config"  # Contains core.yaml, orderer.yaml
 ARTIFACTS_DIR="${NETWORK_CONFIG_DIR}/channel-artifacts"
 CRYPTO_DIR="${NETWORK_CONFIG_DIR}/crypto-config"
 
@@ -426,8 +427,8 @@ main() {
     log_info "Orderer: ${ORDERER_ADDRESS}"
     echo ""
 
-    # Set FABRIC_CFG_PATH
-    export FABRIC_CFG_PATH="${NETWORK_CONFIG_DIR}"
+    # Set FABRIC_CFG_PATH to directory containing core.yaml
+    export FABRIC_CFG_PATH="${FABRIC_CONFIG_DIR}"
 
     # Run channel operations
     check_prerequisites

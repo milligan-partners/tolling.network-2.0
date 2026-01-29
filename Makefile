@@ -4,7 +4,8 @@
        chaincode-test chaincode-lint chaincode-package \
        ccaas-build ccaas-deploy ccaas-logs ccaas-stop \
        api-install api-dev api-test api-lint \
-       generate-data test lint integration-test
+       generate-data test lint integration-test \
+       validate validate-docker
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -164,3 +165,13 @@ lint: chaincode-lint ## Run all linters (api-lint added when API implemented)
 
 integration-test: ## Run integration tests against running network
 	./scripts/integration-test.sh
+
+# =============================================================================
+# Validation (pre-commit checks)
+# =============================================================================
+
+validate: validate-docker chaincode-lint ## Run all validation checks
+	@echo "All validations passed!"
+
+validate-docker: ## Validate docker-compose.yaml for CI compatibility
+	./scripts/validate-docker-compose.sh
