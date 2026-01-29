@@ -78,8 +78,8 @@ jobs:
       - name: Create channel
         run: make channel-create
 
-      - name: Deploy chaincode
-        run: make chaincode-deploy
+      - name: Deploy chaincode (ccaas)
+        run: make ccaas-deploy
 
       - name: Run integration tests
         run: make integration-test
