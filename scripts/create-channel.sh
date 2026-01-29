@@ -371,7 +371,14 @@ verify_channel() {
         set_org_env "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
 
         local channels
-        channels=$(peer channel list 2>&1)
+        channels=$(docker exec \
+            -e CORE_PEER_LOCALMSPID="${CURRENT_MSP_ID}" \
+            -e CORE_PEER_ADDRESS="${CURRENT_PEER_ADDRESS}" \
+            -e CORE_PEER_TLS_ENABLED=true \
+            -e CORE_PEER_TLS_ROOTCERT_FILE="${CURRENT_TLS_ROOTCERT}" \
+            -e CORE_PEER_MSPCONFIGPATH="${CURRENT_MSP_PATH}" \
+            -e FABRIC_CFG_PATH="${DOCKER_CONFIG_DIR}" \
+            "${CLI_CONTAINER}" peer channel list 2>&1)
 
         if echo "${channels}" | grep -q "${CHANNEL_NAME}"; then
             log_verbose "${peer_host} is member of '${CHANNEL_NAME}'"
