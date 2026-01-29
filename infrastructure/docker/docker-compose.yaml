@@ -4,7 +4,7 @@
 #
 # This configuration uses:
 # - Fabric 2.5.x images (LTS)
-# - External chaincode launcher (no Docker socket mounting)
+# - Chaincode as a Service (ccaas) - chaincode runs as external gRPC server
 # - TLS enabled on all services
 # - Raft consensus with 3 orderers
 # - CouchDB as state database with proper credentials
@@ -76,9 +76,9 @@ services:
       - 7053:7053
       - 9443:9443
     volumes:
-      - ../network-config/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block:ro
-      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/msp:/var/hyperledger/orderer/msp:ro
-      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/tls:/var/hyperledger/orderer/tls:ro
+      - ../../network-config/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block:ro
+      - ../../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/msp:/var/hyperledger/orderer/msp
+      - ../../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/tls:/var/hyperledger/orderer/tls:ro
       - orderer1.orderer.tolling.network:/var/hyperledger/production/orderer
     networks:
       - tolling_network
@@ -123,9 +123,9 @@ services:
       - 7153:7053
       - 9543:9443
     volumes:
-      - ../network-config/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block:ro
-      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/msp:/var/hyperledger/orderer/msp:ro
-      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/tls:/var/hyperledger/orderer/tls:ro
+      - ../../network-config/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block:ro
+      - ../../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/msp:/var/hyperledger/orderer/msp
+      - ../../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer2.orderer.tolling.network/tls:/var/hyperledger/orderer/tls:ro
       - orderer2.orderer.tolling.network:/var/hyperledger/production/orderer
     networks:
       - tolling_network
@@ -170,9 +170,9 @@ services:
       - 7253:7053
       - 9643:9443
     volumes:
-      - ../network-config/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block:ro
-      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/msp:/var/hyperledger/orderer/msp:ro
-      - ../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/tls:/var/hyperledger/orderer/tls:ro
+      - ../../network-config/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block:ro
+      - ../../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/msp:/var/hyperledger/orderer/msp
+      - ../../network-config/crypto-config/ordererOrganizations/orderer.tolling.network/orderers/orderer3.orderer.tolling.network/tls:/var/hyperledger/orderer/tls:ro
       - orderer3.orderer.tolling.network:/var/hyperledger/production/orderer
     networks:
       - tolling_network
@@ -187,8 +187,8 @@ services:
     labels:
       service: hyperledger-fabric
     environment:
-      - COUCHDB_USER=${COUCHDB_USER}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+      - COUCHDB_USER=${COUCHDB_USER:-admin}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:-adminpw}
     ports:
       - 5984:5984
     volumes:
@@ -202,8 +202,8 @@ services:
     labels:
       service: hyperledger-fabric
     environment:
-      - COUCHDB_USER=${COUCHDB_USER}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+      - COUCHDB_USER=${COUCHDB_USER:-admin}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:-adminpw}
     ports:
       - 6984:5984
     volumes:
@@ -217,8 +217,8 @@ services:
     labels:
       service: hyperledger-fabric
     environment:
-      - COUCHDB_USER=${COUCHDB_USER}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+      - COUCHDB_USER=${COUCHDB_USER:-admin}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:-adminpw}
     ports:
       - 7984:5984
     volumes:
@@ -232,8 +232,8 @@ services:
     labels:
       service: hyperledger-fabric
     environment:
-      - COUCHDB_USER=${COUCHDB_USER}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+      - COUCHDB_USER=${COUCHDB_USER:-admin}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD:-adminpw}
     ports:
       - 8984:5984
     volumes:
@@ -244,8 +244,8 @@ services:
   # ============================================================================
   # PEER SERVICES (4 Organizations, 1 peer each)
   # ============================================================================
-  # Note: External chaincode pattern is used (no Docker socket mounting).
-  # Chaincode runs as external services, configured via connection.json.
+  # Using Chaincode as a Service (ccaas) - no Docker socket mounting required.
+  # The ccaas builder connects peers to externally running chaincode containers.
 
   peer0.org1.tolling.network:
     container_name: peer0.org1.tolling.network
@@ -254,6 +254,7 @@ services:
       service: hyperledger-fabric
     environment:
       - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
       - CORE_PEER_ID=peer0.org1.tolling.network
       - CORE_PEER_ADDRESS=peer0.org1.tolling.network:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
@@ -274,11 +275,14 @@ services:
       # CouchDB
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER}
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER:-admin}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD:-adminpw}
       # Metrics
       - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.tolling.network:9444
       - CORE_METRICS_PROVIDER=prometheus
+      # Chaincode as a Service (ccaas) builder configuration
+      # Tells the peer where to find the chaincode server
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     ports:
@@ -286,8 +290,9 @@ services:
       - 7052:7052
       - 9444:9444
     volumes:
-      - ../network-config/crypto-config/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
-      - ../network-config/crypto-config/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
+      - ../../config:/etc/hyperledger/fabric
+      - ../../network-config/crypto-config/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
+      - ../../network-config/crypto-config/peerOrganizations/org1.tolling.network/peers/peer0.org1.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
       - peer0.org1.tolling.network:/var/hyperledger/production
     depends_on:
       - orderer1.orderer.tolling.network
@@ -304,6 +309,7 @@ services:
       service: hyperledger-fabric
     environment:
       - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
       - CORE_PEER_ID=peer0.org2.tolling.network
       - CORE_PEER_ADDRESS=peer0.org2.tolling.network:8051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
@@ -324,11 +330,13 @@ services:
       # CouchDB
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER}
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER:-admin}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD:-adminpw}
       # Metrics
       - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.tolling.network:9444
       - CORE_METRICS_PROVIDER=prometheus
+      # Chaincode as a Service (ccaas) builder configuration
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org2"}
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     ports:
@@ -336,8 +344,9 @@ services:
       - 8052:8052
       - 9544:9444
     volumes:
-      - ../network-config/crypto-config/peerOrganizations/org2.tolling.network/peers/peer0.org2.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
-      - ../network-config/crypto-config/peerOrganizations/org2.tolling.network/peers/peer0.org2.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
+      - ../../config:/etc/hyperledger/fabric
+      - ../../network-config/crypto-config/peerOrganizations/org2.tolling.network/peers/peer0.org2.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
+      - ../../network-config/crypto-config/peerOrganizations/org2.tolling.network/peers/peer0.org2.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
       - peer0.org2.tolling.network:/var/hyperledger/production
     depends_on:
       - orderer1.orderer.tolling.network
@@ -354,6 +363,7 @@ services:
       service: hyperledger-fabric
     environment:
       - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
       - CORE_PEER_ID=peer0.org3.tolling.network
       - CORE_PEER_ADDRESS=peer0.org3.tolling.network:9051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
@@ -374,11 +384,13 @@ services:
       # CouchDB
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER}
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER:-admin}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD:-adminpw}
       # Metrics
       - CORE_OPERATIONS_LISTENADDRESS=peer0.org3.tolling.network:9444
       - CORE_METRICS_PROVIDER=prometheus
+      # Chaincode as a Service (ccaas) builder configuration
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org3"}
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     ports:
@@ -386,8 +398,9 @@ services:
       - 9052:9052
       - 9644:9444
     volumes:
-      - ../network-config/crypto-config/peerOrganizations/org3.tolling.network/peers/peer0.org3.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
-      - ../network-config/crypto-config/peerOrganizations/org3.tolling.network/peers/peer0.org3.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
+      - ../../config:/etc/hyperledger/fabric
+      - ../../network-config/crypto-config/peerOrganizations/org3.tolling.network/peers/peer0.org3.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
+      - ../../network-config/crypto-config/peerOrganizations/org3.tolling.network/peers/peer0.org3.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
       - peer0.org3.tolling.network:/var/hyperledger/production
     depends_on:
       - orderer1.orderer.tolling.network
@@ -404,6 +417,7 @@ services:
       service: hyperledger-fabric
     environment:
       - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
       - CORE_PEER_ID=peer0.org4.tolling.network
       - CORE_PEER_ADDRESS=peer0.org4.tolling.network:10051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
@@ -424,11 +438,13 @@ services:
       # CouchDB
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb3:5984
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER}
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_USER:-admin}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_PASSWORD:-adminpw}
       # Metrics
       - CORE_OPERATIONS_LISTENADDRESS=peer0.org4.tolling.network:9444
       - CORE_METRICS_PROVIDER=prometheus
+      # Chaincode as a Service (ccaas) builder configuration
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org4"}
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     ports:
@@ -436,8 +452,9 @@ services:
       - 10052:10052
       - 9744:9444
     volumes:
-      - ../network-config/crypto-config/peerOrganizations/org4.tolling.network/peers/peer0.org4.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
-      - ../network-config/crypto-config/peerOrganizations/org4.tolling.network/peers/peer0.org4.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
+      - ../../config:/etc/hyperledger/fabric
+      - ../../network-config/crypto-config/peerOrganizations/org4.tolling.network/peers/peer0.org4.tolling.network/msp:/etc/hyperledger/fabric/msp:ro
+      - ../../network-config/crypto-config/peerOrganizations/org4.tolling.network/peers/peer0.org4.tolling.network/tls:/etc/hyperledger/fabric/tls:ro
       - peer0.org4.tolling.network:/var/hyperledger/production
     depends_on:
       - orderer1.orderer.tolling.network
@@ -446,6 +463,34 @@ services:
       - couchdb3
     networks:
       - tolling_network
+
+  # ============================================================================
+  # CHAINCODE AS A SERVICE (ccaas)
+  # ============================================================================
+  # The chaincode runs as an external gRPC server that peers connect to.
+  # This eliminates the need for Docker socket access from peers.
+  #
+  # Note: The CHAINCODE_ID environment variable must be set to the package ID
+  # from the chaincode install step. The deploy-ccaas.sh script handles this.
+
+  niop-chaincode:
+    container_name: niop-chaincode
+    image: niop-chaincode:${CC_VERSION:-1.0}
+    labels:
+      service: hyperledger-fabric
+      chaincode: niop
+    environment:
+      # These are set by deploy-ccaas.sh after chaincode installation
+      - CHAINCODE_ID=${CHAINCODE_ID:-}
+      - CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999
+      - CHAINCODE_TLS_DISABLED=true
+    ports:
+      - 9999:9999
+    networks:
+      - tolling_network
+    # Don't start automatically - started by deploy-ccaas.sh after install
+    profiles:
+      - chaincode
 
   # ============================================================================
   # CA SERVICES (Fabric CA for each organization)
@@ -467,7 +512,7 @@ services:
       - 17054:17054
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
-      - ../network-config/crypto-config/peerOrganizations/org1.tolling.network/ca/:/etc/hyperledger/fabric-ca-server:ro
+      - ../../network-config/crypto-config/peerOrganizations/org1.tolling.network/ca/:/etc/hyperledger/fabric-ca-server
     networks:
       - tolling_network
 
@@ -487,7 +532,7 @@ services:
       - 18054:18054
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
-      - ../network-config/crypto-config/peerOrganizations/org2.tolling.network/ca/:/etc/hyperledger/fabric-ca-server:ro
+      - ../../network-config/crypto-config/peerOrganizations/org2.tolling.network/ca/:/etc/hyperledger/fabric-ca-server
     networks:
       - tolling_network
 
@@ -507,7 +552,7 @@ services:
       - 19054:19054
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
-      - ../network-config/crypto-config/peerOrganizations/org3.tolling.network/ca/:/etc/hyperledger/fabric-ca-server:ro
+      - ../../network-config/crypto-config/peerOrganizations/org3.tolling.network/ca/:/etc/hyperledger/fabric-ca-server
     networks:
       - tolling_network
 
@@ -527,7 +572,7 @@ services:
       - 20054:20054
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
-      - ../network-config/crypto-config/peerOrganizations/org4.tolling.network/ca/:/etc/hyperledger/fabric-ca-server:ro
+      - ../../network-config/crypto-config/peerOrganizations/org4.tolling.network/ca/:/etc/hyperledger/fabric-ca-server
     networks:
       - tolling_network
 
@@ -559,8 +604,8 @@ services:
     volumes:
       - ../../chaincode/:/opt/gopath/src/github.com/chaincode:ro
       - ../../scripts/:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts:ro
-      - ../network-config/crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto:ro
-      - ../network-config/channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts:ro
+      - ../../network-config/crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto:ro
+      - ../../network-config/channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
     depends_on:
       - peer0.org1.tolling.network
       - peer0.org2.tolling.network

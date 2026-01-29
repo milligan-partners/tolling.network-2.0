@@ -36,6 +36,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 NETWORK_CONFIG_DIR="${PROJECT_ROOT}/network-config"
+FABRIC_CONFIG_DIR="${PROJECT_ROOT}/config"  # Contains core.yaml, orderer.yaml
 ARTIFACTS_DIR="${NETWORK_CONFIG_DIR}/channel-artifacts"
 CRYPTO_DIR="${NETWORK_CONFIG_DIR}/crypto-config"
 
@@ -50,8 +51,13 @@ ORDERER_PORT="7050"
 ORDERER_ADDRESS="${ORDERER_HOST}:${ORDERER_PORT}"
 ORDERER_CA="${CRYPTO_DIR}/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/msp/tlscacerts/tlsca.orderer.tolling.network-cert.pem"
 
-# CLI container name (if using docker exec)
+# CLI container name (using docker exec - required for hostname resolution)
 CLI_CONTAINER="${CLI_CONTAINER:-cli}"
+
+# Docker paths (inside CLI container) - matches docker-compose.yaml mounts
+DOCKER_CRYPTO_DIR="/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto"
+DOCKER_ARTIFACTS_DIR="/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts"
+DOCKER_CONFIG_DIR="/etc/hyperledger/fabric"
 
 # Timeout for channel operations (seconds)
 CHANNEL_TIMEOUT="${CHANNEL_TIMEOUT:-60}"
@@ -140,14 +146,14 @@ check_prerequisites() {
     log_info "Checking prerequisites..."
     local missing=()
 
-    # Check for peer CLI
-    if ! command -v peer &> /dev/null; then
-        log_warn "peer CLI not found in PATH - will use docker exec"
-        USE_DOCKER="true"
-    else
-        log_verbose "Found peer CLI: $(command -v peer)"
-        USE_DOCKER="false"
+    # Always use docker exec - container hostnames can't be resolved from host
+    # The CLI container has the proper network connectivity and crypto mounted
+    if ! docker ps --format '{{.Names}}' | grep -q "^${CLI_CONTAINER}$"; then
+        log_error "CLI container '${CLI_CONTAINER}' is not running"
+        log_error "Start the network first: make docker-up"
+        exit 1
     fi
+    log_info "Using CLI container: ${CLI_CONTAINER}"
 
     # Check for channel artifacts
     if [[ ! -f "${ARTIFACTS_DIR}/${CHANNEL_NAME}.tx" ]]; then
@@ -190,34 +196,42 @@ check_prerequisites() {
 # Helper Functions
 # ==============================================================================
 
-# Set environment variables for a specific organization
+# Build environment variables for a specific organization (for docker exec)
+# Sets ORG_ENV_VARS array with -e flags for docker exec
 set_org_env() {
     local org_name="$1"
     local msp_id="$2"
     local peer_host="$3"
     local peer_port="$4"
 
-    export CORE_PEER_LOCALMSPID="${msp_id}"
-    export CORE_PEER_ADDRESS="${peer_host}:${peer_port}"
-    export CORE_PEER_TLS_ENABLED="true"
-
     local domain
     domain=$(echo "${org_name}" | tr '[:upper:]' '[:lower:]')
-    export CORE_PEER_TLS_ROOTCERT_FILE="${CRYPTO_DIR}/peerOrganizations/${domain}.tolling.network/peers/${peer_host}/tls/ca.crt"
-    export CORE_PEER_MSPCONFIGPATH="${CRYPTO_DIR}/peerOrganizations/${domain}.tolling.network/users/Admin@${domain}.tolling.network/msp"
+
+    # Store environment variables for docker exec
+    CURRENT_MSP_ID="${msp_id}"
+    CURRENT_PEER_ADDRESS="${peer_host}:${peer_port}"
+    CURRENT_TLS_ROOTCERT="${DOCKER_CRYPTO_DIR}/peerOrganizations/${domain}.tolling.network/peers/${peer_host}/tls/ca.crt"
+    CURRENT_MSP_PATH="${DOCKER_CRYPTO_DIR}/peerOrganizations/${domain}.tolling.network/users/Admin@${domain}.tolling.network/msp"
 
     log_verbose "Set environment for ${msp_id}:"
-    log_verbose "  CORE_PEER_ADDRESS=${CORE_PEER_ADDRESS}"
-    log_verbose "  CORE_PEER_LOCALMSPID=${CORE_PEER_LOCALMSPID}"
+    log_verbose "  CORE_PEER_ADDRESS=${CURRENT_PEER_ADDRESS}"
+    log_verbose "  CORE_PEER_LOCALMSPID=${CURRENT_MSP_ID}"
 }
 
-# Execute peer command with retries
+# Execute peer command via docker exec with retries
 peer_with_retry() {
     local retries=0
     local result
 
     while [[ ${retries} -lt ${MAX_RETRIES} ]]; do
-        if result=$(peer "$@" 2>&1); then
+        if result=$(docker exec \
+            -e CORE_PEER_LOCALMSPID="${CURRENT_MSP_ID}" \
+            -e CORE_PEER_ADDRESS="${CURRENT_PEER_ADDRESS}" \
+            -e CORE_PEER_TLS_ENABLED=true \
+            -e CORE_PEER_TLS_ROOTCERT_FILE="${CURRENT_TLS_ROOTCERT}" \
+            -e CORE_PEER_MSPCONFIGPATH="${CURRENT_MSP_PATH}" \
+            -e FABRIC_CFG_PATH="${DOCKER_CONFIG_DIR}" \
+            "${CLI_CONTAINER}" peer "$@" 2>&1); then
             echo "${result}"
             return 0
         fi
@@ -245,18 +259,23 @@ create_channel() {
     IFS=':' read -r org_name msp_id peer_host peer_port <<< "${ORG_CONFIGS[0]}"
     set_org_env "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
 
-    # Create the channel
-    log_verbose "Creating channel from ${ARTIFACTS_DIR}/${CHANNEL_NAME}.tx"
+    # Docker paths for artifacts and crypto
+    local docker_channel_tx="${DOCKER_ARTIFACTS_DIR}/${CHANNEL_NAME}.tx"
+    local docker_channel_block="${DOCKER_ARTIFACTS_DIR}/${CHANNEL_NAME}.block"
+    local docker_orderer_ca="${DOCKER_CRYPTO_DIR}/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/msp/tlscacerts/tlsca.orderer.tolling.network-cert.pem"
+
+    log_verbose "Creating channel from ${docker_channel_tx}"
 
     peer_with_retry channel create \
         -o "${ORDERER_ADDRESS}" \
         -c "${CHANNEL_NAME}" \
-        -f "${ARTIFACTS_DIR}/${CHANNEL_NAME}.tx" \
-        --outputBlock "${ARTIFACTS_DIR}/${CHANNEL_NAME}.block" \
+        -f "${docker_channel_tx}" \
+        --outputBlock "${docker_channel_block}" \
         --tls \
-        --cafile "${ORDERER_CA}" \
+        --cafile "${docker_orderer_ca}" \
         --timeout "${CHANNEL_TIMEOUT}s"
 
+    # Check if block was created (on host filesystem)
     if [[ ! -f "${ARTIFACTS_DIR}/${CHANNEL_NAME}.block" ]]; then
         log_error "Failed to create channel - block file not found"
         exit 1
@@ -275,8 +294,10 @@ join_channel() {
 
     set_org_env "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
 
+    local docker_channel_block="${DOCKER_ARTIFACTS_DIR}/${CHANNEL_NAME}.block"
+
     peer_with_retry channel join \
-        -b "${ARTIFACTS_DIR}/${CHANNEL_NAME}.block"
+        -b "${docker_channel_block}"
 
     log_success "${peer_host} joined channel '${CHANNEL_NAME}'"
 }
@@ -309,12 +330,15 @@ update_anchor_peer() {
 
     set_org_env "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
 
+    local docker_anchor_file="${DOCKER_ARTIFACTS_DIR}/${msp_id}anchors.tx"
+    local docker_orderer_ca="${DOCKER_CRYPTO_DIR}/ordererOrganizations/orderer.tolling.network/orderers/orderer1.orderer.tolling.network/msp/tlscacerts/tlsca.orderer.tolling.network-cert.pem"
+
     peer_with_retry channel update \
         -o "${ORDERER_ADDRESS}" \
         -c "${CHANNEL_NAME}" \
-        -f "${anchor_file}" \
+        -f "${docker_anchor_file}" \
         --tls \
-        --cafile "${ORDERER_CA}"
+        --cafile "${docker_orderer_ca}"
 
     log_success "Anchor peer updated for ${msp_id}"
 }
@@ -347,7 +371,14 @@ verify_channel() {
         set_org_env "${org_name}" "${msp_id}" "${peer_host}" "${peer_port}"
 
         local channels
-        channels=$(peer channel list 2>&1)
+        channels=$(docker exec \
+            -e CORE_PEER_LOCALMSPID="${CURRENT_MSP_ID}" \
+            -e CORE_PEER_ADDRESS="${CURRENT_PEER_ADDRESS}" \
+            -e CORE_PEER_TLS_ENABLED=true \
+            -e CORE_PEER_TLS_ROOTCERT_FILE="${CURRENT_TLS_ROOTCERT}" \
+            -e CORE_PEER_MSPCONFIGPATH="${CURRENT_MSP_PATH}" \
+            -e FABRIC_CFG_PATH="${DOCKER_CONFIG_DIR}" \
+            "${CLI_CONTAINER}" peer channel list 2>&1)
 
         if echo "${channels}" | grep -q "${CHANNEL_NAME}"; then
             log_verbose "${peer_host} is member of '${CHANNEL_NAME}'"
@@ -425,9 +456,6 @@ main() {
     log_info "Channel Name: ${CHANNEL_NAME}"
     log_info "Orderer: ${ORDERER_ADDRESS}"
     echo ""
-
-    # Set FABRIC_CFG_PATH
-    export FABRIC_CFG_PATH="${NETWORK_CONFIG_DIR}"
 
     # Run channel operations
     check_prerequisites
